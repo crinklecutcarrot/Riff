@@ -8,6 +8,7 @@ package com.metrolist.music.ui.component
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,8 +24,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.metrolist.music.ui.theme.RiffSubtextWeight
 
 @Composable
 fun Material3MenuGroup(
@@ -32,24 +37,15 @@ fun Material3MenuGroup(
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
-        items.forEachIndexed { index, item ->
-            val shape = when {
-                items.size == 1 -> RoundedCornerShape(24.dp)
-                index == 0 -> RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 6.dp, bottomEnd = 6.dp)
-                index == items.size - 1 -> RoundedCornerShape(topStart = 6.dp, topEnd = 6.dp, bottomStart = 24.dp, bottomEnd = 24.dp)
-                else -> RoundedCornerShape(6.dp)
-            }
-
+        items.forEach { item ->
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .animateContentSize(),
-                shape = shape,
-                colors = item.cardColors ?: CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-                ),
+                shape = RoundedCornerShape(12.dp),
+                colors = item.cardColors ?: CardDefaults.cardColors(containerColor = Color.Transparent),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Material3MenuItemRow(item = item)
@@ -69,27 +65,39 @@ private fun Material3MenuItemRow(
                 enabled = item.onClick != null,
                 onClick = { item.onClick?.invoke() }
             )
-            .padding(horizontal = 20.dp, vertical = 16.dp),
+            .padding(horizontal = 12.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         item.icon?.let { icon ->
-            icon()
-            Spacer(modifier = Modifier.width(16.dp))
+            Box(
+                modifier = Modifier.width(22.dp).height(22.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                icon()
+            }
+            Spacer(modifier = Modifier.width(14.dp))
         }
 
-        Column(
-            modifier = Modifier.weight(1f)
+        Row(
+            modifier = Modifier.weight(1f),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            ProvideTextStyle(MaterialTheme.typography.titleMedium) {
+            ProvideTextStyle(
+                MaterialTheme.typography.titleSmall.copy(
+                    fontSize = 14.5.sp,
+                    fontWeight = FontWeight(550),
+                ),
+            ) {
                 item.title()
             }
 
             item.description?.let { desc ->
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.width(8.dp))
                 ProvideTextStyle(
-                    MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    MaterialTheme.typography.bodySmall.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f),
+                        fontWeight = RiffSubtextWeight,
+                    ),
                 ) {
                     desc()
                 }

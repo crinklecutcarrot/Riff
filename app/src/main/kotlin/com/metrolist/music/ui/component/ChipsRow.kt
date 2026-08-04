@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.metrolist.music.R
 import com.metrolist.music.ui.screens.OptionStats
@@ -62,6 +63,7 @@ fun <E> ChipsRow(
     onValueUpdate: (E) -> Unit,
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
+    labelStyle: TextStyle = MaterialTheme.typography.labelMedium,
 ) {
     Row(
         modifier =
@@ -74,10 +76,13 @@ fun <E> ChipsRow(
 
         chips.forEach { (value, label) ->
             FilterChip(
-                label = { Text(label) },
+                label = { Text(text = label, style = labelStyle) },
                 selected = currentValue == value,
                 colors = FilterChipDefaults.filterChipColors(
                     containerColor = containerColor,
+                    labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    selectedContainerColor = MaterialTheme.colorScheme.onBackground,
+                    selectedLabelColor = MaterialTheme.colorScheme.background,
                 ),
                 onClick = { onValueUpdate(value) },
                 shape = RoundedCornerShape(16.dp),

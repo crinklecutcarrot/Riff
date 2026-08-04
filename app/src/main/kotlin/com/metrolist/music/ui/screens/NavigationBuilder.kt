@@ -78,6 +78,10 @@ fun NavGraphBuilder.navigationBuilder(
         HomeScreen(snackbarHostState = snackbarHostState)
     }
 
+    composable(Screens.Explore.route) {
+        ExploreScreen(navController)
+    }
+
     composable(Screens.Search.route) { backStackEntry ->
         val pureBlackEnabled by rememberPreference(PureBlackKey, defaultValue = false)
         val darkTheme by rememberEnumPreference(DarkModeKey, defaultValue = DarkMode.AUTO)
@@ -193,7 +197,7 @@ fun NavGraphBuilder.navigationBuilder(
                 },
             ),
     ) {
-        AlbumScreen(navController)
+        AlbumScreen(navController, snackbarHostState)
     }
 
     composable(
@@ -237,7 +241,7 @@ fun NavGraphBuilder.navigationBuilder(
     }
 
     composable(
-        route = "artist/{artistId}/items?browseId={browseId}?params={params}",
+        route = "artist/{artistId}/items?browseId={browseId}&params={params}",
         arguments =
             listOf(
                 navArgument("artistId") {

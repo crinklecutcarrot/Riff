@@ -6,34 +6,72 @@
 package com.metrolist.music.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.metrolist.music.R
 import com.metrolist.music.constants.ThumbnailCornerRadius
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.random.Random
+
+@Composable
+fun RiffPlayingBars(
+    animated: Boolean,
+    color: Color,
+    modifier: Modifier = Modifier,
+) {
+    val transition = rememberInfiniteTransition(label = "riff_playing_bars")
+    val first by transition.animateFloat(
+        initialValue = if (animated) 5f else 7f,
+        targetValue = if (animated) 17f else 7f,
+        animationSpec = infiniteRepeatable(tween(430), RepeatMode.Reverse),
+        label = "riff_playing_bar_1",
+    )
+    val second by transition.animateFloat(
+        initialValue = 15f,
+        targetValue = if (animated) 6f else 15f,
+        animationSpec = infiniteRepeatable(tween(560), RepeatMode.Reverse),
+        label = "riff_playing_bar_2",
+    )
+    val third by transition.animateFloat(
+        initialValue = if (animated) 8f else 9f,
+        targetValue = if (animated) 16f else 9f,
+        animationSpec = infiniteRepeatable(tween(690), RepeatMode.Reverse),
+        label = "riff_playing_bar_3",
+    )
+    Row(
+        modifier = modifier.size(width = 18.dp, height = 18.dp),
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        verticalAlignment = Alignment.Bottom,
+    ) {
+        listOf(first, second, third).forEach { barHeight ->
+            Box(
+                Modifier
+                    .width(4.dp)
+                    .height(barHeight.dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(color),
+            )
+        }
+    }
+}
 
 @Composable
 fun PlayingIndicator(
@@ -43,46 +81,7 @@ fun PlayingIndicator(
     barWidth: Dp = 4.dp,
     cornerRadius: Dp = ThumbnailCornerRadius,
 ) {
-    val animatables =
-        remember {
-            List(bars) {
-                Animatable(0.1f)
-            }
-        }
-
-    LaunchedEffect(Unit) {
-        delay(300)
-        animatables.forEach { animatable ->
-            launch {
-                while (true) {
-                    animatable.animateTo(Random.nextFloat() * 0.9f + 0.1f)
-                    delay(50)
-                }
-            }
-        }
-    }
-
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.Bottom,
-        modifier = modifier,
-    ) {
-        animatables.forEach { animatable ->
-            Canvas(
-                modifier =
-                Modifier
-                    .fillMaxHeight()
-                    .width(barWidth),
-            ) {
-                drawRoundRect(
-                    color = color,
-                    topLeft = Offset(x = 0f, y = size.height * (1 - animatable.value)),
-                    size = size.copy(height = animatable.value * size.height),
-                    cornerRadius = CornerRadius(cornerRadius.toPx()),
-                )
-            }
-        }
-    }
+    RiffPlayingBars(animated = true, color = color, modifier = modifier)
 }
 
 @Composable
@@ -101,18 +100,7 @@ fun PlayingIndicatorBox(
             contentAlignment = Alignment.Center,
             modifier = modifier,
         ) {
-            if (playWhenReady) {
-                PlayingIndicator(
-                    color = color,
-                    modifier = Modifier.height(24.dp),
-                )
-            } else {
-                Icon(
-                    painter = painterResource(R.drawable.play),
-                    contentDescription = null,
-                    tint = color,
-                )
-            }
+            RiffPlayingBars(animated = playWhenReady, color = color)
         }
     }
 }

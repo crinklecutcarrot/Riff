@@ -120,6 +120,7 @@ import com.metrolist.music.extensions.toMediaItem
 import com.metrolist.music.models.MediaMetadata
 import com.metrolist.music.playback.queues.LocalAlbumRadio
 import com.metrolist.music.ui.utils.resize
+import com.metrolist.music.ui.theme.RiffSubtextWeight
 import com.metrolist.music.utils.joinByBullet
 import com.metrolist.music.utils.joinToArtistString
 import com.metrolist.music.utils.makeTimeString
@@ -148,7 +149,7 @@ fun currentGridThumbnailHeight(): Dp {
 fun ClickableArtistText(
     artists: List<ArtistEntity>,
     modifier: Modifier = Modifier,
-    style: TextStyle = MaterialTheme.typography.bodySmall,
+    style: TextStyle = MaterialTheme.typography.bodySmall.copy(fontWeight = RiffSubtextWeight),
     color: Color = LocalContentColor.current,
     maxLines: Int = 1,
     overflow: TextOverflow = TextOverflow.Ellipsis,
@@ -192,7 +193,7 @@ fun ClickableArtistText(
 fun ClickableArtistText(
     artists: List<com.metrolist.innertube.models.Artist>,
     modifier: Modifier = Modifier,
-    style: TextStyle = MaterialTheme.typography.bodySmall,
+    style: TextStyle = MaterialTheme.typography.bodySmall.copy(fontWeight = RiffSubtextWeight),
     maxLines: Int = 1,
     overflow: TextOverflow = TextOverflow.Ellipsis,
     color: Color = LocalContentColor.current
@@ -241,7 +242,7 @@ fun ClickableArtistText(
 fun ClickableArtistText(
     artists: List<MediaMetadata.Artist>,
     modifier: Modifier = Modifier,
-    style: TextStyle = MaterialTheme.typography.bodySmall,
+    style: TextStyle = MaterialTheme.typography.bodySmall.copy(fontWeight = RiffSubtextWeight),
     color: Color = LocalContentColor.current,
     maxLines: Int = 1,
     overflow: TextOverflow = TextOverflow.Ellipsis,
@@ -295,6 +296,7 @@ inline fun ListItem(
     isSelected: Boolean? = false,
     isActive: Boolean = false,
     isAvailable: Boolean = true,
+    subtitleTopPadding: Dp = 0.dp,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -361,7 +363,10 @@ inline fun ListItem(
             )
 
             if (subtitle != null) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.padding(top = subtitleTopPadding),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     subtitle()
                 }
             }
@@ -381,6 +386,7 @@ fun ListItem(
     trailingContent: @Composable RowScope.() -> Unit = {},
     isSelected: Boolean? = false,
     isActive: Boolean = false,
+    subtitleTopPadding: Dp = 0.dp,
 ) = ListItem(
     title = title,
     subtitle = {
@@ -390,6 +396,7 @@ fun ListItem(
                 text = subtitle,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.secondary,
+                fontWeight = RiffSubtextWeight,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -399,7 +406,8 @@ fun ListItem(
     trailingContent = trailingContent,
     modifier = modifier,
     isSelected = isSelected,
-    isActive = isActive
+    isActive = isActive,
+    subtitleTopPadding = subtitleTopPadding,
 )
 
 @Composable
@@ -412,6 +420,7 @@ fun ListItem(
     trailingContent: @Composable RowScope.() -> Unit = {},
     isSelected: Boolean? = false,
     isActive: Boolean = false,
+    subtitleTopPadding: Dp = 0.dp,
 ) = ListItem(
     title = title,
     subtitle = {
@@ -422,6 +431,7 @@ fun ListItem(
                 text = subtitle,
                 color = MaterialTheme.colorScheme.secondary,
                 style = MaterialTheme.typography.bodySmall,
+                fontWeight = RiffSubtextWeight,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -431,7 +441,8 @@ fun ListItem(
     trailingContent = trailingContent,
     modifier = modifier,
     isSelected = isSelected,
-    isActive = isActive
+    isActive = isActive,
+    subtitleTopPadding = subtitleTopPadding,
 )
 
 @Composable
@@ -443,8 +454,9 @@ fun GridItem(
     thumbnailContent: @Composable BoxWithConstraintsScope.() -> Unit,
     thumbnailRatio: Float = 1f,
     fillMaxWidth: Boolean = false,
+    thumbnailHeight: Dp? = null,
 ) {
-    val gridHeight = currentGridThumbnailHeight()
+    val gridHeight = thumbnailHeight ?: currentGridThumbnailHeight()
     Column(
         modifier = if (fillMaxWidth) {
             modifier
@@ -489,6 +501,7 @@ fun GridItem(
     thumbnailContent: @Composable BoxWithConstraintsScope.() -> Unit,
     thumbnailRatio: Float = 1f,
     fillMaxWidth: Boolean = false,
+    thumbnailHeight: Dp? = null,
 ) = GridItem(
     modifier = modifier,
     title = {
@@ -507,13 +520,15 @@ fun GridItem(
             text = subtitle,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.secondary,
+            fontWeight = RiffSubtextWeight,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
     },
     thumbnailContent = thumbnailContent,
     thumbnailRatio = thumbnailRatio,
-    fillMaxWidth = fillMaxWidth
+    fillMaxWidth = fillMaxWidth,
+    thumbnailHeight = thumbnailHeight,
 )
 
 @Composable
@@ -525,6 +540,7 @@ fun SongListItem(
     showInLibraryIcon: Boolean = false,
     showDownloadIcon: Boolean = true,
     subtitleOverride: String? = null,
+    subtitleTopPadding: Dp = 0.dp,
     badges: @Composable RowScope.() -> Unit = {
         if (showLikedIcon && song.song.liked) {
             Icon.Favorite()
@@ -556,12 +572,13 @@ fun SongListItem(
                   badges()
                   if (subtitleOverride == null) {
                       Text(
-                          text = joinByBullet(
+                          text = listOf(
                               song.orderedArtists.joinToArtistString(" ${stringResource(R.string.and)} ") { it.name },
-                              makeTimeString(song.song.duration * 1000L)
-                          ),
+                              makeTimeString(song.song.duration * 1000L),
+                          ).filter { it.isNotBlank() }.joinToString(separator = "  •  "),
                           style = MaterialTheme.typography.bodySmall,
                           color = MaterialTheme.colorScheme.secondary,
+                          fontWeight = RiffSubtextWeight,
                           maxLines = 1,
                           overflow = TextOverflow.Ellipsis,
                       )
@@ -570,6 +587,7 @@ fun SongListItem(
                          text = subtitleOverride,
                          style = MaterialTheme.typography.bodySmall,
                          color = MaterialTheme.colorScheme.secondary,
+                         fontWeight = RiffSubtextWeight,
                          maxLines = 1,
                          overflow = TextOverflow.Ellipsis,
                      )
@@ -589,7 +607,8 @@ fun SongListItem(
              trailingContent = trailingContent,
              modifier = modifier,
              isSelected = isSelected,
-             isActive = isActive
+             isActive = isActive,
+             subtitleTopPadding = subtitleTopPadding,
          )
      }
 
@@ -646,6 +665,7 @@ fun SongGridItem(
             ),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.secondary,
+            fontWeight = RiffSubtextWeight,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
@@ -796,6 +816,7 @@ fun AlbumListItem(
             ),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.secondary,
+            fontWeight = RiffSubtextWeight,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -818,6 +839,7 @@ fun AlbumGridItem(
     album: Album,
     modifier: Modifier = Modifier,
     coroutineScope: CoroutineScope,
+    showLikedIcon: Boolean = true,
     badges: @Composable RowScope.() -> Unit = {
         val downloadUtil = LocalDownloadUtil.current
         val database = LocalDatabase.current
@@ -844,7 +866,7 @@ fun AlbumGridItem(
             )
         }
 
-        if (album.album.bookmarkedAt != null) {
+        if (showLikedIcon && album.album.bookmarkedAt != null) {
             Icon.Favorite()
         }
         if (album.album.explicit) {
@@ -871,6 +893,7 @@ fun AlbumGridItem(
              text = album.artists.joinToArtistString(" ${stringResource(R.string.and)} ") { it.name },
              style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.secondary,
+            fontWeight = RiffSubtextWeight,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
@@ -1054,6 +1077,7 @@ fun PlaylistGridItem(
             text = subtitle,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.secondary,
+            fontWeight = RiffSubtextWeight,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
@@ -1119,7 +1143,7 @@ fun MediaMetadataListItem(
                         }
                     }
                 },
-                style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.secondary),
+                style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.secondary, fontWeight = RiffSubtextWeight),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -1151,6 +1175,7 @@ fun YouTubeListItem(
     isActive: Boolean = false,
     isPlaying: Boolean = false,
     isSwipeable: Boolean = true,
+    subtitleTopPadding: Dp = 0.dp,
     trailingContent: @Composable RowScope.() -> Unit = {},
     badges: @Composable RowScope.() -> Unit = {
         val database = LocalDatabase.current
@@ -1203,7 +1228,8 @@ fun YouTubeListItem(
             },
             trailingContent = trailingContent,
             modifier = modifier,
-            isActive = isActive
+            isActive = isActive,
+            subtitleTopPadding = subtitleTopPadding,
         )
     }
 
@@ -1249,6 +1275,7 @@ fun YouTubeGridItem(
     isActive: Boolean = false,
     isPlaying: Boolean = false,
     fillMaxWidth: Boolean = false,
+    thumbnailHeight: Dp? = null,
 ) = GridItem(
     title = {
         Text(
@@ -1275,6 +1302,7 @@ fun YouTubeGridItem(
                 text = subtitle,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.secondary,
+                fontWeight = RiffSubtextWeight,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -1316,11 +1344,12 @@ fun YouTubeGridItem(
                         }
                     }
                 }
-            }
+            },
         )
     },
     thumbnailRatio = thumbnailRatio,
     fillMaxWidth = fillMaxWidth,
+    thumbnailHeight = thumbnailHeight,
     modifier = modifier
 )
 
@@ -1341,6 +1370,7 @@ fun LocalSongsGrid(
             text = subtitle,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.secondary,
+            fontWeight = RiffSubtextWeight,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.basicMarquee(
@@ -1383,6 +1413,7 @@ fun LocalArtistsGrid(
             text = subtitle,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.secondary,
+            fontWeight = RiffSubtextWeight,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.basicMarquee(
@@ -1425,6 +1456,7 @@ fun LocalAlbumsGrid(
             text = subtitle,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.secondary,
+            fontWeight = RiffSubtextWeight,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.basicMarquee(

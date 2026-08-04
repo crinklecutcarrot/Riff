@@ -720,6 +720,7 @@ fun LibraryMixScreen(
                             is Album -> {
                                 AlbumListItem(
                                     album = item,
+                                    badges = {},
                                     isActive = item.id == mediaMetadata?.album?.id,
                                     isPlaying = isPlaying,
                                     trailingContent = {
@@ -1013,6 +1014,7 @@ fun LibraryMixScreen(
                             is Album -> {
                                 AlbumGridItem(
                                     album = item,
+                                    badges = {},
                                     isActive = item.id == mediaMetadata?.album?.id,
                                     isPlaying = isPlaying,
                                     coroutineScope = coroutineScope,
@@ -1064,13 +1066,15 @@ fun LibraryMixScreen(
         // Always visible + button (no scroll hiding)
         FloatingActionButton(
             onClick = { showCreatePlaylistDialog = true },
+            containerColor = MaterialTheme.colorScheme.onBackground,
+            contentColor = MaterialTheme.colorScheme.background,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .windowInsetsPadding(
                     LocalPlayerAwareWindowInsets.current
                         .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal)
                 )
-                .padding(16.dp)
+                .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 0.dp)
         ) {
             Icon(
                 painter = painterResource(R.drawable.add),

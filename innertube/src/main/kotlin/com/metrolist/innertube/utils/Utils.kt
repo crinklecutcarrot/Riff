@@ -3,6 +3,7 @@ package com.metrolist.innertube.utils
 import com.metrolist.innertube.YouTube
 import com.metrolist.innertube.pages.LibraryPage
 import com.metrolist.innertube.pages.PlaylistPage
+import timber.log.Timber
 import java.security.MessageDigest
 
 @JvmName("completedLibrary")
@@ -12,21 +13,29 @@ suspend fun Result<PlaylistPage>.completed(): Result<PlaylistPage> = runCatching
     var continuation = page.songsContinuation
     val seenContinuations = mutableSetOf<String>()
     var requestCount = 0
-    val maxRequests = 50
+    // Large libraries routinely exceed 50 pages. Repeated-token detection below
+    // is the real infinite-loop guard; this ceiling is only a final safety valve.
+    val maxRequests = 1000
     var consecutiveEmptyResponses = 0
     
     while (continuation != null && requestCount < maxRequests) {
         if (continuation in seenContinuations) {
-            break
+            error("Playlist pagination repeated a continuation token")
         }
         seenContinuations.add(continuation)
         requestCount++
         
-        val continuationPage = YouTube.playlistContinuation(continuation).getOrNull() ?: break
+        val continuationPage = YouTube.playlistContinuation(continuation).getOrThrow()
         
         if (continuationPage.songs.isEmpty()) {
             consecutiveEmptyResponses++
-            if (consecutiveEmptyResponses >= 2) break
+            // YouTube occasionally returns one or more empty continuation pages at
+            // the natural end of large libraries. The token can still change, so
+            // repeated-token detection alone cannot identify this terminal state.
+            if (consecutiveEmptyResponses >= 2) {
+                continuation = null
+                break
+            }
         } else {
             consecutiveEmptyResponses = 0
             songs += continuationPage.songs
@@ -34,6 +43,7 @@ suspend fun Result<PlaylistPage>.completed(): Result<PlaylistPage> = runCatching
         
         continuation = continuationPage.continuation
     }
+    if (continuation != null) error("Playlist pagination exceeded $maxRequests requests")
     PlaylistPage(
         playlist = page.playlist,
         songs = songs,
@@ -49,21 +59,36 @@ suspend fun Result<LibraryPage>.completed(): Result<LibraryPage> = runCatching {
     var continuation = page.continuation
     val seenContinuations = mutableSetOf<String>()
     var requestCount = 0
-    val maxRequests = 50
+    // Large libraries routinely exceed 50 pages. Repeated-token detection below
+    // is the real infinite-loop guard; this ceiling is only a final safety valve.
+    val maxRequests = 1000
     var consecutiveEmptyResponses = 0
     
     while (continuation != null && requestCount < maxRequests) {
         if (continuation in seenContinuations) {
-            break
+            error("Library pagination repeated a continuation token")
         }
         seenContinuations.add(continuation)
         requestCount++
         
-        val continuationPage = YouTube.libraryContinuation(continuation).getOrNull() ?: break
+        val continuationPage = YouTube.libraryContinuation(continuation).getOrThrow()
+        if (requestCount == 1 || requestCount % 25 == 0) {
+            Timber.d(
+                "Library pagination page=%d pageItems=%d totalItems=%d",
+                requestCount,
+                continuationPage.items.size,
+                items.size + continuationPage.items.size,
+            )
+        }
         
         if (continuationPage.items.isEmpty()) {
             consecutiveEmptyResponses++
-            if (consecutiveEmptyResponses >= 2) break
+            // Large YouTube Music library feeds commonly finish with empty
+            // continuation responses rather than a response without a token.
+            if (consecutiveEmptyResponses >= 2) {
+                continuation = null
+                break
+            }
         } else {
             consecutiveEmptyResponses = 0
             items += continuationPage.items
@@ -71,6 +96,8 @@ suspend fun Result<LibraryPage>.completed(): Result<LibraryPage> = runCatching {
         
         continuation = continuationPage.continuation
     }
+    if (continuation != null) error("Library pagination exceeded $maxRequests requests")
+    Timber.d("Library pagination completed pages=%d items=%d", requestCount, items.size)
     LibraryPage(
         items = items,
         continuation = null

@@ -86,7 +86,7 @@ import kotlinx.coroutines.withContext
 @Composable
 fun LibraryAlbumsScreen(
     navController: NavController,
-    onDeselect: () -> Unit,
+    libraryHeader: @Composable () -> Unit,
     viewModel: LibraryAlbumsViewModel = hiltViewModel(),
 ) {
     val menuState = LocalMenuState.current
@@ -98,7 +98,7 @@ fun LibraryAlbumsScreen(
     val mediaMetadata by playerConnection.mediaMetadata.collectAsStateWithLifecycle()
 
     var viewType by rememberEnumPreference(AlbumViewTypeKey, LibraryViewType.GRID)
-    var filter by rememberEnumPreference(AlbumFilterKey, AlbumFilter.LIKED)
+    var filter by rememberEnumPreference(AlbumFilterKey, AlbumFilter.LIBRARY)
     val (sortType, onSortTypeChange) =
         rememberEnumPreference(
             AlbumSortTypeKey,
@@ -111,22 +111,11 @@ fun LibraryAlbumsScreen(
     val hideExplicit by rememberPreference(key = HideExplicitKey, defaultValue = false)
 
     val filterContent = @Composable {
-        Row {
-            Spacer(Modifier.width(12.dp))
-            FilterChip(
-                label = { Text(stringResource(R.string.albums)) },
-                selected = true,
-                colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surface),
-                onClick = onDeselect,
-                shape = RoundedCornerShape(16.dp),
-                leadingIcon = {
-                    Icon(painter = painterResource(R.drawable.close), contentDescription = "")
-                },
-            )
+        androidx.compose.foundation.layout.Column {
+            libraryHeader()
             ChipsRow(
                 chips =
                     listOf(
-                        AlbumFilter.LIKED to stringResource(R.string.filter_liked),
                         AlbumFilter.LIBRARY to stringResource(R.string.filter_library),
                         AlbumFilter.UPLOADED to stringResource(R.string.filter_uploaded),
                     ),
@@ -134,9 +123,12 @@ fun LibraryAlbumsScreen(
                 onValueUpdate = {
                     filter = it
                 },
-                modifier = Modifier.weight(1f),
             )
         }
+    }
+
+    LaunchedEffect(filter) {
+        if (filter == AlbumFilter.LIKED) filter = AlbumFilter.LIBRARY
     }
 
     LaunchedEffect(Unit) {

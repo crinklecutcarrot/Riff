@@ -43,6 +43,7 @@ fun NavigationTitle(
     thumbnail: (@Composable () -> Unit)? = null,
     onClick: (() -> Unit)? = null,
     onPlayAllClick: (() -> Unit)? = null,
+    actionText: String? = null,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -98,7 +99,14 @@ fun NavigationTitle(
             }
         }
 
-        if (onClick != null) {
+        if (onClick != null && actionText != null) {
+            Text(
+                text = actionText,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+            )
+        } else if (onClick != null) {
             Icon(
                 painter = painterResource(R.drawable.arrow_forward),
                 contentDescription = null,

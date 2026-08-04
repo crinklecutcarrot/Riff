@@ -80,7 +80,7 @@ import kotlinx.coroutines.withContext
 @Composable
 fun LibraryArtistsScreen(
     navController: NavController,
-    onDeselect: () -> Unit,
+    libraryHeader: @Composable () -> Unit,
     viewModel: LibraryArtistsViewModel = hiltViewModel(),
 ) {
     val menuState = LocalMenuState.current
@@ -89,7 +89,7 @@ fun LibraryArtistsScreen(
     val coroutineScope = rememberCoroutineScope()
     var viewType by rememberEnumPreference(ArtistViewTypeKey, LibraryViewType.GRID)
 
-    var filter by rememberEnumPreference(ArtistFilterKey, ArtistFilter.LIKED)
+    var filter by rememberEnumPreference(ArtistFilterKey, ArtistFilter.LIBRARY)
     val (sortType, onSortTypeChange) = rememberEnumPreference(
         ArtistSortTypeKey,
         ArtistSortType.CREATE_DATE
@@ -98,32 +98,10 @@ fun LibraryArtistsScreen(
     val gridItemSize by rememberEnumPreference(GridItemsSizeKey, GridItemSize.BIG)
     val (ytmSync) = rememberPreference(YtmSyncKey, true)
 
-    val filterContent = @Composable {
-        Row {
-            Spacer(Modifier.width(12.dp))
-            FilterChip(
-                label = { Text(stringResource(R.string.artists)) },
-                selected = true,
-                colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surface),
-                onClick = onDeselect,
-                shape = RoundedCornerShape(16.dp),
-                leadingIcon = {
-                    Icon(painter = painterResource(R.drawable.close), contentDescription = "")
-                },
-            )
-            ChipsRow(
-                chips =
-                listOf(
-                    ArtistFilter.LIKED to stringResource(R.string.filter_liked),
-                    ArtistFilter.LIBRARY to stringResource(R.string.filter_library)
-                ),
-                currentValue = filter,
-                onValueUpdate = {
-                    filter = it
-                },
-                modifier = Modifier.weight(1f),
-            )
-        }
+    val filterContent = libraryHeader
+
+    LaunchedEffect(filter) {
+        if (filter != ArtistFilter.LIBRARY) filter = ArtistFilter.LIBRARY
     }
 
     LaunchedEffect(Unit) {

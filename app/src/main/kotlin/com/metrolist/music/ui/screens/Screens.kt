@@ -24,6 +24,13 @@ sealed class Screens(
         route = "home"
     )
 
+    object Explore : Screens(
+        titleId = R.string.search,
+        iconIdInactive = R.drawable.search,
+        iconIdActive = R.drawable.search,
+        route = "explore"
+    )
+
     object Search : Screens(
         titleId = R.string.search,
         iconIdInactive = R.drawable.search,
@@ -46,6 +53,9 @@ sealed class Screens(
     )
 
     companion object {
-        val MainScreens = listOf(Home, Search, ListenTogether, Library)
+        // Search is now the Explore/Search/Discover hub. Search remains a
+        // routable screen for focused input and results, but is no longer a
+        // separate bottom-navigation destination.
+        val MainScreens = listOf(Home, Explore, ListenTogether, Library)
     }
 }

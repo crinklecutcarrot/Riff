@@ -195,6 +195,7 @@ fun OriginalLyrics(
     sliderPositionProvider: () -> Long?,
     modifier: Modifier = Modifier,
     showLyrics: Boolean,
+    expressiveAccentOverride: Color? = null,
 ) {
     val playerConnection = LocalPlayerConnection.current ?: return
     val database = LocalDatabase.current
@@ -423,7 +424,7 @@ fun OriginalLyrics(
 
     // Use Material 3 expressive accents and keep glow/text colors unified
     val expressiveAccent =
-        when (playerBackground) {
+        expressiveAccentOverride ?: when (playerBackground) {
             PlayerBackgroundStyle.DEFAULT -> {
                 MaterialTheme.colorScheme.primary
             }

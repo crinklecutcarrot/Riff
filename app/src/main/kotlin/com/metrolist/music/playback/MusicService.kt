@@ -105,6 +105,7 @@ import com.metrolist.music.constants.AudioOffload
 import com.metrolist.music.constants.AudioQualityKey
 import com.metrolist.music.constants.AudioTrackPlaybackParamsKey
 import com.metrolist.music.constants.AutoDownloadOnLikeKey
+import com.metrolist.music.constants.DislikedSongsKey
 import com.metrolist.music.constants.AutoLoadMoreKey
 import com.metrolist.music.constants.AutoSkipNextOnErrorKey
 import com.metrolist.music.constants.StreamSourceAndroidVRKey
@@ -194,6 +195,7 @@ import com.metrolist.music.extensions.toQueue
 import com.metrolist.music.lyrics.LyricsHelper
 import com.metrolist.music.models.PersistPlayerState
 import com.metrolist.music.models.PersistQueue
+import com.metrolist.music.models.SongRating
 import com.metrolist.music.models.toMediaMetadata
 import com.metrolist.music.playback.alarm.MusicAlarmScheduler
 import com.metrolist.music.playback.alarm.MusicAlarmStore
@@ -211,6 +213,8 @@ import com.metrolist.music.utils.CoilBitmapLoader
 import com.metrolist.music.utils.NetworkConnectivityObserver
 import com.metrolist.music.utils.ScrobbleManager
 import com.metrolist.music.utils.SyncUtils
+import com.metrolist.music.utils.RemoteMutationResult
+import com.metrolist.music.utils.SongRatingSyncResult
 import com.metrolist.music.utils.getArtistSeparator
 import com.metrolist.music.utils.joinToArtistString
 import com.metrolist.music.utils.YTPlayerUtils
@@ -249,6 +253,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import timber.log.Timber
@@ -318,6 +324,7 @@ class MusicService :
         }
 
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private val songRatingMutex = Mutex()
 
     private val binder = MusicBinder()
 
@@ -2155,16 +2162,18 @@ class MusicService :
             val songToToggle = currentSong.first()
             songToToggle?.let {
                 val isInLibrary = it.song.inLibrary != null
-                val token = if (isInLibrary) it.song.libraryRemoveToken else it.song.libraryAddToken
-
-                token?.let { feedbackToken ->
-                    YouTube.feedback(listOf(feedbackToken))
-                }
-
+                val updatedSong = it.song.toggleLibrary(syncToYouTube = false)
                 database.query {
-                    update(it.song.toggleLibrary())
+                    update(updatedSong)
                 }
                 currentMediaMetadata.value = player.currentMetadata
+
+                val result = syncUtils.setSongLibraryNow(it.song.id, saved = !isInLibrary)
+                if (result != RemoteMutationResult.SUCCESS) {
+                    database.query { update(it.song) }
+                    currentMediaMetadata.value = player.currentMetadata
+                    Timber.w("Restored local library state after YouTube rejected toggle for ${it.song.id}: $result")
+                }
             }
         }
     }
@@ -2181,31 +2190,108 @@ class MusicService :
                     return@let
                 }
 
-                val song = songEntity.toggleLike()
-
-                updateNotification(isLiked = song.liked)
-                updateWidgetUI(player.isPlaying, isLiked = song.liked)
-
-                database.query {
-                    update(song)
-                    syncUtils.likeSong(song)
-
-                    if (dataStore.get(AutoDownloadOnLikeKey, false) && song.liked) {
-                        val downloadRequest =
-                            androidx.media3.exoplayer.offline.DownloadRequest
-                                .Builder(song.id, song.id.toUri())
-                                .setCustomCacheKey(song.id)
-                                .setData(song.title.toByteArray())
-                                .build()
-                        androidx.media3.exoplayer.offline.DownloadService.sendAddDownload(
-                            this@MusicService,
-                            ExoDownloadService::class.java,
-                            downloadRequest,
-                            false,
-                        )
+                val dislikedSongs = dataStore.get(DislikedSongsKey, emptySet())
+                val currentRating =
+                    when {
+                        songEntity.liked -> SongRating.LIKED
+                        songEntity.id in dislikedSongs -> SongRating.DISLIKED
+                        else -> SongRating.NEUTRAL
                     }
+                setSongRating(if (currentRating == SongRating.LIKED) SongRating.NEUTRAL else SongRating.LIKED)
+            }
+        }
+    }
+
+    fun toggleDislike() {
+        scope.launch {
+            val songEntity = currentSong.first()?.song ?: return@launch
+            if (songEntity.isEpisode) return@launch
+
+            val dislikedSongs = dataStore.get(DislikedSongsKey, emptySet())
+            val rating =
+                if (!songEntity.liked && songEntity.id in dislikedSongs) {
+                    SongRating.NEUTRAL
+                } else {
+                    SongRating.DISLIKED
                 }
-                currentMediaMetadata.value = player.currentMetadata
+            setSongRating(rating)
+        }
+    }
+
+    private suspend fun setSongRating(rating: SongRating) = songRatingMutex.withLock {
+        val songEntity = currentSong.first()?.song ?: return@withLock
+        val wasDisliked = songEntity.id in dataStore.get(DislikedSongsKey, emptySet())
+        val isLiked = rating == SongRating.LIKED
+        val updatedSong =
+            songEntity.copy(
+                liked = isLiked,
+                likedDate = if (isLiked) LocalDateTime.now() else null,
+                inLibrary = if (isLiked) songEntity.inLibrary ?: LocalDateTime.now() else songEntity.inLibrary,
+            )
+
+        safeDataStoreEdit { settings ->
+            val dislikedSongs = settings[DislikedSongsKey].orEmpty().toMutableSet()
+            if (rating == SongRating.DISLIKED) {
+                dislikedSongs += songEntity.id
+            } else {
+                dislikedSongs -= songEntity.id
+            }
+            settings[DislikedSongsKey] = dislikedSongs
+        }
+
+        database.query {
+            update(updatedSong)
+        }
+        if (player.currentMediaItem?.mediaId == songEntity.id) {
+            updateNotification(isLiked = isLiked)
+            updateWidgetUI(player.isPlaying, isLiked = isLiked)
+            currentMediaMetadata.value = player.currentMetadata
+        }
+
+        val syncResult = syncUtils.rateSongNow(songEntity.id, rating)
+        when (syncResult) {
+            SongRatingSyncResult.SUCCESS -> {
+                if (dataStore.get(AutoDownloadOnLikeKey, false) && isLiked) {
+                    val downloadRequest =
+                        androidx.media3.exoplayer.offline.DownloadRequest
+                            .Builder(songEntity.id, songEntity.id.toUri())
+                            .setCustomCacheKey(songEntity.id)
+                            .setData(songEntity.title.toByteArray())
+                            .build()
+                    androidx.media3.exoplayer.offline.DownloadService.sendAddDownload(
+                        this@MusicService,
+                        ExoDownloadService::class.java,
+                        downloadRequest,
+                        false,
+                    )
+                }
+            }
+
+            SongRatingSyncResult.NOT_LOGGED_IN,
+            SongRatingSyncResult.FAILED
+            -> {
+                safeDataStoreEdit { settings ->
+                    val dislikedSongs = settings[DislikedSongsKey].orEmpty().toMutableSet()
+                    if (wasDisliked) dislikedSongs += songEntity.id else dislikedSongs -= songEntity.id
+                    settings[DislikedSongsKey] = dislikedSongs
+                }
+                database.query {
+                    update(songEntity)
+                }
+
+                if (player.currentMediaItem?.mediaId == songEntity.id) {
+                    updateNotification(isLiked = songEntity.liked)
+                    updateWidgetUI(player.isPlaying, isLiked = songEntity.liked)
+                    currentMediaMetadata.value = player.currentMetadata
+                }
+
+                val message =
+                    if (syncResult == SongRatingSyncResult.NOT_LOGGED_IN) {
+                        R.string.riff_rating_login_required
+                    } else {
+                        R.string.riff_rating_sync_failed
+                    }
+                Toast.makeText(this@MusicService, message, Toast.LENGTH_SHORT).show()
             }
         }
     }

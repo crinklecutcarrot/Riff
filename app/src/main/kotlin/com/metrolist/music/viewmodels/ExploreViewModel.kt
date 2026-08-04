@@ -9,12 +9,16 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.metrolist.innertube.YouTube
+import com.metrolist.innertube.models.AlbumItem
 import com.metrolist.innertube.models.filterExplicit
+import com.metrolist.innertube.utils.completed
 import com.metrolist.innertube.pages.ExplorePage
 import com.metrolist.music.constants.HideExplicitKey
 import com.metrolist.music.db.MusicDatabase
 import com.metrolist.music.utils.dataStore
 import com.metrolist.music.utils.get
+import com.metrolist.music.utils.RemoteMutationResult
+import com.metrolist.music.utils.SyncUtils
 import com.metrolist.music.utils.reportException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -30,13 +34,22 @@ class ExploreViewModel
 constructor(
     @ApplicationContext val context: Context,
     val database: MusicDatabase,
+    private val syncUtils: SyncUtils,
 ) : ViewModel() {
     val explorePage = MutableStateFlow<ExplorePage?>(null)
+    val savedAlbumIds = MutableStateFlow<Set<String>>(emptySet())
+    val albumSavedOverrides = MutableStateFlow<Map<String, Boolean>>(emptyMap())
+    val libraryAlbumStateLoaded = MutableStateFlow(false)
+    val mutationError = MutableStateFlow(false)
 
     private suspend fun load() {
         YouTube
             .explore()
             .onSuccess { page ->
+                val releases =
+                    page.newReleaseAlbums.ifEmpty {
+                        YouTube.newReleaseAlbums().getOrDefault(emptyList())
+                    }
                 val artists: MutableMap<Int, String> = mutableMapOf()
                 val favouriteArtists: MutableMap<Int, String> = mutableMapOf()
                 database.allArtistsByPlayTime().first().let { list ->
@@ -52,7 +65,7 @@ constructor(
                 explorePage.value =
                     page.copy(
                         newReleaseAlbums =
-                        page.newReleaseAlbums
+                        releases
                             .sortedBy { album ->
                                 val artistIds = album.artists.orEmpty().mapNotNull { it.id }
                                 val firstArtistKey =
@@ -75,5 +88,46 @@ constructor(
         viewModelScope.launch(Dispatchers.IO) {
             load()
         }
+        viewModelScope.launch(Dispatchers.IO) {
+            YouTube.library("FEmusic_liked_albums").completed()
+                .onSuccess { page ->
+                    savedAlbumIds.value =
+                        page.items
+                            .filterIsInstance<AlbumItem>()
+                            .flatMap(::albumKeys)
+                            .toSet()
+                    libraryAlbumStateLoaded.value = true
+                }.onFailure(::reportException)
+        }
+    }
+
+    fun toggleAlbumSaved(album: AlbumItem) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val keys = albumKeys(album).toSet()
+            val oldIds = savedAlbumIds.value
+            val oldOverrides = albumSavedOverrides.value
+            val current = keys.firstNotNullOfOrNull { oldOverrides[it] } ?: keys.any { it in oldIds }
+            val shouldSave = !current
+
+            albumSavedOverrides.value = oldOverrides + keys.associateWith { shouldSave }
+            savedAlbumIds.value = if (shouldSave) oldIds + keys else oldIds - keys
+
+            if (syncUtils.setPlaylistSavedNow(album.playlistId, shouldSave) != RemoteMutationResult.SUCCESS) {
+                albumSavedOverrides.value = oldOverrides
+                savedAlbumIds.value = oldIds
+                mutationError.value = true
+            }
+        }
+    }
+
+    fun clearMutationError() {
+        mutationError.value = false
     }
 }
+
+private fun albumKeys(album: AlbumItem): List<String> =
+    listOf(
+        album.browseId,
+        album.playlistId,
+        "album:${album.title.lowercase().filter(Char::isLetterOrDigit)}:${album.year?.toString().orEmpty()}",
+    )

@@ -27,9 +27,33 @@ data class MusicResponsiveListItemRenderer(
     val thumbnail: ThumbnailRenderer?,
     val menu: Menu?,
     val playlistItemData: PlaylistItemData?,
+    val customIndexColumn: CustomIndexColumn? = null,
     val overlay: Overlay?,
     val navigationEndpoint: NavigationEndpoint?,
 ) {
+    @Serializable
+    data class CustomIndexColumn(
+        val musicCustomIndexColumnRenderer: MusicCustomIndexColumnRenderer,
+    ) {
+        @Serializable
+        data class MusicCustomIndexColumnRenderer(
+            val text: Runs? = null,
+            val icon: Icon? = null,
+            val iconColorStyle: String? = null,
+            val accessibilityData: AccessibilityData? = null,
+        )
+
+        @Serializable
+        data class AccessibilityData(
+            val accessibilityData: AccessibilityLabel? = null,
+        )
+
+        @Serializable
+        data class AccessibilityLabel(
+            val label: String? = null,
+        )
+    }
+
     val isSong: Boolean
         get() = navigationEndpoint == null
             || navigationEndpoint.watchEndpoint != null

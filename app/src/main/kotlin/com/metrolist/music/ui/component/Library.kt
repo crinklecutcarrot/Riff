@@ -104,6 +104,7 @@ fun LibraryAlbumListItem(
     val navController = LocalNavController.current
     AlbumListItem(
     album = album,
+    showLikedIcon = false,
     isActive = isActive,
     isPlaying = isPlaying,
     trailingContent = {
@@ -144,6 +145,7 @@ fun LibraryAlbumGridItem(
     val navController = LocalNavController.current
     AlbumGridItem(
     album = album,
+    showLikedIcon = false,
     isActive = isActive,
     isPlaying = isPlaying,
     coroutineScope = coroutineScope,
@@ -226,8 +228,8 @@ fun LibraryPlaylistListItem(
     modifier = modifier
         .fillMaxWidth()
         .clickable {
-            if (!playlist.playlist.isEditable && playlist.songCount == 0 && playlist.playlist.browseId != null)
-                navController.navigate("online_playlist/${playlist.playlist.browseId}")
+            if (playlist.playlist.browseId != null)
+                navController.navigate("online_playlist/${playlist.playlist.browseId!!.removePrefix("VL")}")
             else
                 navController.navigate("local_playlist/${playlist.id}")
         }
@@ -250,8 +252,8 @@ fun LibraryPlaylistGridItem(
         .fillMaxWidth()
         .combinedClickable(
             onClick = {
-                if (!playlist.playlist.isEditable && playlist.songCount == 0 && playlist.playlist.browseId != null)
-                    navController.navigate("online_playlist/${playlist.playlist.browseId}")
+                if (playlist.playlist.browseId != null)
+                    navController.navigate("online_playlist/${playlist.playlist.browseId!!.removePrefix("VL")}")
                 else
                     navController.navigate("local_playlist/${playlist.id}")
             },

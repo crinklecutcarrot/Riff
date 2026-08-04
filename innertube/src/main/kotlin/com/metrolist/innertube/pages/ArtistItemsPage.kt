@@ -20,6 +20,21 @@ data class ArtistItemsPage(
 ) {
     companion object {
         fun fromMusicResponsiveListItemRenderer(renderer: MusicResponsiveListItemRenderer): SongItem? {
+            val subtitleRuns = renderer.flexColumns
+                .getOrNull(1)
+                ?.musicResponsiveListItemFlexColumnRenderer
+                ?.text
+                ?.runs
+            // The plays renderer can be a later flex column instead of the subtitle
+            // or a fixed column. Scan every non-title flex column and every fixed
+            // column to support each artist-list response layout.
+            val metadataRuns = renderer.flexColumns
+                .drop(1)
+                .flatMap { column ->
+                    column.musicResponsiveListItemFlexColumnRenderer.text?.runs.orEmpty()
+                } + renderer.fixedColumns.orEmpty().flatMap { column ->
+                    column.musicResponsiveListItemFlexColumnRenderer.text?.runs.orEmpty()
+                }
             val artistRuns = renderer.flexColumns
                 .getOrNull(1)
                 ?.musicResponsiveListItemFlexColumnRenderer
@@ -71,6 +86,7 @@ data class ArtistItemsPage(
                     ?.musicResponsiveListItemFlexColumnRenderer?.text
                     ?.runs?.firstOrNull()
                     ?.text?.parseTime(),
+                viewsText = PageHelper.extractViewCountText(metadataRuns),
                 musicVideoType = renderer.musicVideoType,
                 thumbnail = renderer.thumbnail?.getThumbnailUrl() ?: return null,
                 explicit = renderer.badges?.find {
@@ -125,6 +141,7 @@ data class ArtistItemsPage(
                         artists = artists.ifEmpty { null } ?: return null,
                         album = null,
                         duration = null,
+                        viewsText = PageHelper.extractViewCountText(subtitleRuns),
                         musicVideoType = renderer.musicVideoType,
                         thumbnail = renderer.thumbnailRenderer.getThumbnailUrl() ?: return null,
                         endpoint = renderer.navigationEndpoint.watchEndpoint

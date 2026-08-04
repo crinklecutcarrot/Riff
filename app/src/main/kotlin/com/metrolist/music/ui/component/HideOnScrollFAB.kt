@@ -28,6 +28,7 @@ import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -42,6 +43,9 @@ fun BoxScope.HideOnScrollFAB(
     @DrawableRes icon: Int,
     onClick: () -> Unit,
     onRecognitionClick: (() -> Unit)? = null,
+    containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+    bottomPadding: androidx.compose.ui.unit.Dp = 16.dp,
 ) {
     AnimatedVisibility(
         visible = visible && lazyListState.isScrollingUp(),
@@ -57,7 +61,7 @@ fun BoxScope.HideOnScrollFAB(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = bottomPadding)
         ) {
             if (onRecognitionClick != null) {
                 SmallFloatingActionButton(
@@ -76,6 +80,8 @@ fun BoxScope.HideOnScrollFAB(
             }
             FloatingActionButton(
                 onClick = onClick,
+                containerColor = containerColor,
+                contentColor = contentColor,
             ) {
                 Icon(
                     painter = painterResource(icon),
@@ -93,6 +99,9 @@ fun BoxScope.HideOnScrollFAB(
     @DrawableRes icon: Int,
     onClick: () -> Unit,
     onRecognitionClick: (() -> Unit)? = null,
+    containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+    bottomPadding: androidx.compose.ui.unit.Dp = 16.dp,
 ) {
     AnimatedVisibility(
         visible = visible && lazyListState.isScrollingUp(),
@@ -108,7 +117,7 @@ fun BoxScope.HideOnScrollFAB(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = bottomPadding)
         ) {
             if (onRecognitionClick != null) {
                 SmallFloatingActionButton(
@@ -127,6 +136,8 @@ fun BoxScope.HideOnScrollFAB(
             }
             FloatingActionButton(
                 onClick = onClick,
+                containerColor = containerColor,
+                contentColor = contentColor,
             ) {
                 Icon(
                     painter = painterResource(icon),
@@ -144,6 +155,9 @@ fun BoxScope.HideOnScrollFAB(
     @DrawableRes icon: Int,
     onClick: () -> Unit,
     onRecognitionClick: (() -> Unit)? = null,
+    containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+    bottomPadding: androidx.compose.ui.unit.Dp = 16.dp,
 ) {
     AnimatedVisibility(
         visible = visible && scrollState.isScrollingUp(),
@@ -159,7 +173,7 @@ fun BoxScope.HideOnScrollFAB(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = bottomPadding)
         ) {
             if (onRecognitionClick != null) {
                 SmallFloatingActionButton(
@@ -178,6 +192,8 @@ fun BoxScope.HideOnScrollFAB(
             }
             FloatingActionButton(
                 onClick = onClick,
+                containerColor = containerColor,
+                contentColor = contentColor,
             ) {
                 Icon(
                     painter = painterResource(icon),

@@ -49,6 +49,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -93,6 +94,7 @@ import com.metrolist.music.utils.rememberPreference
 import com.metrolist.music.viewmodels.LibrarySongsViewModel
 import timber.log.Timber
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -100,7 +102,7 @@ import kotlinx.coroutines.withContext
 @Composable
 fun LibrarySongsScreen(
     navController: NavController,
-    onDeselect: () -> Unit,
+    libraryHeader: @Composable () -> Unit,
     viewModel: LibrarySongsViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -132,7 +134,11 @@ fun LibrarySongsScreen(
     val debouncedSearchQuery by viewModel.debouncedSearchQuery.collectAsStateWithLifecycle()
     val normalizedQuery = remember(debouncedSearchQuery) { debouncedSearchQuery.normalizeForSearch() }
 
-    var filter by rememberEnumPreference(SongFilterKey, SongFilter.LIKED)
+    var filter by rememberEnumPreference(SongFilterKey, SongFilter.LIBRARY)
+
+    LaunchedEffect(Unit) {
+        filter = SongFilter.LIBRARY
+    }
 
     // Upload state
     var showUploadDialog by remember { mutableStateOf(false) }
@@ -267,11 +273,19 @@ fun LibrarySongsScreen(
             }
         }
 
-    LaunchedEffect(Unit) {
+    // Sync the selected remote collection whenever the user changes tabs.
+    LaunchedEffect(filter, ytmSync) {
+        if (filter == SongFilter.LIBRARY) {
+            // YT Music presents the newest page immediately and only requests
+            // older continuations as the user approaches the end of the list.
+            viewModel.refreshPagedLibrarySongs()
+        }
         if (ytmSync) {
             when (filter) {
                 SongFilter.LIKED -> viewModel.syncLikedSongs()
-                SongFilter.LIBRARY -> viewModel.syncLibrarySongs()
+                // The paged path above is authoritative for saved songs. Running
+                // the eager full sync here caused visible row-by-row reshuffling.
+                SongFilter.LIBRARY -> Unit
                 SongFilter.UPLOADED -> viewModel.syncUploadedSongs()
                 else -> return@LaunchedEffect
             }
@@ -300,6 +314,19 @@ fun LibrarySongsScreen(
             val artistNames = song.artists.map { it.name }.toTypedArray()
             matchesNormalizedQuery(normalizedQuery, song.song.title, song.album?.title, *artistNames)
         }
+
+    LaunchedEffect(lazyListState, filter, filteredSongs.size, normalizedQuery) {
+        if (filter != SongFilter.LIBRARY || normalizedQuery.isNotBlank()) return@LaunchedEffect
+        snapshotFlow {
+            lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+        }.distinctUntilChanged().collect { lastVisibleIndex ->
+            // Two fixed header rows precede the songs. Begin fetching before the
+            // final visible row so the next server page arrives without a pause.
+            if (filteredSongs.isNotEmpty() && lastVisibleIndex >= filteredSongs.size - 8) {
+                viewModel.loadMoreLibrarySongs()
+            }
+        }
+    }
 
     // Upload progress dialog
     if (showUploadDialog) {
@@ -361,26 +388,13 @@ fun LibrarySongsScreen(
                 key = "filter",
                 contentType = CONTENT_TYPE_HEADER,
             ) {
-                Row {
-                    Spacer(Modifier.width(12.dp))
-                    FilterChip(
-                        label = { Text(stringResource(R.string.songs)) },
-                        selected = true,
-                        colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surface),
-                        onClick = onDeselect,
-                        shape = RoundedCornerShape(16.dp),
-                        leadingIcon = {
-                            Icon(
-                                painter = painterResource(R.drawable.close),
-                                contentDescription = "",
-                            )
-                        },
-                    )
+                Column {
+                    libraryHeader()
                     ChipsRow(
                         chips =
                             listOf(
-                                SongFilter.LIKED to stringResource(R.string.filter_liked),
                                 SongFilter.LIBRARY to stringResource(R.string.filter_library),
+                                SongFilter.LIKED to stringResource(R.string.filter_liked),
                                 SongFilter.UPLOADED to stringResource(R.string.filter_uploaded),
                                 SongFilter.DOWNLOADED to stringResource(R.string.filter_downloaded),
                             ),
@@ -388,7 +402,6 @@ fun LibrarySongsScreen(
                         onValueUpdate = {
                             filter = it
                         },
-                        modifier = Modifier.weight(1f),
                     )
                 }
             }
@@ -467,9 +480,17 @@ fun LibrarySongsScreen(
                     showInLibraryIcon = true,
                     isActive = song.id == mediaMetadata?.id,
                     isPlaying = isPlaying,
-                    showLikedIcon = true,
+                    showLikedIcon = false,
                     showDownloadIcon = filter != SongFilter.DOWNLOADED,
                     trailingContent = {
+                        if (song.song.liked) {
+                            Icon(
+                                painter = painterResource(R.drawable.tabler_ic_thumb_up_filled),
+                                contentDescription = null,
+                                modifier = Modifier.size(17.dp),
+                                tint = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
                         IconButton(
                             onClick = {
                                 menuState.show {
@@ -511,6 +532,9 @@ fun LibrarySongsScreen(
             visible = if (filter == SongFilter.UPLOADED) true else filteredSongs.isNotEmpty(),
             lazyListState = lazyListState,
             icon = if (filter == SongFilter.UPLOADED) R.drawable.upload else R.drawable.shuffle,
+            containerColor = MaterialTheme.colorScheme.onBackground,
+            contentColor = MaterialTheme.colorScheme.background,
+            bottomPadding = 0.dp,
             onClick = {
                 if (filter == SongFilter.UPLOADED) {
                     filePickerLauncher.launch(

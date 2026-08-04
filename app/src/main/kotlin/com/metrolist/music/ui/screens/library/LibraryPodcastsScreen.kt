@@ -99,7 +99,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun LibraryPodcastsScreen(
     navController: NavController,
-    onDeselect: () -> Unit,
+    libraryHeader: @Composable () -> Unit,
     viewModel: LibraryPodcastsViewModel = hiltViewModel(),
 ) {
     val downloadedEpisodesStr = stringResource(R.string.downloaded_episodes)
@@ -177,25 +177,8 @@ fun LibraryPodcastsScreen(
     ) {
         // Chip row header — same pattern as LibrarySongsScreen
         val chipsHeader = @Composable {
-            Row {
-                Spacer(Modifier.width(12.dp))
-                FilterChip(
-                    label = { Text(stringResource(R.string.filter_podcasts)) },
-                    selected = true,
-                    colors =
-                        FilterChipDefaults.filterChipColors(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                        ),
-                    onClick = onDeselect,
-                    shape = RoundedCornerShape(16.dp),
-                    border = null,
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(R.drawable.close),
-                            contentDescription = stringResource(R.string.close_chip),
-                        )
-                    },
-                )
+            Column {
+                libraryHeader()
                 ChipsRow(
                     chips =
                         listOf(
@@ -205,7 +188,6 @@ fun LibraryPodcastsScreen(
                         ),
                     currentValue = podcastFilter,
                     onValueUpdate = { podcastFilter = it },
-                    modifier = Modifier.weight(1f),
                 )
             }
         }
@@ -467,6 +449,9 @@ fun LibraryPodcastsScreen(
                     visible = downloadedEpisodes.isNotEmpty(),
                     lazyListState = lazyListState,
                     icon = R.drawable.shuffle,
+                    containerColor = MaterialTheme.colorScheme.onBackground,
+                    contentColor = MaterialTheme.colorScheme.background,
+                    bottomPadding = 0.dp,
                     onClick = {
                         playerConnection.playQueue(
                             ListQueue(

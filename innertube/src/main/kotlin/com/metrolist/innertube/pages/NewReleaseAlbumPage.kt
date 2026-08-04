@@ -8,16 +8,32 @@ import com.metrolist.innertube.models.splitBySeparator
 
 object NewReleaseAlbumPage {
     fun fromMusicTwoRowItemRenderer(renderer: MusicTwoRowItemRenderer): AlbumItem? {
+        // YouTube does not consistently include a thumbnail overlay on the
+        // new-releases feed. In that response the album playlist is exposed
+        // by the "Shuffle play" menu item instead, so support both shapes.
+        val playlistId =
+            renderer.thumbnailOverlay
+                ?.musicItemThumbnailOverlayRenderer
+                ?.content
+                ?.musicPlayButtonRenderer
+                ?.playNavigationEndpoint
+                ?.watchPlaylistEndpoint
+                ?.playlistId
+                ?: renderer.menu
+                    ?.menuRenderer
+                    ?.items
+                    ?.asSequence()
+                    ?.mapNotNull { item ->
+                        item.menuNavigationItemRenderer
+                            ?.navigationEndpoint
+                            ?.watchPlaylistEndpoint
+                            ?.playlistId
+                    }?.firstOrNull { id -> !id.startsWith("RDAMP") }
+                ?: return null
+
         return AlbumItem(
             browseId = renderer.navigationEndpoint.browseEndpoint?.browseId ?: return null,
-            playlistId =
-                renderer.thumbnailOverlay
-                    ?.musicItemThumbnailOverlayRenderer
-                    ?.content
-                    ?.musicPlayButtonRenderer
-                    ?.playNavigationEndpoint
-                    ?.watchPlaylistEndpoint
-                    ?.playlistId ?: return null,
+            playlistId = playlistId,
             title =
                 renderer.title.runs
                     ?.firstOrNull()

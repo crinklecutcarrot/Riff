@@ -58,6 +58,7 @@ sealed class CachedItem {
         val artists: List<CachedArtist> = emptyList(),
         val album: CachedAlbum? = null,
         val duration: Int? = null,
+        val viewsText: String? = null,
         val videoId: String? = null
     ) : CachedItem()
 
@@ -203,6 +204,7 @@ private fun CachedItem.toYTItem(): YTItem {
             artists = artists.map { com.metrolist.innertube.models.Artist(it.name, it.id) },
             album = album?.let { com.metrolist.innertube.models.Album(it.name, it.id) },
             duration = duration,
+            viewsText = viewsText,
             setVideoId = videoId,
         )
         is CachedItem.Album -> AlbumItem(
@@ -268,6 +270,7 @@ private fun YTItem.toCachedItem(): CachedItem {
             artists = artists.map { CachedArtist(it.name, it.id) },
             album = album?.let { CachedAlbum(it.name, it.id) },
             duration = duration,
+            viewsText = viewsText,
             videoId = setVideoId,
         )
         is AlbumItem -> CachedItem.Album(

@@ -8,6 +8,7 @@ package com.metrolist.music.ui.menu
 import android.content.Intent
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -15,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -75,15 +75,11 @@ fun YouTubeArtistMenu(
     val configuration = LocalConfiguration.current
     val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
-    LazyColumn(
-        contentPadding = PaddingValues(
-            start = 0.dp,
-            top = 0.dp,
-            end = 0.dp,
+    Column(
+        modifier = Modifier.padding(
             bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
         ),
     ) {
-        item {
             NewActionGrid(
                 actions = buildList {
                     if (!isGuest) {
@@ -158,9 +154,6 @@ fun YouTubeArtistMenu(
                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp),
                 columns = if (isGuest) 1 else 3
             )
-        }
-
-        item {
             Material3MenuGroup(
                 items = listOf(
                     Material3MenuItemData(
@@ -199,6 +192,5 @@ fun YouTubeArtistMenu(
                     )
                 )
             )
-        }
     }
 }

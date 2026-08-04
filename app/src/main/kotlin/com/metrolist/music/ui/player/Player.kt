@@ -206,6 +206,7 @@ fun BottomSheetPlayer(
     navController: NavController,
     modifier: Modifier = Modifier,
     pureBlack: Boolean,
+    showCollapsedPlayer: Boolean = true,
 ) {
     val context = LocalContext.current
     val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -266,15 +267,8 @@ fun BottomSheetPlayer(
         if (window != null && state.isExpanded) {
             val insetsController = WindowCompat.getInsetsController(window, window.decorView)
 
-            when (playerBackground) {
-                PlayerBackgroundStyle.BLUR, PlayerBackgroundStyle.GRADIENT -> {
-                    insetsController.isAppearanceLightStatusBars = false
-                }
-
-                PlayerBackgroundStyle.DEFAULT -> {
-                    insetsController.isAppearanceLightStatusBars = !useDarkTheme
-                }
-            }
+            insetsController.isAppearanceLightStatusBars = false
+            insetsController.isAppearanceLightNavigationBars = false
 
             if (isFullScreen && hideStatusBarOnFullscreen) {
                 insetsController.hide(WindowInsetsCompat.Type.statusBars())
@@ -294,6 +288,7 @@ fun BottomSheetPlayer(
             if (window != null) {
                 val insetsController = WindowCompat.getInsetsController(window, window.decorView)
                 insetsController.isAppearanceLightStatusBars = !useDarkTheme
+                insetsController.isAppearanceLightNavigationBars = !useDarkTheme
                 insetsController.show(WindowInsetsCompat.Type.statusBars())
                 window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             }
@@ -802,14 +797,12 @@ fun BottomSheetPlayer(
         }
     }
 
-    val dismissedBound = QueuePeekHeight + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()
-
     val queueSheetState =
         rememberBottomSheetState(
-            dismissedBound = dismissedBound,
+            dismissedBound = 0.dp,
             expandedBound = state.expandedBound,
-            collapsedBound = dismissedBound + 1.dp,
-            initialAnchor = 1,
+            collapsedBound = 0.dp,
+            initialAnchor = 0,
         )
 
     val bottomSheetBackgroundColor =
@@ -927,12 +920,15 @@ fun BottomSheetPlayer(
                 null
             },
         collapsedContent = {
-            MiniPlayer(
-                positionState = positionState,
-                durationState = durationState,
-                onClick = { state.expandSoft() },
-            )
+            if (showCollapsedPlayer) {
+                MiniPlayer(
+                    positionState = positionState,
+                    durationState = durationState,
+                    onClick = { state.expandSoft() },
+                )
+            }
         },
+        isDragEnabled = !useNewPlayerDesign,
     ) {
         val controlsContent: @Composable ColumnScope.(MediaMetadata) -> Unit = { mediaMetadata ->
             val playPauseRoundness by animateDpAsState(
@@ -1367,7 +1363,7 @@ fun BottomSheetPlayer(
             Spacer(Modifier.height(24.dp))
 
             when (sliderStyle) {
-                SliderStyle.DEFAULT -> {
+                SliderStyle.DEFAULT, SliderStyle.STANDARD -> {
                     Slider(
                         value = (sliderPosition ?: effectivePosition).toFloat(),
                         valueRange = 0f..(if (duration == C.TIME_UNSET) 0f else duration.toFloat()),
@@ -1832,7 +1828,13 @@ fun BottomSheetPlayer(
             }
         }
 
-        when (LocalConfiguration.current.orientation) {
+        RiffFullPlayer(
+            playerState = state,
+            queueState = queueSheetState,
+            navController = navController,
+        )
+
+        if (false) when (LocalConfiguration.current.orientation) {
             Configuration.ORIENTATION_LANDSCAPE -> {
                 // Calculate vertical padding like OuterTune
                 val density = LocalDensity.current
@@ -1962,25 +1964,9 @@ fun BottomSheetPlayer(
             enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
             exit = shrinkVertically(shrinkTowards = Alignment.Top) + slideOutVertically(targetOffsetY = { it }) + fadeOut(),
         ) {
-            Queue(
+            RiffQueue(
                 state = queueSheetState,
                 playerBottomSheetState = state,
-                background =
-                    if (useBlackBackground) {
-                        Color.Black
-                    } else {
-                        MaterialTheme.colorScheme.surfaceContainer
-                    },
-                onBackgroundColor = onBackgroundColor,
-                TextBackgroundColor = TextBackgroundColor,
-                textButtonColor = textButtonColor,
-                iconButtonColor = iconButtonColor,
-                pureBlack = pureBlack,
-                showInlineLyrics = showInlineLyrics,
-                playerBackground = playerBackground,
-                onToggleLyrics = {
-                    showInlineLyrics = !showInlineLyrics
-                },
             )
         }
     }
@@ -1992,6 +1978,9 @@ fun InlineLyricsView(
     mediaMetadata: MediaMetadata?,
     showLyrics: Boolean,
     positionProvider: () -> Long,
+    lyricsAccentOverride: Color? = null,
+    lyricsAnchorRatioOverride: Float? = null,
+    lyricsTextSizeOverride: Float? = null,
 ) {
     val playerConnection = LocalPlayerConnection.current ?: return
     val currentLyrics by playerConnection.currentLyrics.collectAsStateWithLifecycle(initialValue = null)
@@ -2113,6 +2102,9 @@ fun InlineLyricsView(
                         sliderPositionProvider = positionProvider,
                         modifier = Modifier.padding(horizontal = 24.dp),
                         showLyrics = showLyrics,
+                        expressiveAccentOverride = lyricsAccentOverride,
+                        anchorRatioOverride = lyricsAnchorRatioOverride,
+                        textSizeOverride = lyricsTextSizeOverride,
                     )
                 }
                 ProvideTextStyle(

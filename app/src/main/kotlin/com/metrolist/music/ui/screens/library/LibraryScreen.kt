@@ -29,6 +29,7 @@ fun LibraryScreen() {
         Row {
             ChipsRow(
                 chips = listOf(
+                    LibraryFilter.LIBRARY to stringResource(R.string.filter_library),
                     LibraryFilter.PLAYLISTS to stringResource(R.string.filter_playlists),
                     LibraryFilter.SONGS to stringResource(R.string.filter_songs),
                     LibraryFilter.ALBUMS to stringResource(R.string.filter_albums),
@@ -36,9 +37,7 @@ fun LibraryScreen() {
                     LibraryFilter.PODCASTS to stringResource(R.string.filter_podcasts),
                 ),
                 currentValue = filterType,
-                onValueUpdate = {
-                    filterType = if (filterType == it) LibraryFilter.LIBRARY else it
-                },
+                onValueUpdate = { filterType = it },
                 modifier = Modifier.weight(1f),
             )
         }
@@ -50,19 +49,19 @@ fun LibraryScreen() {
             LibraryFilter.PLAYLISTS -> LibraryPlaylistsScreen(navController, filterContent)
             LibraryFilter.SONGS -> LibrarySongsScreen(
                 navController,
-                { filterType = LibraryFilter.LIBRARY },
+                filterContent,
             )
             LibraryFilter.ALBUMS -> LibraryAlbumsScreen(
                 navController,
-                { filterType = LibraryFilter.LIBRARY },
+                filterContent,
             )
             LibraryFilter.ARTISTS -> LibraryArtistsScreen(
                 navController,
-                { filterType = LibraryFilter.LIBRARY },
+                filterContent,
             )
             LibraryFilter.PODCASTS -> LibraryPodcastsScreen(
                 navController,
-                { filterType = LibraryFilter.LIBRARY },
+                filterContent,
             )
         }
     }

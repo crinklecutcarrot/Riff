@@ -35,7 +35,9 @@ data class Menu(
                 val defaultIcon: Icon,
                 val defaultServiceEndpoint: DefaultServiceEndpoint,
                 val toggledServiceEndpoint: ToggledServiceEndpoint?,
-                val isSelected: Boolean = false,
+                // Absent on some WEB_REMIX responses. Keep this nullable so a
+                // missing value is not mistaken for an authoritative false.
+                val isSelected: Boolean? = null,
             )
         }
 

@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -22,6 +23,9 @@ val PureBlackKey = booleanPreferencesKey("pureBlack")
 val PureBlackMiniPlayerKey = booleanPreferencesKey("pureBlackMiniPlayer")
 val MiniPlayerOutlineKey = booleanPreferencesKey("miniPlayerOutline")
 val MiniPlayerBackgroundStyleKey = stringPreferencesKey("miniPlayerBackgroundStyle")
+val DislikedSongsKey = stringSetPreferencesKey("dislikedSongs")
+val RiffArtworkCardKey = booleanPreferencesKey("riffArtworkCard")
+val FloatingPlayerDockKey = booleanPreferencesKey("floatingPlayerDock")
 
 enum class MiniPlayerBackgroundStyle {
     DEFAULT,
@@ -76,6 +80,7 @@ val DeveloperModeKey = booleanPreferencesKey("developerMode")
 
 enum class SliderStyle {
     DEFAULT,
+    STANDARD,
     WAVY,
     SLIM,
 }
@@ -239,7 +244,7 @@ val AddToPlaylistSortDescendingKey = booleanPreferencesKey("addToPlaylistSortDes
 val ArtistSongSortTypeKey = stringPreferencesKey("artistSongSortType")
 val ArtistSongSortDescendingKey = booleanPreferencesKey("artistSongSortDescending")
 val MixSortTypeKey = stringPreferencesKey("mixSortType")
-val MixSortDescendingKey = booleanPreferencesKey("albumSortDescending")
+val MixSortDescendingKey = booleanPreferencesKey("mixSortDescending")
 
 val SongFilterKey = stringPreferencesKey("songFilter")
 val ArtistFilterKey = stringPreferencesKey("artistFilter")
@@ -252,6 +257,7 @@ val LastAlbumSyncKey = longPreferencesKey("last_album_sync")
 val LastArtistSyncKey = longPreferencesKey("last_artist_sync")
 val LastPlaylistSyncKey = longPreferencesKey("last_playlist_sync")
 val LastFullSyncKey = longPreferencesKey("last_full_sync")
+val LibrarySyncSchemaVersionKey = intPreferencesKey("library_sync_schema_version")
 val LastWeeklyMostPlaylistSyncKey = longPreferencesKey("last_weekly_most_playlist_sync")
 val LastMonthlyMostPlaylistSyncKey = longPreferencesKey("last_monthly_most_playlist_sync")
 val ShowMostStatsPlaylistsKey = booleanPreferencesKey("show_most_stats_playlists")

@@ -22,6 +22,7 @@ import com.metrolist.innertube.models.filterExplicit
 import com.metrolist.innertube.models.filterVideoSongs
 import com.metrolist.innertube.models.filterYoutubeShorts
 import com.metrolist.innertube.pages.ArtistPage
+import com.metrolist.innertube.utils.completed
 import com.metrolist.music.constants.HideExplicitKey
 import com.metrolist.music.constants.HideVideoSongsKey
 import com.metrolist.music.constants.HideYoutubeShortsKey
@@ -33,6 +34,8 @@ import com.metrolist.music.db.entities.toArtistPage
 import com.metrolist.music.extensions.filterExplicit
 import com.metrolist.music.extensions.filterExplicitAlbums
 import com.metrolist.music.utils.SyncUtils
+import com.metrolist.music.utils.RemoteMutationResult
+import com.metrolist.music.utils.PodcastRefreshTrigger
 import com.metrolist.music.utils.dataStore
 import com.metrolist.music.utils.get
 import com.metrolist.music.utils.reportException
@@ -41,6 +44,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -94,8 +98,45 @@ class ArtistViewModel @Inject constructor(
             database.artistAlbumsPreview(artistId).map { it.filterExplicitAlbums(hideExplicit) }
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+    val likedSongIds = database.likedSongIds()
+        .map(List<String>::toSet)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
+    private val _remoteSavedAlbumIds = MutableStateFlow<Set<String>>(emptySet())
+    private val _albumSavedOverrides = MutableStateFlow<Map<String, Boolean>>(emptyMap())
+    private val _libraryAlbumStateLoaded = MutableStateFlow(false)
+    // Online album state is authoritative from YT Music. Room is only a content
+    // cache and must not make a remote album appear saved or unsaved.
+    val savedAlbumIds = _remoteSavedAlbumIds.asStateFlow()
+    val albumSavedOverrides = _albumSavedOverrides.asStateFlow()
+    val libraryAlbumStateLoaded = _libraryAlbumStateLoaded.asStateFlow()
+
+    private val _mutationError = MutableStateFlow(false)
+    val mutationError = _mutationError.asStateFlow()
+
+    fun clearMutationError() {
+        _mutationError.value = false
+    }
 
     init {
+        viewModelScope.launch(Dispatchers.IO) {
+            YouTube.library("FEmusic_liked_albums").completed()
+                .onSuccess { libraryPage ->
+                    val remoteAlbums = libraryPage.items.filterIsInstance<AlbumItem>()
+                    _remoteSavedAlbumIds.value = remoteAlbums
+                        .flatMap { album ->
+                            listOf(
+                                album.browseId,
+                                album.playlistId,
+                                albumIdentityKey(album.title, album.year),
+                            )
+                        }
+                        .toSet()
+                    _libraryAlbumStateLoaded.value = true
+
+                }
+                .onFailure { Timber.w(it, "Unable to refresh saved albums for artist page") }
+        }
+
         viewModelScope.launch {
             // Load cached page first for instant display, then fetch fresh data
             loadCachedPage()
@@ -171,42 +212,46 @@ class ArtistViewModel @Inject constructor(
                         })
                     }
 
-                    // Fetch song durations from the more endpoint if the first section has songs without duration
-                    var sectionsWithDurations = resolvedSections
-                    if (resolvedSections.isNotEmpty()) {
-                        val needDurations = resolvedSections.first().items.any {
-                            it is SongItem && it.duration == null
-                        }
-                        if (needDurations) {
-                            val moreEndpoint = resolvedSections.first().moreEndpoint
-                            if (moreEndpoint != null) {
-                                try {
-                                    val moreResult = withContext(Dispatchers.IO) {
-                                        YouTube.artistItems(moreEndpoint)
-                                    }
-                                    moreResult
-                                        .onSuccess { moreItems ->
-                                            val durationById = moreItems.items.filterIsInstance<SongItem>()
-                                                .associate { it.id to it.duration }
-                                            if (durationById.isNotEmpty()) {
-                                                sectionsWithDurations = listOf(resolvedSections.first().copy(
-                                                    items = resolvedSections.first().items.map { item ->
-                                                        if (item is SongItem && item.duration == null) {
-                                                            item.copy(duration = durationById[item.id] ?: item.duration)
-                                                        } else item
-                                                    }
-                                                )) + resolvedSections.drop(1)
-                                            }
+                    // The artist landing response normally contains only five popular songs.
+                    // Expand that one shelf from its single "more" request so the UI can page
+                    // through 15 songs without making a request for every individual track.
+                    var expandedSections = resolvedSections
+                    val songSectionIndex = resolvedSections.indexOfFirst { section ->
+                        section.items.any { it is SongItem }
+                    }
+                    if (songSectionIndex >= 0) {
+                        val songSection = resolvedSections[songSectionIndex]
+                        songSection.moreEndpoint?.let { moreEndpoint ->
+                            try {
+                                YouTube.artistItems(moreEndpoint)
+                                    .onSuccess { morePage ->
+                                        val landingSongs = songSection.items.filterIsInstance<SongItem>()
+                                        val moreSongs = morePage.items
+                                            .filterIsInstance<SongItem>()
+                                            .map { song -> song.copy(artists = song.artists.map { it.resolve() }) }
+                                        val moreById = moreSongs.associateBy { it.id }
+                                        val enrichedLandingSongs = landingSongs.map { song ->
+                                            val details = moreById[song.id]
+                                            song.copy(
+                                                duration = song.duration ?: details?.duration,
+                                                viewsText = song.viewsText ?: details?.viewsText,
+                                            )
                                         }
-                                        .onFailure { e -> reportException(e) }
-                                } catch (e: Exception) {
-                                    reportException(e)
-                                }
+                                        val expandedSongs = (enrichedLandingSongs + moreSongs)
+                                            .distinctBy { it.id }
+                                            .take(15)
+                                        expandedSections = resolvedSections.toMutableList().also { sections ->
+                                            sections[songSectionIndex] = songSection.copy(items = expandedSongs)
+                                        }
+                                    }
+                                    .onFailure(::reportException)
+                            } catch (e: Exception) {
+                                reportException(e)
                             }
                         }
                     }
 
-                    val resolvedPage = page.copy(sections = sectionsWithDurations)
+                    val resolvedPage = page.copy(sections = expandedSections)
                     val filteredSections = resolvedPage.sections
                         .map { section ->
                             section.copy(items = section.items.filterExplicit(hideExplicit).filterVideoSongs(hideVideoSongs).filterYoutubeShorts(hideYoutubeShorts))
@@ -261,20 +306,21 @@ class ArtistViewModel @Inject constructor(
     }
 
     fun toggleChannelSubscription() {
-        val channelId = artistPage?.artist?.channelId ?: artistId
         val isCurrentlySubscribed = isChannelSubscribed.value
         val shouldBeSubscribed = !isCurrentlySubscribed
-
-        Timber.d("[CHANNEL_TOGGLE] toggleChannelSubscription called: artistId=$artistId, channelId=$channelId, isCurrentlySubscribed=$isCurrentlySubscribed, shouldBeSubscribed=$shouldBeSubscribed")
 
         // Optimistically update API state for immediate UI feedback
         _apiSubscribed.value = shouldBeSubscribed
 
         viewModelScope.launch(Dispatchers.IO) {
+            val channelId = artistPage?.artist?.channelId
+                ?: artistId.takeIf { it.startsWith("UC") }
+                ?: YouTube.getChannelId(artistId)
+            val originalArtist = libraryArtist.value?.artist
             Timber.d("[CHANNEL_TOGGLE] Inside coroutine, updating database...")
             // Update local database first (optimistic update)
             // Call DAO methods directly - they're synchronous on IO dispatcher
-            val artist = libraryArtist.value?.artist
+            val artist = originalArtist
             Timber.d("[CHANNEL_TOGGLE] libraryArtist.value?.artist = $artist")
             if (artist != null) {
                 val newBookmark = if (shouldBeSubscribed) {
@@ -308,9 +354,95 @@ class ArtistViewModel @Inject constructor(
                 Timber.d("[CHANNEL_TOGGLE] No artist and shouldBeSubscribed=false, nothing to do")
             }
 
-            Timber.d("[CHANNEL_TOGGLE] Calling syncUtils.subscribeChannel($channelId, $shouldBeSubscribed)")
-            // Sync with YouTube (handles login check internally)
-            syncUtils.subscribeChannel(channelId, shouldBeSubscribed)
+            val result = if (channelId.isNotBlank()) {
+                syncUtils.setChannelSubscribedNow(channelId, shouldBeSubscribed)
+            } else {
+                RemoteMutationResult.FAILED
+            }
+            if (result != RemoteMutationResult.SUCCESS) {
+                _apiSubscribed.value = isCurrentlySubscribed
+                val current = database.artist(artistId).firstOrNull()?.artist
+                if (originalArtist != null) {
+                    database.update(originalArtist)
+                } else if (current != null) {
+                    database.update(current.copy(bookmarkedAt = null))
+                }
+                _mutationError.value = true
+            } else {
+                PodcastRefreshTrigger.triggerRefresh()
+            }
+        }
+    }
+
+    fun toggleAlbumSaved(album: AlbumItem) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val albumKeys = setOf(
+                album.browseId,
+                album.playlistId,
+                albumIdentityKey(album.title, album.year),
+            )
+            val originalRemoteIds = _remoteSavedAlbumIds.value
+            val originalOverrides = _albumSavedOverrides.value
+            val authoritativeOverride = albumKeys.firstNotNullOfOrNull { originalOverrides[it] }
+            val shouldSave = !(authoritativeOverride ?: albumKeys.any { it in savedAlbumIds.value })
+            _albumSavedOverrides.value = originalOverrides + albumKeys.associateWith { shouldSave }
+            _remoteSavedAlbumIds.value = if (shouldSave) {
+                originalRemoteIds + albumKeys
+            } else {
+                originalRemoteIds - albumKeys
+            }
+
+            val result = syncUtils.setPlaylistSavedNow(album.playlistId, shouldSave)
+            if (result != RemoteMutationResult.SUCCESS) {
+                _remoteSavedAlbumIds.value = originalRemoteIds
+                _albumSavedOverrides.value = originalOverrides
+                _mutationError.value = true
+            }
+        }
+    }
+
+    fun refreshAlbumSavedState(album: AlbumItem) {
+        val keys = setOf(
+            album.browseId,
+            album.playlistId,
+            albumIdentityKey(album.title, album.year),
+        )
+        if (keys.any { it in _albumSavedOverrides.value }) return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val cachedState = YouTube.cachedAlbum(album.browseId)?.isInLibrary
+            if (cachedState != null) {
+                _albumSavedOverrides.value =
+                    _albumSavedOverrides.value + keys.associateWith { cachedState }
+                return@launch
+            }
+
+            YouTube.album(album.browseId, withSongs = true)
+                .onSuccess { albumPage ->
+                    val isSaved = albumPage.isInLibrary
+                        ?: if (_libraryAlbumStateLoaded.value) {
+                            keys.any { it in _remoteSavedAlbumIds.value }
+                        } else {
+                            null
+                        }
+                    if (isSaved != null) {
+                        _albumSavedOverrides.value =
+                            _albumSavedOverrides.value + keys.associateWith { isSaved }
+                    }
+                }
+                .onFailure { error ->
+                    reportException(error)
+                    if (_libraryAlbumStateLoaded.value) {
+                        val isSaved = keys.any { it in _remoteSavedAlbumIds.value }
+                        _albumSavedOverrides.value =
+                            _albumSavedOverrides.value + keys.associateWith { isSaved }
+                    }
+                }
         }
     }
 }
+
+private fun albumIdentityKey(title: String, year: Int?): String =
+    "album:${title.lowercase().filter(Char::isLetterOrDigit)}:${year.orEmptyKey()}"
+
+private fun Int?.orEmptyKey(): String = this?.toString().orEmpty()

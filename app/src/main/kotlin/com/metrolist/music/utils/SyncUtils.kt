@@ -19,9 +19,11 @@ import com.metrolist.lastfm.LastFM
 import com.metrolist.music.constants.InnerTubeCookieKey
 import com.metrolist.music.constants.LastFMUseSendLikes
 import com.metrolist.music.constants.LastFullSyncKey
+import com.metrolist.music.constants.LibrarySyncSchemaVersionKey
 import com.metrolist.music.constants.SYNC_COOLDOWN
 import com.metrolist.music.db.MusicDatabase
 import com.metrolist.music.db.entities.ArtistEntity
+import com.metrolist.music.db.entities.AlbumEntity
 import com.metrolist.music.db.entities.PlaylistEntity
 import com.metrolist.music.db.entities.PlaylistSongMap
 import com.metrolist.music.db.entities.PodcastEntity
@@ -31,6 +33,7 @@ import com.metrolist.music.extensions.collectLatest
 import com.metrolist.music.extensions.isInternetConnected
 import com.metrolist.music.extensions.isSyncEnabled
 import com.metrolist.music.models.toMediaMetadata
+import com.metrolist.music.models.SongRating
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -74,6 +77,7 @@ sealed class SyncOperation {
     data object AutoSyncPlaylists : SyncOperation()
     data class SinglePlaylist(val browseId: String, val playlistId: String) : SyncOperation()
     data class LikeSong(val song: SongEntity) : SyncOperation()
+    data class RateSong(val songId: String, val rating: SongRating) : SyncOperation()
     data class SubscribeChannel(val channelId: String, val subscribe: Boolean) : SyncOperation()
     data class SavePodcast(val podcastId: String, val save: Boolean) : SyncOperation()
     data class SaveEpisode(val episodeId: String, val save: Boolean, val setVideoId: String?) : SyncOperation()
@@ -101,6 +105,24 @@ data class SyncState(
     val currentOperation: String = ""
 )
 
+data class LibrarySongsPageResult(
+    val continuation: String?,
+    val loadedCount: Int,
+    val songIds: Set<String>,
+)
+
+enum class SongRatingSyncResult {
+    SUCCESS,
+    NOT_LOGGED_IN,
+    FAILED,
+}
+
+enum class RemoteMutationResult {
+    SUCCESS,
+    NOT_LOGGED_IN,
+    FAILED,
+}
+
 @Singleton
 class SyncUtils @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -125,6 +147,7 @@ class SyncUtils @Inject constructor(
 
     private var lastfmSendLikes = false
     @Volatile private var cachedLastSyncEpoch: Long = 0L
+    @Volatile private var lastPreviewRefreshEpoch: Long = 0L
     private val playlistsBeingModified = ConcurrentHashMap<String, AtomicInteger>()
     private val playlistEditMutex = Mutex()
     private var lastPlaylistEditAtMs = 0L
@@ -132,8 +155,14 @@ class SyncUtils @Inject constructor(
     companion object {
         private const val MAX_RETRIES = 3
         private const val INITIAL_RETRY_DELAY_MS = 1000L
-        private const val DB_OPERATION_DELAY_MS = 50L
+        // Room serializes these writes already. Sleeping after every row made a
+        // 1,000-song library take nearly a minute to become visible even after
+        // the network response had completed.
+        private const val DB_OPERATION_DELAY_MS = 0L
         private const val PLAYLIST_EDIT_THROTTLE_MS = 500L
+        private const val LIBRARY_SYNC_SCHEMA_VERSION = 2
+        // YouTube Music's own "Recently added" library ordering.
+        private const val RECENTLY_ADDED_LIBRARY_PARAMS = "ggMGKgQIABAB"
     }
     private fun markPlaylistModifying(playlistId: String) {
         playlistsBeingModified.getOrPut(playlistId) { AtomicInteger(0) }.incrementAndGet()
@@ -232,6 +261,7 @@ class SyncUtils @Inject constructor(
         SyncOperation.ClearAllSynced -> "clearAllSynced"
         SyncOperation.ClearPodcastData -> "clearPodcastData"
         is SyncOperation.LikeSong,
+        is SyncOperation.RateSong,
         is SyncOperation.SubscribeChannel,
         is SyncOperation.SavePodcast,
         is SyncOperation.SaveEpisode,
@@ -269,6 +299,7 @@ class SyncUtils @Inject constructor(
             is SyncOperation.AutoSyncPlaylists -> executeSyncAutoSyncPlaylists()
             is SyncOperation.SinglePlaylist -> executeSyncPlaylist(operation.browseId, operation.playlistId)
             is SyncOperation.LikeSong -> executeLikeSong(operation.song)
+            is SyncOperation.RateSong -> executeRateSong(operation.songId, operation.rating)
             is SyncOperation.SubscribeChannel -> executeSubscribeChannel(operation.channelId, operation.subscribe)
             is SyncOperation.SavePodcast -> executeSavePodcast(operation.podcastId, operation.save)
             is SyncOperation.SaveEpisode -> executeSaveEpisode(operation.episodeId, operation.save, operation.setVideoId)
@@ -298,7 +329,11 @@ class SyncUtils @Inject constructor(
         var currentDelay = initialDelay
         repeat(maxRetries) { attempt ->
             try {
-                return Result.success(block())
+                val value = block()
+                // Most InnerTube calls already return Result. Treat an inner failure as a
+                // failure of this attempt so retries and callers cannot report false success.
+                if (value is Result<*>) value.exceptionOrNull()?.let { throw it }
+                return Result.success(value)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -343,19 +378,22 @@ class SyncUtils @Inject constructor(
             }
 
             val lastSync = context.dataStore.get(LastFullSyncKey, 0L)
+            val syncSchemaVersion = context.dataStore.get(LibrarySyncSchemaVersionKey, 0)
             val effectiveLastSync = maxOf(lastSync, cachedLastSyncEpoch)
             val currentTime = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
-            if (effectiveLastSync > 0 && (currentTime - effectiveLastSync) < SYNC_COOLDOWN) {
+            if (currentTime - lastPreviewRefreshEpoch >= 120) {
+                executeLibraryPreview()
+                lastPreviewRefreshEpoch = currentTime
+            }
+            if (
+                syncSchemaVersion >= LIBRARY_SYNC_SCHEMA_VERSION &&
+                effectiveLastSync > 0 &&
+                (currentTime - effectiveLastSync) < SYNC_COOLDOWN
+            ) {
                 return@launch
             }
 
             enqueue(SyncOperation.FullSync)
-
-            val now = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
-            cachedLastSyncEpoch = now
-            context.safeDataStoreEdit { settings ->
-                settings[LastFullSyncKey] = now
-            }
         }
     }
 
@@ -363,9 +401,268 @@ class SyncUtils @Inject constructor(
         performFullSync()
     }
 
+    /** Refreshes the server's newest library page immediately. This mirrors YT
+     * Music's cache-first loading model: recent additions appear quickly while
+     * the paginated reconciliation continues in the background. */
+    fun refreshLibraryPreview() {
+        syncScope.launch {
+            if (!isLoggedIn() || !context.isInternetConnected()) return@launch
+            val now = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
+            if (now - lastPreviewRefreshEpoch < 10) return@launch
+            executeLibraryPreview()
+            lastPreviewRefreshEpoch = now
+        }
+    }
+
+    /**
+     * Loads the same newest-first saved-song shelf used by YouTube Music. The
+     * initial request is warmed to at least [minimumItems] before it is committed,
+     * so a fresh install opens with a useful first page instead of briefly showing
+     * only the server's smaller preview batch.
+     */
+    suspend fun loadInitialLibrarySongsPage(
+        minimumItems: Int = 50,
+        anchor: LocalDateTime = LocalDateTime.now(),
+    ): Result<LibrarySongsPageResult> = withContext(Dispatchers.IO) {
+        runCatching {
+            val firstPage = YouTube.library(
+                "FEmusic_liked_videos",
+                params = RECENTLY_ADDED_LIBRARY_PARAMS,
+            ).getOrThrow()
+            val songs = firstPage.items.filterIsInstance<SongItem>().toMutableList()
+            var continuation = firstPage.continuation
+            val seenContinuations = mutableSetOf<String>()
+            var requestCount = 0
+
+            while (songs.size < minimumItems && continuation != null && requestCount < 10) {
+                if (!seenContinuations.add(continuation)) break
+                requestCount++
+                val nextPage = YouTube.libraryContinuation(continuation).getOrThrow()
+                songs += nextPage.items.filterIsInstance<SongItem>()
+                continuation = nextPage.continuation
+            }
+
+            val distinctSongs = songs.distinctBy { it.id }
+            applyLibrarySongsPage(distinctSongs, anchor, startIndex = 0)
+            LibrarySongsPageResult(
+                continuation = continuation,
+                loadedCount = distinctSongs.size,
+                songIds = distinctSongs.mapTo(linkedSetOf()) { it.id },
+            )
+        }
+    }
+
+    /** Adds one continuation page without rebuilding or reordering the visible list. */
+    suspend fun loadLibrarySongsContinuation(
+        continuation: String,
+        anchor: LocalDateTime,
+        startIndex: Int,
+    ): Result<LibrarySongsPageResult> = withContext(Dispatchers.IO) {
+        runCatching {
+            val page = YouTube.libraryContinuation(continuation).getOrThrow()
+            val songs = page.items.filterIsInstance<SongItem>().distinctBy { it.id }
+            applyLibrarySongsPage(songs, anchor, startIndex)
+            LibrarySongsPageResult(
+                continuation = page.continuation,
+                loadedCount = songs.size,
+                songIds = songs.mapTo(linkedSetOf()) { it.id },
+            )
+        }
+    }
+
+    /** Reconciles removals only after every continuation has been visited. */
+    suspend fun reconcileLibrarySongs(remoteIds: Set<String>) = withContext(Dispatchers.IO) {
+        database.withTransaction {
+            database.librarySongEntitiesByNameAsc()
+                .filterNot { it.id in remoteIds }
+                .forEach { update(it.toggleLibrary(syncToYouTube = false)) }
+        }
+    }
+
+    private suspend fun applyLibrarySongsPage(
+        songs: List<SongItem>,
+        anchor: LocalDateTime,
+        startIndex: Int,
+    ) {
+        database.withTransaction {
+            songs.forEachIndexed { pageIndex, song ->
+                val existing = database.songEntity(song.id)
+                // Room stores LocalDateTime at millisecond precision. The old
+                // minusNanos ordering collapsed every row onto the same value,
+                // leaving SQLite free to return the library in arbitrary order.
+                val addedAt = anchor.minusSeconds((startIndex + pageIndex).toLong())
+                if (existing == null) {
+                    insert(song.toMediaMetadata()) { it.copy(inLibrary = addedAt) }
+                } else if (existing.inLibrary != addedAt) {
+                    update(existing.copy(inLibrary = addedAt))
+                }
+            }
+        }
+    }
+
+    /** Cache-first library refresh: merge the newest server page without deleting
+     * anything, then let the throttled full sync reconcile continuations in back. */
+    private suspend fun executeLibraryPreview() = withContext(Dispatchers.IO) {
+        runCatching {
+            val now = LocalDateTime.now()
+
+            YouTube.playlist("LM").getOrThrow().songs.forEachIndexed { index, song ->
+                val existing = database.songEntity(song.id)
+                val likedAt = now.minusSeconds(index.toLong())
+                if (existing == null) {
+                    database.insert(song.toMediaMetadata()) {
+                        it.copy(liked = true, likedDate = likedAt, isVideo = song.isVideoSong)
+                    }
+                } else if (!existing.liked) {
+                    database.update(existing.copy(liked = true, likedDate = likedAt, isVideo = song.isVideoSong))
+                }
+            }
+
+            YouTube.library(
+                "FEmusic_liked_videos",
+                params = RECENTLY_ADDED_LIBRARY_PARAMS,
+            ).getOrThrow().items
+                .filterIsInstance<SongItem>()
+                .let { songs -> applyLibrarySongsPage(songs, now, startIndex = 0) }
+
+            YouTube.library(
+                "FEmusic_liked_albums",
+                params = RECENTLY_ADDED_LIBRARY_PARAMS,
+            ).getOrThrow().items
+                .filterIsInstance<AlbumItem>()
+                .forEach { album ->
+                    val existing = database.albumEntity(album.id)
+                    if (existing == null) {
+                        database.insert(
+                            AlbumEntity(
+                                id = album.id,
+                                playlistId = album.playlistId,
+                                title = album.title,
+                                year = album.year,
+                                thumbnailUrl = album.thumbnail,
+                                songCount = 0,
+                                duration = 0,
+                                explicit = album.explicit,
+                                bookmarkedAt = now,
+                            ),
+                        )
+                    } else if (existing.bookmarkedAt == null) {
+                        database.update(existing.copy(bookmarkedAt = now))
+                    }
+                }
+
+            YouTube.library("FEmusic_library_corpus_artists").getOrThrow().items
+                .filterIsInstance<ArtistItem>()
+                .forEach { artist ->
+                    val existing = database.artistEntity(artist.id)
+                    if (existing == null) {
+                        database.insert(
+                            ArtistEntity(
+                                id = artist.id,
+                                name = artist.title,
+                                thumbnailUrl = artist.thumbnail,
+                                channelId = artist.channelId,
+                                bookmarkedAt = now,
+                            ),
+                        )
+                    } else if (existing.bookmarkedAt == null) {
+                        database.update(existing.copy(bookmarkedAt = now))
+                    }
+                }
+
+            val localPlaylists = database.playlistEntitiesByNameAsc()
+            YouTube.library("FEmusic_liked_playlists").getOrThrow().items
+                .filterIsInstance<PlaylistItem>()
+                .filterNot { it.id == "LM" || it.id == "SE" }
+                .forEach { playlist ->
+                    val existing = localPlaylists.firstOrNull { it.browseId == playlist.id }
+                    if (existing == null) {
+                        database.insert(
+                            PlaylistEntity(
+                                name = playlist.title,
+                                browseId = playlist.id,
+                                thumbnailUrl = playlist.thumbnail,
+                                bookmarkedAt = now,
+                                isEditable = playlist.isEditable,
+                            ),
+                        )
+                    } else if (existing.bookmarkedAt == null) {
+                        database.update(existing.copy(bookmarkedAt = now))
+                    }
+                }
+        }.onFailure { Timber.w(it, "Fast library preview refresh failed") }
+    }
+
     fun likeSong(s: SongEntity) {
         enqueue(SyncOperation.LikeSong(s))
     }
+
+    fun rateSong(songId: String, rating: SongRating) {
+        enqueue(SyncOperation.RateSong(songId, rating))
+    }
+
+    /**
+     * Applies a rating to the signed-in YouTube Music account and reports whether
+     * YouTube actually accepted it. Player controls use this instead of the queued
+     * fire-and-forget path so local state cannot silently diverge from the account.
+     */
+    suspend fun rateSongNow(
+        songId: String,
+        rating: SongRating,
+    ): SongRatingSyncResult = withContext(Dispatchers.IO) {
+        if (!isLoggedIn()) {
+            Timber.w("Skipping song rating - user not logged in")
+            return@withContext SongRatingSyncResult.NOT_LOGGED_IN
+        }
+
+        withRetry {
+            when (rating) {
+                SongRating.LIKED -> YouTube.likeVideo(songId, true).getOrThrow()
+                SongRating.DISLIKED -> YouTube.dislikeVideo(songId).getOrThrow()
+                SongRating.NEUTRAL -> YouTube.likeVideo(songId, false).getOrThrow()
+            }
+        }.fold(
+            onSuccess = { SongRatingSyncResult.SUCCESS },
+            onFailure = { error ->
+                Timber.e(error, "Failed to set YouTube rating for song: $songId")
+                SongRatingSyncResult.FAILED
+            },
+        )
+    }
+
+    private suspend fun authoritativeMutation(
+        label: String,
+        mutation: suspend () -> Unit,
+    ): RemoteMutationResult = withContext(Dispatchers.IO) {
+        if (!isLoggedIn()) return@withContext RemoteMutationResult.NOT_LOGGED_IN
+        withRetry { mutation() }.fold(
+            onSuccess = { RemoteMutationResult.SUCCESS },
+            onFailure = {
+                Timber.e(it, "YouTube mutation failed: $label")
+                RemoteMutationResult.FAILED
+            },
+        )
+    }
+
+    suspend fun setSongLibraryNow(songId: String, saved: Boolean): RemoteMutationResult =
+        authoritativeMutation("song library $songId -> $saved") {
+            YouTube.toggleSongLibrary(songId, saved).getOrThrow()
+        }
+
+    suspend fun setPlaylistSavedNow(playlistId: String, saved: Boolean): RemoteMutationResult =
+        authoritativeMutation("playlist library $playlistId -> $saved") {
+            YouTube.likePlaylist(playlistId, saved).getOrThrow()
+        }
+
+    suspend fun setAlbumLibraryNow(
+        playlistId: String,
+        saved: Boolean,
+    ): RemoteMutationResult = setPlaylistSavedNow(playlistId, saved)
+
+    suspend fun setChannelSubscribedNow(channelId: String, subscribed: Boolean): RemoteMutationResult =
+        authoritativeMutation("channel subscription $channelId -> $subscribed") {
+            YouTube.subscribeChannel(channelId, subscribed).getOrThrow()
+        }
 
     fun subscribeChannel(channelId: String, subscribe: Boolean) {
         enqueue(SyncOperation.SubscribeChannel(channelId, subscribe))
@@ -596,6 +893,12 @@ class SyncUtils @Inject constructor(
 
         try {
             // Sync in sequence to avoid overwhelming the API and database
+            // Reconcile albums first: it is a much smaller feed and drives saved
+            // state across artist and album pages. It should not wait behind a
+            // user's potentially very large song library.
+            executeSyncLikedAlbums()
+            delay(DB_OPERATION_DELAY_MS)
+
             executeSyncLikedSongs()
             delay(DB_OPERATION_DELAY_MS)
 
@@ -603,9 +906,6 @@ class SyncUtils @Inject constructor(
             delay(DB_OPERATION_DELAY_MS)
 
             executeSyncUploadedSongs()
-            delay(DB_OPERATION_DELAY_MS)
-
-            executeSyncLikedAlbums()
             delay(DB_OPERATION_DELAY_MS)
 
             executeSyncUploadedAlbums()
@@ -623,6 +923,24 @@ class SyncUtils @Inject constructor(
             executeSyncSavedPlaylists()
             delay(DB_OPERATION_DELAY_MS)
 
+            val finalState = _syncState.value
+            val failedCategory = listOf(
+                finalState.likedSongs,
+                finalState.librarySongs,
+                finalState.uploadedSongs,
+                finalState.likedAlbums,
+                finalState.uploadedAlbums,
+                finalState.artists,
+                finalState.playlists,
+            ).filterIsInstance<SyncStatus.Error>().firstOrNull()
+            if (failedCategory != null) error("Library sync incomplete: ${failedCategory.message}")
+
+            val now = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
+            cachedLastSyncEpoch = now
+            context.safeDataStoreEdit { settings ->
+                settings[LastFullSyncKey] = now
+                settings[LibrarySyncSchemaVersionKey] = LIBRARY_SYNC_SCHEMA_VERSION
+            }
             updateState { copy(overallStatus = SyncStatus.Completed, currentOperation = "") }
             Timber.d("Full sync completed successfully")
         } catch (e: CancellationException) {
@@ -657,6 +975,13 @@ class SyncUtils @Inject constructor(
                 Timber.e(e, "Failed to update LastFM love status")
             }
         }
+    }
+
+    private suspend fun executeRateSong(
+        songId: String,
+        rating: SongRating,
+    ) = withContext(Dispatchers.IO) {
+        rateSongNow(songId, rating)
     }
 
     private suspend fun executeSubscribeChannel(channelId: String, subscribe: Boolean) = withContext(Dispatchers.IO) {
@@ -790,38 +1115,38 @@ class SyncUtils @Inject constructor(
         }
 
         updateState { copy(librarySongs = SyncStatus.Syncing, currentOperation = "Syncing library songs") }
+        Timber.d("Starting authoritative saved-song sync")
 
         withRetry {
-            YouTube.library("FEmusic_liked_videos").completed()
+            YouTube.library(
+                "FEmusic_liked_videos",
+                params = RECENTLY_ADDED_LIBRARY_PARAMS,
+            ).completed()
         }.onSuccess { result ->
             result.onSuccess { page ->
                 try {
-                    val remoteSongs = page.items.filterIsInstance<SongItem>().reversed()
+                    // The server response is explicitly newest-first. Preserve that
+                    // order in the cache so Date added mirrors YouTube Music.
+                    val remoteSongs = page.items.filterIsInstance<SongItem>()
                     val remoteIds = remoteSongs.map { it.id }.toSet()
                     val localSongs = database.librarySongEntitiesByNameAsc()
 
-                    localSongs.filterNot { it.id in remoteIds }.forEach { song ->
-                        try {
-                            database.update(song.toggleLibrary(syncToYouTube = false))
-                            delay(DB_OPERATION_DELAY_MS)
-                        } catch (e: Exception) {
-                            Timber.e(e, "Failed to update song: ${song.id}")
+                    val syncAnchor = LocalDateTime.now()
+                    // Commit the complete server ordering as one Room transaction.
+                    // Updating rows individually made the UI visibly reshuffle for
+                    // the entire duration of a sync.
+                    database.withTransaction {
+                        localSongs.filterNot { it.id in remoteIds }.forEach { song ->
+                            update(song.toggleLibrary(syncToYouTube = false))
                         }
-                    }
-
-                    remoteSongs.forEach { song ->
-                        try {
+                        remoteSongs.forEachIndexed { index, song ->
                             val dbSong = database.songEntity(song.id)
-                            database.withTransaction {
-                                if (dbSong == null) {
-                                    insert(song.toMediaMetadata()) { it.toggleLibrary(syncToYouTube = false) }
-                                } else if (dbSong.inLibrary == null) {
-                                    update(dbSong.toggleLibrary(syncToYouTube = false))
-                                }
+                            val addedAt = syncAnchor.minusSeconds(index.toLong())
+                            if (dbSong == null) {
+                                insert(song.toMediaMetadata()) { it.copy(inLibrary = addedAt) }
+                            } else if (dbSong.inLibrary != addedAt) {
+                                update(dbSong.copy(inLibrary = addedAt))
                             }
-                            delay(DB_OPERATION_DELAY_MS)
-                        } catch (e: Exception) {
-                            Timber.e(e, "Failed to process song: ${song.id}")
                         }
                     }
 
@@ -912,6 +1237,7 @@ class SyncUtils @Inject constructor(
         }
 
         updateState { copy(likedAlbums = SyncStatus.Syncing, currentOperation = "Syncing liked albums") }
+        Timber.d("Starting authoritative saved-album sync")
 
         withRetry {
             YouTube.library("FEmusic_liked_albums").completed()
@@ -937,12 +1263,23 @@ class SyncUtils @Inject constructor(
                         try {
                             val dbAlbum = database.albumEntity(album.id)
                             if (dbAlbum == null) {
-                                YouTube.album(album.browseId).onSuccess { albumPage ->
-                                    database.insert(albumPage)
-                                    database.albumEntity(album.id)?.let { newDbAlbum ->
-                                        database.update(newDbAlbum.localToggleLike())
-                                    }
-                                }
+                                // The library shelf already contains everything
+                                // needed to establish authoritative saved state.
+                                // Fetching every album page here serialized hundreds
+                                // of extra network requests and kept the UI unresolved.
+                                database.insert(
+                                    AlbumEntity(
+                                        id = album.id,
+                                        playlistId = album.playlistId,
+                                        title = album.title,
+                                        year = album.year,
+                                        thumbnailUrl = album.thumbnail,
+                                        songCount = 0,
+                                        duration = 0,
+                                        explicit = album.explicit,
+                                        bookmarkedAt = LocalDateTime.now(),
+                                    ),
+                                )
                             } else if (dbAlbum.bookmarkedAt == null) {
                                 database.update(dbAlbum.localToggleLike())
                             }
@@ -1456,7 +1793,7 @@ class SyncUtils @Inject constructor(
                             }
 
                             if (!isPlaylistBeingModified(playlistEntity.id)) {
-                                executeSyncPlaylist(playlist.id, playlistEntity.id)
+                                Timber.d("Playlist metadata refreshed; tracks remain lazy for ${playlist.title}")
                                 delay(DB_OPERATION_DELAY_MS)
                             } else {
                                 Timber.d("Skipping playlist ${playlist.title} — remove in progress")
@@ -1680,6 +2017,7 @@ class SyncUtils @Inject constructor(
             cachedLastSyncEpoch = now
             context.safeDataStoreEdit { settings ->
                 settings[LastFullSyncKey] = now
+                settings[LibrarySyncSchemaVersionKey] = 0
             }
 
             updateState { copy(overallStatus = SyncStatus.Completed, currentOperation = "") }

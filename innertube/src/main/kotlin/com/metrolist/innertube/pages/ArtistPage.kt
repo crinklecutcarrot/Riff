@@ -79,6 +79,17 @@ data class ArtistPage(
                 ?.runs
 
             val subtitleGroups = subtitleLine?.splitBySeparator()
+            // YT Music does not keep the plays count in a stable column. The artist
+            // landing shelf commonly puts it in a later flex column, while other
+            // clients/responses may put it in a fixed column. Inspect all metadata
+            // columns so values such as "1.8K plays" are not silently discarded.
+            val metadataRuns = renderer.flexColumns
+                .drop(1)
+                .flatMap { column ->
+                    column.musicResponsiveListItemFlexColumnRenderer.text?.runs.orEmpty()
+                } + renderer.fixedColumns.orEmpty().flatMap { column ->
+                    column.musicResponsiveListItemFlexColumnRenderer.text?.runs.orEmpty()
+                }
 
             val artistRuns = subtitleGroups
                 ?.getOrNull(0)
@@ -135,6 +146,7 @@ data class ArtistPage(
                         ?.musicResponsiveListItemFlexColumnRenderer?.text
                         ?.runs?.firstOrNull()
                         ?.text?.parseTime(),
+                viewsText = PageHelper.extractViewCountText(metadataRuns),
                 musicVideoType = renderer.musicVideoType,
                 thumbnail = renderer.thumbnail?.getThumbnailUrl() ?: return null,
                 explicit = renderer.badges?.find {

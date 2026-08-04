@@ -84,6 +84,9 @@ interface DatabaseDao {
     @Query("SELECT * FROM song WHERE liked ORDER BY title")
     suspend fun likedSongEntitiesByNameAsc(): List<SongEntity>
 
+    @Query("SELECT id FROM song WHERE liked")
+    fun likedSongIds(): Flow<List<String>>
+
     @Query("SELECT * FROM song WHERE inLibrary IS NOT NULL ORDER BY title")
     suspend fun librarySongEntitiesByNameAsc(): List<SongEntity>
 
@@ -104,6 +107,23 @@ interface DatabaseDao {
 
     @Query("SELECT * FROM album WHERE bookmarkedAt IS NOT NULL ORDER BY title")
     suspend fun likedAlbumEntitiesByNameAsc(): List<AlbumEntity>
+
+    @Query(
+        """
+        SELECT * FROM album
+        WHERE EXISTS (
+            SELECT 1 FROM sorted_song_album_map map
+            JOIN song ON song.id = map.songId
+            WHERE map.albumId = album.id
+        )
+        AND NOT EXISTS (
+            SELECT 1 FROM sorted_song_album_map map
+            JOIN song ON song.id = map.songId
+            WHERE map.albumId = album.id AND song.inLibrary IS NULL
+        )
+        """,
+    )
+    fun albumsFullyInLibrary(): Flow<List<AlbumEntity>>
 
     @Query("SELECT * FROM album WHERE isUploaded = 1 ORDER BY title")
     suspend fun uploadedAlbumEntitiesByNameAsc(): List<AlbumEntity>

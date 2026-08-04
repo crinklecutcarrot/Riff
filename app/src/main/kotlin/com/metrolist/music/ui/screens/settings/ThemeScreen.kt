@@ -379,36 +379,6 @@ fun ThemeControls(
                 }
             }
 
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(
-                    text = stringResource(R.string.color_palette),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
-                    contentPadding = PaddingValues(horizontal = 4.dp)
-                ) {
-                    items(PaletteColors) { palette ->
-                        val isDynamicPalette = palette.seedColor == Color.Transparent
-                        val isSelected = if (isDynamicPalette) {
-                            selectedThemeColor == DefaultThemeColor
-                        } else {
-                            selectedThemeColor == palette.seedColor
-                        }
-                        
-                        PaletteItem(
-                            palette = palette,
-                            isSelected = isSelected,
-                            onClick = { 
-                                val colorToSave = if (isDynamicPalette) DefaultThemeColor else palette.seedColor
-                                onSelectedThemeColorChange(colorToSave) 
-                            }
-                        )
-                    }
-                }
-            }
         }
     }
 }
@@ -422,7 +392,6 @@ fun ModeCircle(
     showIcon: Boolean,
     onClick: () -> Unit
 ) {
-    val context = LocalContext.current
     val isSystemDark = isSystemInDarkTheme()
     val isSelected = darkMode == targetMode && pureBlack == targetPureBlack
     
@@ -432,22 +401,12 @@ fun ModeCircle(
         DarkMode.OFF -> false
     }
     
-    // Use actual system colors for AUTO mode on Android 12+
-    val modeColorScheme = if (targetMode == DarkMode.AUTO && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        if (effectiveDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-    } else {
-        rememberDynamicColorScheme(
-            seedColor = DefaultThemeColor,
-            isDark = effectiveDark,
-            style = PaletteStyle.TonalSpot
-        )
-    }
-    
     val fillColor = when {
         targetPureBlack -> Color.Black
-        effectiveDark -> modeColorScheme.surface
-        else -> modeColorScheme.surface
+        effectiveDark -> Color(0xFF0E0F10)
+        else -> Color(0xFFFAFAF8)
     }
+    val previewContentColor = if (effectiveDark || targetPureBlack) Color.White else Color(0xFF111112)
     
     // Animated border width
     val borderWidth by animateDpAsState(
@@ -513,7 +472,7 @@ fun ModeCircle(
                 Icon(
                     painter = painterResource(R.drawable.sync),
                     contentDescription = null,
-                    tint = modeColorScheme.onSurface,
+                    tint = previewContentColor,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -677,7 +636,6 @@ fun ThemeMockup(
     MetrolistTheme(
         darkTheme = useDark,
         pureBlack = pureBlack,
-        themeColor = themeColor
     ) {
         Card(
             modifier = Modifier
@@ -785,7 +743,6 @@ fun ThemeMockupPortrait(
     MetrolistTheme(
         darkTheme = useDark,
         pureBlack = pureBlack,
-        themeColor = themeColor
     ) {
         Card(
             modifier = Modifier

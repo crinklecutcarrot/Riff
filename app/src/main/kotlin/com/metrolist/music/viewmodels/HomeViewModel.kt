@@ -43,6 +43,7 @@ import com.metrolist.music.models.SimilarRecommendation
 import com.metrolist.music.ui.screens.wrapped.WrappedAudioService
 import com.metrolist.music.ui.screens.wrapped.WrappedManager
 import com.metrolist.music.utils.SyncUtils
+import com.metrolist.music.utils.YTPlayerUtils
 import com.metrolist.music.utils.dataStore
 import com.metrolist.music.utils.safeDataStoreEdit
 import com.metrolist.music.utils.get
@@ -50,6 +51,8 @@ import com.metrolist.music.utils.reportException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -59,6 +62,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import timber.log.Timber
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -370,15 +375,47 @@ class HomeViewModel @Inject constructor(
                     .shuffled()
                     .take(20)
 
-                quickPicks.value = combined.ifEmpty { relatedSongs.shuffled().take(20) }
+                quickPicks.value = enrichQuickPickDurations(
+                    combined.ifEmpty { relatedSongs.shuffled().take(20) },
+                )
             }
             QuickPicks.LAST_LISTEN -> {
                 val song = database.events().first().firstOrNull()?.song
                 if (song != null && database.hasRelatedSongs(song.id)) {
-                    quickPicks.value = database.getRelatedSongs(song.id).first().filterVideoSongs(hideVideoSongs).shuffled().take(20)
+                    quickPicks.value = enrichQuickPickDurations(
+                        database.getRelatedSongs(song.id).first().filterVideoSongs(hideVideoSongs).shuffled().take(20),
+                    )
                 }
             }
         }
+    }
+
+    /**
+     * Older locally cached recommendations can predate duration metadata. Resolve only those
+     * missing values, four at a time, and persist them so subsequent Home loads stay local.
+     */
+    private suspend fun enrichQuickPickDurations(songs: List<Song>): List<Song> = coroutineScope {
+        val requestGate = Semaphore(4)
+        songs.map { song ->
+            async(Dispatchers.IO) {
+                if (song.song.duration > 0) return@async song
+                requestGate.withPermit {
+                    val remote = YouTube.next(WatchEndpoint(videoId = song.id)).getOrNull()
+                        ?.items
+                        ?.firstOrNull { it.id == song.id }
+                    val duration = remote?.duration?.takeIf { it > 0 }
+                        ?: YTPlayerUtils.playerResponseForMetadata(song.id).getOrNull()
+                            ?.videoDetails
+                            ?.lengthSeconds
+                            ?.toIntOrNull()
+                            ?.takeIf { it > 0 }
+                        ?: return@withPermit song
+                    val enriched = song.copy(song = song.song.copy(duration = duration))
+                    database.update(enriched.song)
+                    enriched
+                }
+            }
+        }.awaitAll()
     }
 
     private suspend fun getCommunityPlaylists() {
@@ -445,7 +482,21 @@ class HomeViewModel @Inject constructor(
                         if (songs.isNotEmpty()) {
                             // Use song count from the playlist page if available, otherwise use original
                             val songCountText = page.playlist.songCountText ?: playlist.songCountText
-                            val updatedPlaylist = playlist.copy(songCountText = songCountText)
+                            val resolvedAuthor =
+                                sequenceOf(page.playlist.author, playlist.author)
+                                    .filterNotNull()
+                                    .firstOrNull { author ->
+                                        !author.name.contains("view", ignoreCase = true) &&
+                                            !author.name.contains("track", ignoreCase = true)
+                                    }
+                            val updatedPlaylist =
+                                playlist.copy(
+                                    author = resolvedAuthor,
+                                    songCountText = songCountText,
+                                    viewsText = page.playlist.viewsText,
+                                    authorAvatarUrl = page.playlist.authorAvatarUrl ?: playlist.authorAvatarUrl,
+                                    thumbnail = page.playlist.thumbnail?.takeIf { it.isNotBlank() } ?: playlist.thumbnail,
+                                )
                             playlists.add(CommunityPlaylistItem(updatedPlaylist, songs))
                         }
                     }

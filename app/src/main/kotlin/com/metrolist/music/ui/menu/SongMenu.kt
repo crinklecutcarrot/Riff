@@ -13,11 +13,15 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -35,6 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -89,6 +94,7 @@ import com.metrolist.music.playback.queues.YouTubeQueue
 import com.metrolist.music.ui.component.DefaultDialog
 import com.metrolist.music.ui.component.ListDialog
 import com.metrolist.music.ui.component.LocalBottomSheetPageState
+import com.metrolist.music.ui.component.LocalMenuState
 import com.metrolist.music.ui.component.Material3MenuGroup
 import com.metrolist.music.ui.component.Material3MenuItemData
 import com.metrolist.music.ui.component.NewAction
@@ -113,12 +119,30 @@ fun SongMenu(
     onDismiss: () -> Unit,
     isFromCache: Boolean = false,
 ) {
+    val menuState = LocalMenuState.current
+    LaunchedEffect(Unit) { menuState.requestHeightFraction(0.65f) }
     val navController = LocalNavController.current
     val context = LocalContext.current
     val database = LocalDatabase.current
     val playerConnection = LocalPlayerConnection.current ?: return
     val songState = database.song(originalSong.id).collectAsStateWithLifecycle(initialValue = originalSong)
     val song = songState.value ?: originalSong
+
+    // Standard library, home, artist, and album entries share the same Riff
+    // song sheet as online results. Contextual menus keep their extra actions
+    // (remove from playlist/history/cache, uploaded-file editing).
+    if (!song.song.isUploaded &&
+        !song.song.isEpisode &&
+        event == null &&
+        playlistSong == null &&
+        !isFromCache
+    ) {
+        YouTubeSongMenu(
+            song = song.toMediaMetadata().toYTItem(),
+            onDismiss = onDismiss,
+        )
+        return
+    }
     val download by LocalDownloadUtil.current
         .getDownload(originalSong.id)
         .collectAsStateWithLifecycle(initialValue = null)
@@ -501,14 +525,11 @@ fun SongMenu(
 
     val isGuest = listenTogetherManager?.isInRoom == true && !listenTogetherManager.isHost
 
-    LazyColumn(
-        contentPadding =
-            PaddingValues(
-                start = 0.dp,
-                top = 0.dp,
-                end = 0.dp,
-                bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
-            ),
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(unbounded = true)
+            .padding(bottom = 20.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()),
     ) {
         item {
             NewActionGrid(
@@ -653,7 +674,7 @@ fun SongMenu(
             )
         }
 
-        item { Spacer(modifier = Modifier.height(12.dp)) }
+        item { RiffMenuDivider() }
 
         item {
             Material3MenuGroup(
@@ -891,7 +912,7 @@ fun SongMenu(
             )
         }
 
-        item { Spacer(modifier = Modifier.height(12.dp)) }
+        item { RiffMenuDivider() }
 
         item {
             Material3MenuGroup(
@@ -973,7 +994,7 @@ fun SongMenu(
             )
         }
 
-        item { Spacer(modifier = Modifier.height(12.dp)) }
+        item { RiffMenuDivider() }
 
         item {
             Material3MenuGroup(
@@ -1153,3 +1174,6 @@ fun SongMenu(
         }
     }
 }
+
+@Composable
+private fun ColumnScope.item(content: @Composable ColumnScope.() -> Unit) = content()

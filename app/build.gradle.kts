@@ -19,9 +19,9 @@ if (localPropertiesFile.exists()) {
     localProperties.load(localPropertiesFile.inputStream())
 }
 
-val baseApplicationId = "com.metrolist.music"
-val applicationIdOverride = System.getenv("METROLIST_APPLICATION_ID")?.takeIf { it.isNotBlank() }
-val appNameOverride = System.getenv("METROLIST_APP_NAME")?.takeIf { it.isNotBlank() }
+val baseApplicationId = "com.riff.music"
+val applicationIdOverride = System.getenv("RIFF_APPLICATION_ID")?.takeIf { it.isNotBlank() }
+val appNameOverride = System.getenv("RIFF_APP_NAME")?.takeIf { it.isNotBlank() }
 val debugKeystorePathOverride = System.getenv("METROLIST_DEBUG_KEYSTORE_PATH")?.takeIf { it.isNotBlank() }
 val debugKeystorePassword = System.getenv("METROLIST_DEBUG_KEYSTORE_PASSWORD")?.takeIf { it.isNotBlank() } ?: "android"
 val debugKeyAlias = System.getenv("METROLIST_DEBUG_KEY_ALIAS")?.takeIf { it.isNotBlank() } ?: "androiddebugkey"
@@ -103,7 +103,7 @@ android {
         targetSdk = 36
         versionCode = 150
         versionName = "13.6.1"
-        resValue("string", "app_name", appNameOverride ?: "Metrolist")
+        resValue("string", "app_name", appNameOverride ?: "Riff")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -191,7 +191,7 @@ android {
             }
             isDebuggable = true
             if (appNameOverride == null) {
-                resValue("string", "app_name", "Metrolist Debug")
+                resValue("string", "app_name", "Riff Debug")
             }
             signingConfig =
                 if (workflowDebugKeystoreFile != null) {
@@ -355,6 +355,8 @@ dependencies {
 
     implementation(libs.material3)
     implementation(libs.palette)
+    implementation(libs.tabler.icons.outline)
+    implementation(libs.tabler.icons.filled)
     implementation(libs.materialKolor)
 
     implementation(libs.appcompat)

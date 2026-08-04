@@ -132,7 +132,7 @@ import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun ArtistScreen(
+fun LegacyArtistScreen(
     navController: NavController,
     viewModel: ArtistViewModel = hiltViewModel(),
 ) {
@@ -667,7 +667,7 @@ fun ArtistScreen(
                                         section.moreEndpoint?.let {
                                             {
                                                 navController.navigate(
-                                                    "artist/${viewModel.artistId}/items?browseId=${it.browseId}?params=${it.params}",
+                                                    "artist/${viewModel.artistId}/items?browseId=${android.net.Uri.encode(it.browseId)}&params=${android.net.Uri.encode(it.params)}",
                                                 )
                                             }
                                         },

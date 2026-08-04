@@ -197,15 +197,15 @@ internal fun LyricsLine(
         @Composable
         fun LyricContent() {
             Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = agentAlignment) {
-                val inactiveAlpha = if (item.isBackground) 0.08f else 0.2f
+                val inactiveAlpha = if (item.isBackground) 0.32f else 0.55f
                 val activeAlpha = 1f
-                val focusedAlpha = if (item.isBackground) 0.5f else 0.3f
+                val focusedAlpha = if (item.isBackground) 0.62f else 0.72f
                 val targetAlpha = if (!isSynced || item.isBackground || isActiveLine) {
                     activeAlpha
                 } else if (isAutoScrollEnabled && displayedCurrentLineIndex >= 0) {
                     when (abs(index - displayedCurrentLineIndex)) {
                         0 -> focusedAlpha
-                        1 -> 0.2f; 2 -> 0.2f; 3 -> 0.15f; 4 -> 0.1f; else -> 0.08f
+                        1 -> 0.68f; 2 -> 0.6f; 3 -> 0.52f; 4 -> 0.46f; else -> 0.4f
                     }
                 } else inactiveAlpha
                 

@@ -17,6 +17,7 @@ import androidx.media3.common.Player.STATE_ENDED
 import androidx.media3.common.Timeline
 import androidx.media3.exoplayer.ExoPlayer
 import com.metrolist.music.constants.SleepTimerCustomDaysKey
+import com.metrolist.music.constants.DislikedSongsKey
 import com.metrolist.music.constants.SleepTimerDayTimesKey
 import com.metrolist.music.constants.SleepTimerDefaultKey
 import com.metrolist.music.constants.SleepTimerEnabledKey
@@ -31,6 +32,7 @@ import com.metrolist.music.extensions.metadata
 import com.metrolist.music.extensions.togglePlayPause
 import com.metrolist.music.playback.MusicService.MusicBinder
 import com.metrolist.music.playback.queues.Queue
+import com.metrolist.music.models.SongRating
 import com.metrolist.music.utils.dataStore
 import com.metrolist.music.utils.get
 import com.metrolist.music.utils.reportException
@@ -165,6 +167,17 @@ class PlayerConnection(
         mediaMetadata.flatMapLatest {
             database.song(it?.id)
         }.stateIn(scope, SharingStarted.Lazily, null)
+    val currentSongRating =
+        combine(
+            currentSong,
+            context.dataStore.data,
+        ) { song, preferences ->
+            when {
+                song?.song?.liked == true -> SongRating.LIKED
+                song?.song?.id in preferences[DislikedSongsKey].orEmpty() -> SongRating.DISLIKED
+                else -> SongRating.NEUTRAL
+            }
+        }.stateIn(scope, SharingStarted.Lazily, SongRating.NEUTRAL)
     val currentLyrics =
         mediaMetadata.flatMapLatest { mediaMetadata ->
             database.lyrics(mediaMetadata?.id)
@@ -307,6 +320,14 @@ class PlayerConnection(
             service.toggleLike()
         } catch (e: Exception) {
             Timber.tag(TAG).e(e, "Error in toggleLike")
+        }
+    }
+
+    fun toggleDislike() {
+        try {
+            service.toggleDislike()
+        } catch (e: Exception) {
+            Timber.tag(TAG).e(e, "Error in toggleDislike")
         }
     }
 

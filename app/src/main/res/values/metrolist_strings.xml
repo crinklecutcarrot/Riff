@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="explore">Explore</string>
     <string name="local_history">Local</string>
     <string name="remote_history">Remote</string>
 
@@ -849,6 +850,7 @@
     <string name="discord_placeholder_artist">Artist name</string>
     <string name="discord_placeholder_album">Album name</string>
     <string name="speed_dial">Speed dial</string>
+    <string name="riff_randomize">Randomize</string>
     <string name="pin_to_speed_dial">Pin to speed dial</string>
     <string name="unpin_from_speed_dial">Unpin from speed dial</string>
     <string name="pin">Pin</string>
@@ -1016,4 +1018,54 @@
     <string name="stream_source_web_creator_desc">Creator web client.</string>
     <string name="stream_source_android_creator">ANDROID_CREATOR</string>
     <string name="stream_source_android_creator_desc">Android creator client. Off by default; needs DroidGuard.</string>
+    <string name="riff_highlight">Highlight</string>
+    <string name="riff_about_track">About this track</string>
+    <string name="riff_artist_context">From the artist</string>
+    <string name="riff_queue_list">Queue List</string>
+    <string name="riff_like">Like</string>
+    <string name="riff_dislike">Dislike</string>
+    <string name="riff_artists">Artists</string>
+    <string name="riff_published_on">Published on %1$s</string>
+    <string name="riff_audio_stream">Audio Stream: %1$s</string>
+    <string name="riff_views">%1$s views</string>
+    <string name="riff_ratings">%1$s like(s), %2$s dislike(s)</string>
+    <string name="riff_more">More</string>
+    <string name="riff_less">Less</string>
+    <string name="riff_standard">Standard</string>
+    <string name="riff_playing_from_album">Playing from album</string>
+    <string name="riff_playing_from_playlist">Playing from playlist</string>
+    <string name="riff_playing_from_radio">Playing from radio</string>
+    <string name="riff_playing_from_queue">Playing from queue</string>
+    <string name="riff_queue_remaining">%1$d tracks · %2$s left</string>
+    <string name="riff_now_playing">Now playing</string>
+    <string name="riff_next_up">Next up</string>
+    <string name="riff_back_to_player">Back to player</string>
+    <string name="riff_unknown_artist">Unknown artist</string>
+    <string name="riff_rating_login_required">Sign in to YouTube Music to rate songs</string>
+    <string name="riff_rating_sync_failed">Couldn\'t update this song on YouTube Music</string>
+    <string name="riff_previous_artist">Previous artist</string>
+    <string name="riff_next_artist">Next artist</string>
+    <string name="riff_new_release">New Release</string>
+    <string name="riff_popular_songs">Popular Songs</string>
+    <string name="riff_singles_eps">Singles &amp; EPs</string>
+    <string name="riff_radio">Radio</string>
+    <string name="riff_related_artists">Related artists</string>
+    <string name="riff_show_more">Show more</string>
+    <string name="riff_subscribers">Subscribers</string>
+    <string name="riff_monthly_listeners">Monthly listeners</string>
+    <string name="riff_save_release">Save release</string>
+    <string name="riff_remove_release">Remove release</string>
+    <string name="riff_add_to_library">Add to Library</string>
+    <string name="riff_added_to_library">Added to Library</string>
+    <string name="riff_library_sync_failed">Couldn\'t update your YouTube Music library</string>
+    <string name="riff_album_added_to_library">Album added to your YouTube Music library</string>
+    <string name="riff_album_removed_from_library">Album removed from your YouTube Music library</string>
+    <string name="riff_play_artist">Play artist</string>
+    <string name="riff_unknown_count">—</string>
+    <string name="riff_plays_unavailable">Plays N/A</string>
+    <string name="riff_released_year">Released %1$d</string>
+    <string name="riff_more_by_artist">More by %1$s</string>
+    <string name="riff_album_type">Album</string>
+    <string name="riff_floating_player_dock">Floating navigation and miniplayer</string>
+    <string name="riff_floating_player_dock_desc">Turn off for a traditional static navigation bar with a theme-colored miniplayer above it</string>
 </resources>

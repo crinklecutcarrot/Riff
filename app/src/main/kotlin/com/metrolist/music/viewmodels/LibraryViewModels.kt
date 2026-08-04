@@ -59,6 +59,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -79,7 +80,7 @@ class LibrarySongsViewModel
 @Inject
 constructor(
     @ApplicationContext context: Context,
-    database: MusicDatabase,
+    private val database: MusicDatabase,
     downloadUtil: DownloadUtil,
     private val syncUtils: SyncUtils,
 ) : ViewModel() {
@@ -88,6 +89,15 @@ constructor(
     val debouncedSearchQuery = _searchQuery
         .debounce(300)
         .stateIn(viewModelScope, SharingStarted.Lazily, "")
+
+    private val _isLibraryLoading = MutableStateFlow(false)
+    val isLibraryLoading = _isLibraryLoading.asStateFlow()
+    private var libraryPagingJob: Job? = null
+    private var libraryContinuation: String? = null
+    private var libraryAnchor = LocalDateTime.now()
+    private var libraryLoadedCount = 0
+    private val libraryRemoteIds = linkedSetOf<String>()
+    private val seenLibraryContinuations = mutableSetOf<String>()
 
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
@@ -98,7 +108,7 @@ constructor(
             .map {
                 Triple(
                     Triple(
-                        it[SongFilterKey].toEnum(SongFilter.LIKED),
+                        it[SongFilterKey].toEnum(SongFilter.LIBRARY),
                         it[SongSortTypeKey].toEnum(SongSortType.CREATE_DATE),
                         (it[SongSortDescendingKey] ?: true),
                     ),
@@ -122,6 +132,67 @@ constructor(
 
     fun syncLibrarySongs() {
         viewModelScope.launch(Dispatchers.IO) { syncUtils.syncLibrarySongs() }
+    }
+
+    /** Starts a newest-first cache session and warms the same first 50 rows YT
+     * Music presents before loading older continuations on demand. */
+    fun refreshPagedLibrarySongs() {
+        if (libraryPagingJob?.isActive == true) return
+        libraryPagingJob = viewModelScope.launch(Dispatchers.IO) {
+            _isLibraryLoading.value = true
+            libraryAnchor = LocalDateTime.now()
+            libraryLoadedCount = 0
+            libraryRemoteIds.clear()
+            seenLibraryContinuations.clear()
+
+            syncUtils.loadInitialLibrarySongsPage(anchor = libraryAnchor)
+                .onSuccess { page ->
+                    libraryContinuation = page.continuation
+                    libraryLoadedCount = page.loadedCount
+                    libraryRemoteIds += page.songIds
+                    if (page.continuation == null) {
+                        syncUtils.reconcileLibrarySongs(libraryRemoteIds)
+                    }
+                }
+                .onFailure { error ->
+                    libraryContinuation = null
+                    reportException(error)
+                }
+            _isLibraryLoading.value = false
+        }
+    }
+
+    fun loadMoreLibrarySongs() {
+        if (libraryPagingJob?.isActive == true) return
+        val continuation = libraryContinuation ?: return
+        if (!seenLibraryContinuations.add(continuation)) {
+            libraryContinuation = null
+            return
+        }
+
+        libraryPagingJob = viewModelScope.launch(Dispatchers.IO) {
+            _isLibraryLoading.value = true
+            syncUtils.loadLibrarySongsContinuation(
+                continuation = continuation,
+                anchor = libraryAnchor,
+                startIndex = libraryLoadedCount,
+            ).onSuccess { page ->
+                libraryContinuation = page.continuation
+                libraryLoadedCount += page.loadedCount
+                libraryRemoteIds += page.songIds
+                if (page.continuation == null) {
+                    syncUtils.reconcileLibrarySongs(libraryRemoteIds)
+                }
+            }.onFailure { error ->
+                seenLibraryContinuations.remove(continuation)
+                reportException(error)
+            }
+            _isLibraryLoading.value = false
+        }
+    }
+
+    fun refreshLibraryPreview() {
+        syncUtils.refreshLibraryPreview()
     }
 
     fun syncUploadedSongs() {
@@ -151,7 +222,7 @@ constructor(
         context.dataStore.data
             .map {
                 Triple(
-                    it[ArtistFilterKey].toEnum(ArtistFilter.LIKED),
+                    it[ArtistFilterKey].toEnum(ArtistFilter.LIBRARY),
                     it[ArtistSortTypeKey].toEnum(ArtistSortType.CREATE_DATE),
                     it[ArtistSortDescendingKey] ?: true,
                 )
@@ -223,7 +294,7 @@ constructor(
             .map {
                 Pair(
                     Triple(
-                        it[AlbumFilterKey].toEnum(AlbumFilter.LIKED),
+                        it[AlbumFilterKey].toEnum(AlbumFilter.LIBRARY),
                         it[AlbumSortTypeKey].toEnum(AlbumSortType.CREATE_DATE),
                         it[AlbumSortDescendingKey] ?: true,
                     ),

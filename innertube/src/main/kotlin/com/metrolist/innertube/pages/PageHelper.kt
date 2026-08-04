@@ -124,6 +124,21 @@ object PageHelper {
         return LibraryFeedbackTokens(addToken, removeToken)
     }
 
+    /** Returns the server-provided toggle state, or null when no library toggle exists. */
+    fun extractLibraryStateFromMenuItems(menuItems: List<Menu.MenuRenderer.Item>?): Boolean? {
+        val toggle = menuItems
+            ?.asSequence()
+            ?.mapNotNull { it.toggleMenuServiceItemRenderer }
+            ?.firstOrNull { isLibraryIcon(it.defaultIcon.iconType) }
+            ?: return null
+
+        return toggle.isSelected ?: when {
+            isSavedLibraryIcon(toggle.defaultIcon.iconType) -> true
+            isAddLibraryIcon(toggle.defaultIcon.iconType) -> false
+            else -> null
+        }
+    }
+
     /**
      * Extract feedback token for library operations.
      *
@@ -206,6 +221,26 @@ object PageHelper {
         runs.orEmpty().firstNotNullOfOrNull { run ->
             run.text.trim().takeIf { it.isDurationText() }?.parseTime()
         }
+
+    fun extractViewCountText(runs: List<Run>?): String? {
+        // Columns are flattened before reaching this helper, and YT Music does not
+        // always put a separator between the artist metadata and the plays column.
+        // Searching the combined text therefore needs to find the metric fragment
+        // rather than requiring the whole value to equal e.g. "1.8K plays".
+        val metricPattern = Regex(
+            """\d[\d.,]*\s*(?:[kmb]|thousand|million|billion)?\s*(?:views?|plays?)""",
+            RegexOption.IGNORE_CASE,
+        )
+        val candidates = runs.orEmpty().map { it.text } +
+            runs.orEmpty().splitBySeparator().map { group ->
+                group.joinToString(separator = "") { it.text }
+            } +
+            runs.orEmpty().joinToString(separator = "") { it.text }
+
+        return candidates.firstNotNullOfOrNull { text ->
+            metricPattern.find(text.replace('\u00a0', ' '))?.value?.trim()
+        }
+    }
 
     private fun Run.isArtistRun(): Boolean {
         val browseEndpoint = navigationEndpoint?.browseEndpoint

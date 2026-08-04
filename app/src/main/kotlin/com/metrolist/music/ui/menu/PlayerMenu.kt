@@ -18,6 +18,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -34,6 +36,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -62,6 +65,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -78,6 +84,7 @@ import androidx.media3.common.PlaybackParameters
 import androidx.media3.exoplayer.offline.Download
 import androidx.media3.exoplayer.offline.DownloadRequest
 import androidx.media3.exoplayer.offline.DownloadService
+import coil3.compose.AsyncImage
 import com.metrolist.innertube.YouTube
 import com.metrolist.music.LocalNavController
 import com.metrolist.music.LocalDatabase
@@ -90,22 +97,73 @@ import com.metrolist.music.constants.VarispeedKey
 import com.metrolist.music.listentogether.ConnectionState
 import com.metrolist.music.listentogether.ListenTogetherEvent
 import com.metrolist.music.models.MediaMetadata
+import com.metrolist.music.models.SongRating
 import com.metrolist.music.playback.ExoDownloadService
 import com.metrolist.music.db.entities.Song
 import com.metrolist.music.db.entities.SpeedDialItem
+import com.metrolist.music.extensions.toMediaItem
 import com.metrolist.music.ui.component.BottomSheetState
 import com.metrolist.music.ui.component.ListDialog
 import com.metrolist.music.ui.component.Material3MenuGroup
 import com.metrolist.music.ui.component.Material3MenuItemData
 import com.metrolist.music.ui.component.NewAction
 import com.metrolist.music.ui.component.NewActionGrid
-import com.metrolist.music.ui.component.VolumeSlider
+import com.metrolist.music.ui.theme.RiffSubtextWeight
+import com.metrolist.music.ui.utils.resize
+import com.metrolist.music.utils.joinByBullet
+import com.metrolist.music.utils.makeTimeString
 import com.metrolist.music.utils.rememberPreference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.math.log2
 import kotlin.math.pow
 import kotlin.math.round
+
+@Composable
+internal fun RiffSheetRatingControl(
+    rating: SongRating,
+    onLike: () -> Unit,
+    onDislike: () -> Unit,
+) {
+    Row(
+        modifier =
+            Modifier
+                .clip(RoundedCornerShape(22.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IconButton(onClick = onLike, modifier = Modifier.size(40.dp)) {
+            Icon(
+                painter =
+                    painterResource(
+                        if (rating == SongRating.LIKED) R.drawable.tabler_ic_thumb_up_filled
+                        else R.drawable.tabler_ic_thumb_up_outline,
+                    ),
+                contentDescription = stringResource(R.string.riff_like),
+                modifier = Modifier.size(19.dp),
+                tint = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+        Box(
+            Modifier
+                .width(1.dp)
+                .height(20.dp)
+                .background(MaterialTheme.colorScheme.outlineVariant),
+        )
+        IconButton(onClick = onDislike, modifier = Modifier.size(40.dp)) {
+            Icon(
+                painter =
+                    painterResource(
+                        if (rating == SongRating.DISLIKED) R.drawable.tabler_ic_thumb_down_filled
+                        else R.drawable.tabler_ic_thumb_down_outline,
+                    ),
+                contentDescription = stringResource(R.string.riff_dislike),
+                modifier = Modifier.size(19.dp),
+                tint = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+    }
+}
 
 @Composable
 fun PlayerMenu(
@@ -120,24 +178,12 @@ fun PlayerMenu(
     val context = LocalContext.current
     val database = LocalDatabase.current
     val playerConnection = LocalPlayerConnection.current ?: return
-    val playerVolume = playerConnection.service.playerVolume.collectAsStateWithLifecycle()
-
-    // Cast state for volume control - safely access castConnectionHandler to prevent crashes
-    val castHandler =
-        remember(playerConnection) {
-            try {
-                playerConnection.service.castConnectionHandler
-            } catch (e: Exception) {
-                null
-            }
-        }
-    val isCasting by castHandler?.isCasting?.collectAsStateWithLifecycle() ?: remember { mutableStateOf(false) }
-    val castVolume by castHandler?.castVolume?.collectAsStateWithLifecycle() ?: remember { mutableFloatStateOf(1f) }
-    val castDeviceName by castHandler?.castDeviceName?.collectAsStateWithLifecycle() ?: remember { mutableStateOf<String?>(null) }
+    val rating by playerConnection.currentSongRating.collectAsStateWithLifecycle()
 
     val varispeedMode by rememberPreference(VarispeedKey, defaultValue = false)
 
     val librarySong by database.song(mediaMetadata.id).collectAsStateWithLifecycle(initialValue = null)
+    val isInLibrary = librarySong?.song?.inLibrary != null
     val coroutineScope = rememberCoroutineScope()
 
     val download by LocalDownloadUtil.current
@@ -150,6 +196,12 @@ fun PlayerMenu(
         remember(mediaMetadata.artists) {
             mediaMetadata.artists.filter { it.id != null }
         }
+    val primaryArtistId = artists.firstOrNull()?.id
+    var artistThumbnailUrl by remember(mediaMetadata.id) { mutableStateOf<String?>(null) }
+    LaunchedEffect(primaryArtistId) {
+        artistThumbnailUrl = primaryArtistId
+            ?.let { YouTube.artist(it).getOrNull()?.artist?.thumbnail }
+    }
 
     var showChoosePlaylistDialog by rememberSaveable {
         mutableStateOf(false)
@@ -197,33 +249,16 @@ fun PlayerMenu(
     }
 
     if (showSelectArtistDialog) {
-        ListDialog(
+        ViewArtistsDialog(
+            artists = artists,
             onDismiss = { showSelectArtistDialog = false },
-        ) {
-            items(artists) { artist ->
-                Box(
-                    contentAlignment = Alignment.CenterStart,
-                    modifier =
-                        Modifier
-                            .fillParentMaxWidth()
-                            .height(ListItemHeight)
-                            .clickable {
-                                navController.navigate("artist/${artist.id}")
-                                showSelectArtistDialog = false
-                                playerBottomSheetState.collapseSoft()
-                                onDismiss()
-                            }.padding(horizontal = 24.dp),
-                ) {
-                    Text(
-                        text = artist.name,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-            }
-        }
+            onArtistClick = { artist ->
+                navController.navigate("artist/${artist.id}")
+                showSelectArtistDialog = false
+                playerBottomSheetState.collapseSoft()
+                onDismiss()
+            },
+        )
     }
 
     var showPitchTempoDialog by rememberSaveable {
@@ -246,76 +281,60 @@ fun PlayerMenu(
         )
     }
 
-    if (isQueueTrigger != true) {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .padding(top = 24.dp, bottom = 6.dp),
-        ) {
-            // Show Cast indicator when casting
-            if (isCasting && castDeviceName != null) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp),
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.cast),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text(
-                        text = stringResource(R.string.casting_to, castDeviceName ?: ""),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                VolumeSlider(
-                    value = if (isCasting) castVolume else playerVolume.value,
-                    onValueChange = { volume ->
-                        if (isCasting) {
-                            castHandler?.setVolume(volume)
-                        } else {
-                            playerConnection.service.playerVolume.value = volume
-                        }
-                    },
-                    modifier = Modifier.weight(1f),
-                    accentColor = MaterialTheme.colorScheme.primary,
-                )
-            }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        AsyncImage(
+            model = mediaMetadata.thumbnailUrl?.resize(200, 200),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(44.dp)
+                .clip(RoundedCornerShape(8.dp)),
+        )
+        Spacer(Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = mediaMetadata.title,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight(650),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = joinByBullet(
+                    mediaMetadata.artists.joinToString { it.name },
+                    makeTimeString(mediaMetadata.duration * 1000L),
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = RiffSubtextWeight,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
+        Spacer(Modifier.width(8.dp))
+        RiffSheetRatingControl(
+            rating = rating,
+            onLike = playerConnection::toggleLike,
+            onDislike = playerConnection::toggleDislike,
+        )
     }
 
-    Spacer(modifier = Modifier.height(20.dp))
-
-    HorizontalDivider()
-
-    Spacer(modifier = Modifier.height(12.dp))
+    RiffMenuDivider()
 
     val configuration = LocalConfiguration.current
     val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
-    LazyColumn(
-        contentPadding =
-            PaddingValues(
-                start = 0.dp,
-                top = 0.dp,
-                end = 0.dp,
-                bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
-            ),
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(unbounded = true)
+            .padding(bottom = 20.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()),
     ) {
         item {
             val startingRadioText = stringResource(R.string.starting_radio)
@@ -326,13 +345,14 @@ fun PlayerMenu(
                             NewAction(
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.radio),
+                                        painter = painterResource(R.drawable.tabler_ic_radio),
                                         contentDescription = null,
                                         modifier = Modifier.size(32.dp),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        tint = MaterialTheme.colorScheme.onSurface,
                                     )
                                 },
                                 text = stringResource(R.string.start_radio),
+                                contentColor = MaterialTheme.colorScheme.onSurface,
                                 onClick = {
                                     Toast.makeText(context, startingRadioText, Toast.LENGTH_SHORT).show()
                                     playerConnection.startRadioSeamlessly()
@@ -345,39 +365,29 @@ fun PlayerMenu(
                         NewAction(
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.playlist_add),
+                                    painter = painterResource(R.drawable.tabler_ic_playlist_add),
                                     contentDescription = null,
                                     modifier = Modifier.size(32.dp),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    tint = MaterialTheme.colorScheme.onSurface,
                                 )
                             },
                             text = stringResource(R.string.add_to_playlist),
+                            contentColor = MaterialTheme.colorScheme.onSurface,
                             onClick = { showChoosePlaylistDialog = true },
                         ),
                         NewAction(
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.link),
+                                    painter = painterResource(R.drawable.tabler_ic_player_skip_forward),
                                     contentDescription = null,
                                     modifier = Modifier.size(32.dp),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    tint = MaterialTheme.colorScheme.onSurface,
                                 )
                             },
-                            text = stringResource(R.string.copy_link),
+                            text = stringResource(R.string.play_next),
+                            contentColor = MaterialTheme.colorScheme.onSurface,
                             onClick = {
-                                val clipboard =
-                                    context.getSystemService(
-                                        android.content.Context.CLIPBOARD_SERVICE,
-                                    ) as android.content.ClipboardManager
-                                val clip =
-                                    android.content.ClipData.newPlainText(
-                                        "Song Link",
-                                        "https://music.youtube.com/watch?v=${mediaMetadata.id}",
-                                    )
-                                clipboard.setPrimaryClip(clip)
-                                android.widget.Toast
-                                    .makeText(context, R.string.link_copied, android.widget.Toast.LENGTH_SHORT)
-                                    .show()
+                                playerConnection.playNext(mediaMetadata.toMediaItem())
                                 onDismiss()
                             },
                         ),
@@ -398,19 +408,33 @@ fun PlayerMenu(
                         if (artists.isNotEmpty() && !isPodcast) {
                             add(
                                 Material3MenuItemData(
-                                    title = { Text(text = stringResource(R.string.view_artist)) },
-                                    description = {
-                                        Text(
-                                            text = mediaMetadata.artists.joinToString { it.name },
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis,
-                                        )
+                                    title = {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text(text = stringResource(R.string.view_artist), maxLines = 1)
+                                            Spacer(Modifier.width(8.dp))
+                                            RiffDestinationPill(
+                                                imageUrl = artistThumbnailUrl.takeIf { artists.size == 1 },
+                                                iconRes = R.drawable.tabler_ic_users.takeIf { artists.size > 1 },
+                                                label = if (artists.size > 1) "${artists.size} Artists"
+                                                    else mediaMetadata.artists.joinToString { it.name }.truncateMenuLabel(28),
+                                                circularImage = true,
+                                                modifier = Modifier.weight(1f, fill = false),
+                                            )
+                                        }
                                     },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.artist),
+                                            painter = painterResource(R.drawable.tabler_ic_user),
                                             contentDescription = null,
                                             modifier = Modifier.size(24.dp),
+                                        )
+                                    },
+                                    trailingContent = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.tabler_ic_arrow_up_right),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(18.dp),
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                         )
                                     },
                                     onClick = {
@@ -428,19 +452,34 @@ fun PlayerMenu(
                         if (mediaMetadata.album != null) {
                             add(
                                 Material3MenuItemData(
-                                    title = { Text(text = stringResource(if (isPodcast) R.string.view_podcast else R.string.view_album)) },
-                                    description = {
-                                        Text(
-                                            text = mediaMetadata.album.title,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis,
-                                        )
+                                    title = {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text(
+                                                text = stringResource(if (isPodcast) R.string.view_podcast else R.string.view_album),
+                                                maxLines = 1,
+                                            )
+                                            Spacer(Modifier.width(8.dp))
+                                            RiffDestinationPill(
+                                                imageUrl = mediaMetadata.thumbnailUrl,
+                                                label = mediaMetadata.album.title.truncateMenuLabel(28),
+                                                circularImage = true,
+                                                modifier = Modifier.weight(1f, fill = false),
+                                            )
+                                        }
                                     },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(if (isPodcast) R.drawable.mic else R.drawable.album),
+                                            painter = painterResource(R.drawable.tabler_ic_disc),
                                             contentDescription = null,
                                             modifier = Modifier.size(24.dp),
+                                        )
+                                    },
+                                    trailingContent = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.tabler_ic_arrow_up_right),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(18.dp),
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                         )
                                     },
                                     onClick = {
@@ -455,32 +494,39 @@ fun PlayerMenu(
                                 ),
                             )
                         }
-                        // Add to Library option
-                        val isInLibrary = librarySong?.song?.inLibrary != null
+                        if (!isListenTogetherGuest) {
+                            add(
+                                Material3MenuItemData(
+                                    title = { Text(text = stringResource(R.string.add_to_queue)) },
+                                    description = { Text(text = stringResource(R.string.add_to_queue_desc)) },
+                                    icon = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.queue_music),
+                                            contentDescription = null,
+                                        )
+                                    },
+                                    onClick = {
+                                        playerConnection.addToQueue(mediaMetadata.toMediaItem())
+                                        onDismiss()
+                                    },
+                                ),
+                            )
+                        }
                         add(
                             Material3MenuItemData(
                                 title = {
                                     Text(
-                                        text =
-                                            stringResource(
-                                                if (isInLibrary) {
-                                                    R.string.remove_from_library
-                                                } else {
-                                                    R.string.add_to_library
-                                                },
-                                            ),
+                                        text = stringResource(
+                                            if (isInLibrary) R.string.remove_from_library else R.string.add_to_library,
+                                        ),
                                     )
                                 },
                                 icon = {
                                     Icon(
-                                        painter =
-                                            painterResource(
-                                                if (isInLibrary) {
-                                                    R.drawable.library_add_check
-                                                } else {
-                                                    R.drawable.library_add
-                                                },
-                                            ),
+                                        painter = painterResource(
+                                            if (isInLibrary) R.drawable.tabler_ic_circle_check_filled
+                                            else R.drawable.tabler_ic_library_plus,
+                                        ),
                                         contentDescription = null,
                                         modifier = Modifier.size(24.dp),
                                     )
@@ -500,7 +546,9 @@ fun PlayerMenu(
                                 },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(if (isPinned) R.drawable.remove else R.drawable.add),
+                                        painter = painterResource(
+                                            if (isPinned) R.drawable.tabler_ic_pinned_off else R.drawable.tabler_ic_pin,
+                                        ),
                                         contentDescription = null,
                                         modifier = Modifier.size(24.dp),
                                     )
@@ -517,11 +565,36 @@ fun PlayerMenu(
                                 },
                             ),
                         )
+                        add(
+                            Material3MenuItemData(
+                                title = { Text(text = stringResource(R.string.share)) },
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.share),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(24.dp),
+                                    )
+                                },
+                                onClick = {
+                                    val intent = Intent(Intent.ACTION_SEND).apply {
+                                        type = "text/plain"
+                                        putExtra(Intent.EXTRA_TEXT, mediaMetadata.toYTItem().shareLink)
+                                    }
+                                    context.startActivity(Intent.createChooser(intent, null))
+                                    onDismiss()
+                                },
+                            ),
+                        )
                     },
             )
         }
 
-        item { Spacer(modifier = Modifier.height(12.dp)) }
+        item {
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f),
+            )
+        }
 
         item {
             Material3MenuGroup(
@@ -537,7 +610,7 @@ fun PlayerMenu(
                                     },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.offline),
+                                            painter = painterResource(R.drawable.tabler_ic_trash),
                                             contentDescription = null,
                                             modifier = Modifier.size(24.dp),
                                         )
@@ -578,7 +651,7 @@ fun PlayerMenu(
                                     title = { Text(text = stringResource(R.string.action_download)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.download),
+                                            painter = painterResource(R.drawable.tabler_ic_download),
                                             contentDescription = null,
                                             modifier = Modifier.size(24.dp),
                                         )
@@ -607,8 +680,6 @@ fun PlayerMenu(
             )
         }
 
-        item { Spacer(modifier = Modifier.height(12.dp)) }
-
         item {
             Material3MenuGroup(
                 items =
@@ -620,7 +691,7 @@ fun PlayerMenu(
                                     // Show a small badge when there are pending suggestions
                                     Box {
                                         Icon(
-                                            painter = painterResource(R.drawable.group),
+                                            painter = painterResource(R.drawable.tabler_ic_users),
                                             contentDescription = null,
                                             modifier = Modifier.size(24.dp),
                                         )
@@ -652,7 +723,7 @@ fun PlayerMenu(
                                     title = { Text(text = stringResource(R.string.resync)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.replay),
+                                            painter = painterResource(R.drawable.tabler_ic_refresh),
                                             contentDescription = null,
                                             modifier = Modifier.size(24.dp),
                                         )
@@ -668,7 +739,12 @@ fun PlayerMenu(
             )
         }
 
-        item { Spacer(modifier = Modifier.height(12.dp)) }
+        item {
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f),
+            )
+        }
 
         item {
             Material3MenuGroup(
@@ -680,7 +756,7 @@ fun PlayerMenu(
                                 description = { Text(text = stringResource(R.string.details_desc)) },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.info),
+                                        painter = painterResource(R.drawable.tabler_ic_info_circle),
                                         contentDescription = null,
                                         modifier = Modifier.size(24.dp),
                                     )
@@ -699,7 +775,7 @@ fun PlayerMenu(
                                     description = { Text(text = stringResource(R.string.equalizer_desc)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.equalizer),
+                                            painter = painterResource(R.drawable.tabler_ic_wave_sine),
                                             contentDescription = null,
                                             modifier = Modifier.size(24.dp),
                                         )
@@ -716,7 +792,7 @@ fun PlayerMenu(
                                     description = { Text(text = stringResource(R.string.system_equalizer_desc)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.graphic_eq),
+                                            painter = painterResource(R.drawable.tabler_ic_chart_bar),
                                             contentDescription = null,
                                             modifier = Modifier.size(24.dp),
                                         )
@@ -743,7 +819,7 @@ fun PlayerMenu(
                                     description = { Text(text = stringResource(R.string.advanced_desc)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.tune),
+                                            painter = painterResource(R.drawable.tabler_ic_adjustments_horizontal),
                                             contentDescription = null,
                                             modifier = Modifier.size(24.dp),
                                         )
@@ -760,6 +836,9 @@ fun PlayerMenu(
         }
     }
 }
+
+@Composable
+private fun ColumnScope.item(content: @Composable ColumnScope.() -> Unit) = content()
 
 @Composable
 fun TempoPitchDialog(onDismiss: () -> Unit) {

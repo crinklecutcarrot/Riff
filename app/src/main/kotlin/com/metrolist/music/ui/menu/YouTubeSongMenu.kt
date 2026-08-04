@@ -11,19 +11,24 @@ import android.content.res.Configuration
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -31,8 +36,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +50,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -68,23 +77,30 @@ import com.metrolist.music.R
 import com.metrolist.music.constants.ListItemHeight
 import com.metrolist.music.constants.ListThumbnailSize
 import com.metrolist.music.constants.ThumbnailCornerRadius
+import com.metrolist.music.constants.DislikedSongsKey
 import com.metrolist.music.db.entities.SpeedDialItem
 import com.metrolist.music.db.entities.SongEntity
 import com.metrolist.music.extensions.toMediaItem
 import com.metrolist.music.models.MediaMetadata
+import com.metrolist.music.models.SongRating
 import com.metrolist.music.models.toMediaMetadata
 import com.metrolist.music.playback.ExoDownloadService
 import com.metrolist.music.playback.queues.YouTubeQueue
 import com.metrolist.music.ui.component.ListDialog
 import com.metrolist.music.ui.component.LocalBottomSheetPageState
+import com.metrolist.music.ui.component.LocalMenuState
 import com.metrolist.music.ui.component.Material3MenuGroup
 import com.metrolist.music.ui.component.Material3MenuItemData
 import com.metrolist.music.ui.component.NewAction
 import com.metrolist.music.ui.component.NewActionGrid
 import com.metrolist.music.ui.utils.ShowMediaInfo
 import com.metrolist.music.ui.utils.resize
+import com.metrolist.music.ui.theme.RiffSubtextWeight
 import com.metrolist.music.utils.joinByBullet
 import com.metrolist.music.utils.makeTimeString
+import com.metrolist.music.utils.RemoteMutationResult
+import com.metrolist.music.utils.SongRatingSyncResult
+import com.metrolist.music.utils.rememberPreference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -99,6 +115,8 @@ fun YouTubeSongMenu(
     onDismiss: () -> Unit,
     onHistoryRemoved: () -> Unit = {}
 ) {
+    val menuState = LocalMenuState.current
+    LaunchedEffect(Unit) { menuState.requestHeightFraction(0.65f) }
     val navController = LocalNavController.current
     val context = LocalContext.current
     val database = LocalDatabase.current
@@ -109,12 +127,62 @@ fun YouTubeSongMenu(
     val syncUtils = LocalSyncUtils.current
     val listenTogetherManager = LocalListenTogetherManager.current
     val isPinned by database.speedDialDao.isPinned(song.id).collectAsStateWithLifecycle(initialValue = false)
+    var remoteLibraryState by remember(song.id, song.isInLibrary) {
+        mutableStateOf(song.isInLibrary)
+    }
+    val effectiveLibraryState = remoteLibraryState
+        ?: (librarySong?.song?.inLibrary != null).takeIf { librarySong != null }
+    val isEpisode = song.isEpisode
+    var dislikedSongIds by rememberPreference(DislikedSongsKey, emptySet())
+    val menuRating =
+        when {
+            librarySong?.song?.liked == true -> SongRating.LIKED
+            song.id in dislikedSongIds -> SongRating.DISLIKED
+            else -> SongRating.NEUTRAL
+        }
+
+    fun setMenuRating(target: SongRating) {
+        val original = librarySong?.song
+        val base = original ?: song.toMediaMetadata().toSongEntity()
+        val wasDisliked = song.id in dislikedSongIds
+        val updated =
+            base.copy(
+                liked = target == SongRating.LIKED,
+                likedDate = if (target == SongRating.LIKED) LocalDateTime.now() else null,
+                inLibrary = if (target == SongRating.LIKED) base.inLibrary ?: LocalDateTime.now() else base.inLibrary,
+            )
+
+        dislikedSongIds =
+            dislikedSongIds.toMutableSet().apply {
+                if (target == SongRating.DISLIKED) add(song.id) else remove(song.id)
+            }
+        database.query {
+            if (original == null) insert(updated) else update(updated)
+        }
+        coroutineScope.launch {
+            if (syncUtils.rateSongNow(song.id, target) != SongRatingSyncResult.SUCCESS) {
+                dislikedSongIds =
+                    dislikedSongIds.toMutableSet().apply {
+                        if (wasDisliked) add(song.id) else remove(song.id)
+                    }
+                database.query {
+                    update(original ?: base)
+                }
+            }
+        }
+    }
     val artists = remember {
         song.artists.mapNotNull {
             it.id?.let { artistId ->
                 MediaMetadata.Artist(id = artistId, name = it.name)
             }
         }
+    }
+    val primaryArtistId = song.artists.firstOrNull()?.id
+    var artistThumbnailUrl by remember(song.id) { mutableStateOf<String?>(null) }
+    LaunchedEffect(primaryArtistId) {
+        artistThumbnailUrl = primaryArtistId
+            ?.let { YouTube.artist(it).getOrNull()?.artist?.thumbnail }
     }
 
     var showChoosePlaylistDialog by rememberSaveable {  
@@ -142,85 +210,63 @@ fun YouTubeSongMenu(
         mutableStateOf(false)  
     }  
 
-    if (showSelectArtistDialog) {  
-        ListDialog(  
-            onDismiss = { showSelectArtistDialog = false },  
-        ) {  
-            items(artists) { artist ->  
-                Row(  
-                    verticalAlignment = Alignment.CenterVertically,  
-                    modifier =  
-                    Modifier  
-                        .height(ListItemHeight)  
-                        .clickable {  
-                            navController.navigate("artist/${artist.id}")  
-                            showSelectArtistDialog = false  
-                            onDismiss()  
-                        }  
-                        .padding(horizontal = 12.dp),  
-                ) {  
-                    Box(  
-                        contentAlignment = Alignment.CenterStart,  
-                        modifier =  
-                        Modifier  
-                            .fillParentMaxWidth()  
-                            .height(ListItemHeight)  
-                            .clickable {  
-                                navController.navigate("artist/${artist.id}")  
-                                showSelectArtistDialog = false  
-                                onDismiss()  
-                            }  
-                            .padding(horizontal = 24.dp),  
-                    ) {  
-                        Text(  
-                            text = artist.name,  
-                            fontSize = 18.sp,  
-                            fontWeight = FontWeight.Bold,  
-                            maxLines = 1,  
-                            overflow = TextOverflow.Ellipsis,  
-                        )  
-                    }  
-                }  
-            }  
-        }  
-    }  
+    if (showSelectArtistDialog) {
+        ViewArtistsDialog(
+            artists = artists,
+            onDismiss = { showSelectArtistDialog = false },
+            onArtistClick = { artist ->
+                navController.navigate("artist/${artist.id}")
+                showSelectArtistDialog = false
+                onDismiss()
+            },
+        )
+    }
 
-    ListItem(  
-        headlineContent = {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        AsyncImage(
+            model = song.thumbnail.resize(200, 200),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(44.dp)
+                .clip(RoundedCornerShape(8.dp)),
+        )
+        Spacer(Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = song.title,
                 modifier = Modifier.basicMarquee(),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight(650),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-        },  
-        supportingContent = {  
-            Text(  
+            Spacer(Modifier.height(2.dp))
+            Text(
                 text = joinByBullet(
                     song.artists.joinToString { it.name },
                     song.duration?.let { makeTimeString(it * 1000L) },
-                )
-            )  
-        },  
-        leadingContent = {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(ListThumbnailSize)
-                    .clip(RoundedCornerShape(ThumbnailCornerRadius))
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = RiffSubtextWeight,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        Spacer(Modifier.width(8.dp))
+        if (isEpisode) {
+            Surface(
+                modifier = Modifier.size(36.dp),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.surfaceVariant,
             ) {
-                AsyncImage(
-                    model = song.thumbnail.resize(200, 200),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(ThumbnailCornerRadius))
-                )
-            }
-        },
-        trailingContent = {
-            // For episodes, show saved state and toggle save for later
-            val isEpisode = song.isEpisode
+                // For episodes, show saved state and toggle save for later
             val isFavorite = if (isEpisode) librarySong?.song?.inLibrary != null else librarySong?.song?.liked == true
             IconButton(
                 onClick = {
@@ -263,31 +309,192 @@ fun YouTubeSongMenu(
                 },
             ) {
                 Icon(
-                    painter = painterResource(if (isFavorite) R.drawable.favorite else R.drawable.favorite_border),
-                    tint = if (isFavorite) MaterialTheme.colorScheme.error else LocalContentColor.current,
+                    painter = painterResource(
+                        if (isFavorite) R.drawable.tabler_ic_thumb_up_filled
+                        else R.drawable.tabler_ic_thumb_up_outline,
+                    ),
+                    tint = LocalContentColor.current,
                     contentDescription = null,
+                    modifier = Modifier.size(18.dp),
                 )
             }
-        },  
-    )  
+            }
+        } else {
+            RiffSheetRatingControl(
+                rating = menuRating,
+                onLike = {
+                    setMenuRating(if (menuRating == SongRating.LIKED) SongRating.NEUTRAL else SongRating.LIKED)
+                },
+                onDislike = {
+                    setMenuRating(if (menuRating == SongRating.DISLIKED) SongRating.NEUTRAL else SongRating.DISLIKED)
+                },
+            )
+        }
+    }
 
-    HorizontalDivider()
-
-    Spacer(modifier = Modifier.height(12.dp))
+    RiffMenuDivider()
 
     val bottomSheetPageState = LocalBottomSheetPageState.current
     val configuration = LocalConfiguration.current
     val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
     val isGuest = listenTogetherManager?.isInRoom == true && !listenTogetherManager.isHost
+    val isPodcast = song.album?.let { !it.id.startsWith("MPREb_") } ?: false
+    val destinationAndLibraryItems =
+        buildList {
+            if (artists.isNotEmpty() && !isPodcast) {
+                add(
+                    Material3MenuItemData(
+                        title = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(text = stringResource(R.string.view_artist), maxLines = 1)
+                                Spacer(Modifier.width(8.dp))
+                                RiffDestinationPill(
+                                    imageUrl = artistThumbnailUrl.takeIf { artists.size == 1 },
+                                    iconRes = R.drawable.tabler_ic_users.takeIf { artists.size > 1 },
+                                    label = if (artists.size > 1) "${artists.size} Artists"
+                                        else song.artists.joinToString { it.name }.truncateMenuLabel(28),
+                                    circularImage = true,
+                                    modifier = Modifier.weight(1f, fill = false),
+                                )
+                            }
+                        },
+                        icon = { Icon(painterResource(R.drawable.tabler_ic_user), null, Modifier.size(24.dp)) },
+                        trailingContent = {
+                            Icon(
+                                painterResource(R.drawable.tabler_ic_arrow_up_right),
+                                null,
+                                Modifier.size(18.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        },
+                        onClick = {
+                            if (artists.size == 1) {
+                                navController.navigate("artist/${artists[0].id}")
+                                onDismiss()
+                            } else {
+                                showSelectArtistDialog = true
+                            }
+                        },
+                    ),
+                )
+            }
+            song.album?.let { album ->
+                add(
+                    Material3MenuItemData(
+                        title = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = stringResource(if (isPodcast) R.string.view_podcast else R.string.view_album),
+                                    maxLines = 1,
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                RiffDestinationPill(
+                                    imageUrl = song.thumbnail,
+                                    label = album.name.truncateMenuLabel(28),
+                                    circularImage = true,
+                                    modifier = Modifier.weight(1f, fill = false),
+                                )
+                            }
+                        },
+                        icon = { Icon(painterResource(R.drawable.tabler_ic_disc), null, Modifier.size(24.dp)) },
+                        trailingContent = {
+                            Icon(
+                                painterResource(R.drawable.tabler_ic_arrow_up_right),
+                                null,
+                                Modifier.size(18.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        },
+                        onClick = {
+                            navController.navigate(if (isPodcast) "online_podcast/${album.id}" else "album/${album.id}")
+                            onDismiss()
+                        },
+                    ),
+                )
+            }
+            if (!isGuest) {
+                add(
+                    Material3MenuItemData(
+                        title = { Text(text = stringResource(R.string.add_to_queue)) },
+                        description = { Text(text = stringResource(R.string.add_to_queue_desc)) },
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.queue_music),
+                                contentDescription = null,
+                            )
+                        },
+                        onClick = {
+                            playerConnection.addToQueue(song.toMediaItem())
+                            onDismiss()
+                        },
+                    ),
+                )
+            }
+            add(
+                Material3MenuItemData(
+                    title = {
+                        Text(
+                            if (effectiveLibraryState == true) stringResource(R.string.remove_from_library)
+                            else stringResource(R.string.add_to_library),
+                        )
+                    },
+                    icon = {
+                        Icon(
+                            painterResource(
+                                if (effectiveLibraryState == true) R.drawable.tabler_ic_circle_check_filled
+                                else R.drawable.tabler_ic_library_plus,
+                            ),
+                            null,
+                            Modifier.size(24.dp),
+                        )
+                    },
+                    onClick = {
+                        val wasInLibrary = effectiveLibraryState == true
+                        remoteLibraryState = !wasInLibrary
+                        coroutineScope.launch {
+                            val result = syncUtils.setSongLibraryNow(song.id, !wasInLibrary)
+                            if (result == RemoteMutationResult.SUCCESS) {
+                                librarySong?.song?.let { localSong ->
+                                    database.update(
+                                        localSong.copy(inLibrary = if (!wasInLibrary) LocalDateTime.now() else null),
+                                    )
+                                }
+                            } else {
+                                remoteLibraryState = wasInLibrary
+                            }
+                        }
+                    },
+                ),
+            )
+            add(
+                Material3MenuItemData(
+                    title = {
+                        Text(if (isPinned) stringResource(R.string.unpin_from_speed_dial) else stringResource(R.string.pin_to_speed_dial))
+                    },
+                    icon = {
+                        Icon(
+                            painterResource(if (isPinned) R.drawable.tabler_ic_pinned_off else R.drawable.tabler_ic_pin),
+                            null,
+                            Modifier.size(24.dp),
+                        )
+                    },
+                    onClick = {
+                        coroutineScope.launch(Dispatchers.IO) {
+                            if (isPinned) database.speedDialDao.delete(song.id)
+                            else database.speedDialDao.insert(SpeedDialItem.fromYTItem(song))
+                        }
+                        onDismiss()
+                    },
+                ),
+            )
+        }
 
-    LazyColumn(
-        contentPadding = PaddingValues(
-            start = 0.dp,
-            top = 0.dp,
-            end = 0.dp,
-            bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
-        ),
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(unbounded = true)
+            .padding(bottom = 20.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()),
     ) {
         item {
             NewActionGrid(
@@ -296,15 +503,16 @@ fun YouTubeSongMenu(
                         NewAction(
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.playlist_play),
+                                    painter = painterResource(R.drawable.tabler_ic_radio),
                                     contentDescription = null,
                                     modifier = Modifier.size(28.dp),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    tint = MaterialTheme.colorScheme.onSurface,
                                 )
                             },
-                            text = stringResource(R.string.play_next),
+                            text = stringResource(R.string.start_radio),
+                            contentColor = MaterialTheme.colorScheme.onSurface,
                             onClick = {
-                                playerConnection.playNext(song.copy(thumbnail = song.thumbnail.resize(544,544)).toMediaItem())
+                                playerConnection.playQueue(YouTubeQueue.radio(song.toMediaMetadata()))
                                 onDismiss()
                             }
                         )
@@ -312,13 +520,14 @@ fun YouTubeSongMenu(
                     NewAction(
                         icon = {
                             Icon(
-                                painter = painterResource(R.drawable.playlist_add),
+                                painter = painterResource(R.drawable.tabler_ic_playlist_add),
                                 contentDescription = null,
                                 modifier = Modifier.size(28.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                tint = MaterialTheme.colorScheme.onSurface,
                             )
                         },
                         text = stringResource(R.string.add_to_playlist),
+                        contentColor = MaterialTheme.colorScheme.onSurface,
                         onClick = {
                             showChoosePlaylistDialog = true
                         }
@@ -326,20 +535,16 @@ fun YouTubeSongMenu(
                     NewAction(
                         icon = {
                             Icon(
-                                painter = painterResource(R.drawable.share),
+                                painter = painterResource(R.drawable.tabler_ic_player_skip_forward),
                                 contentDescription = null,
                                 modifier = Modifier.size(28.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                tint = MaterialTheme.colorScheme.onSurface,
                             )
                         },
-                        text = stringResource(R.string.share),
+                        text = stringResource(R.string.play_next),
+                        contentColor = MaterialTheme.colorScheme.onSurface,
                         onClick = {
-                            val intent = Intent().apply {
-                                action = Intent.ACTION_SEND
-                                type = "text/plain"
-                                putExtra(Intent.EXTRA_TEXT, song.shareLink)
-                            }
-                            context.startActivity(Intent.createChooser(intent, null))
+                            playerConnection.playNext(song.copy(thumbnail = song.thumbnail.resize(544,544)).toMediaItem())
                             onDismiss()
                         }
                     )
@@ -376,43 +581,30 @@ fun YouTubeSongMenu(
                             }
                         )
                     } else null,
-                    if (!isGuest) {
-                        Material3MenuItemData(
-                            title = { Text(text = stringResource(R.string.start_radio)) },
-                            description = { Text(text = stringResource(R.string.start_radio_desc)) },
-                            icon = {
-                                Icon(
-                                    painter = painterResource(R.drawable.radio),
-                                    contentDescription = null,
-                                )
-                            },
-                            onClick = {
-                                playerConnection.playQueue(YouTubeQueue.radio(song.toMediaMetadata()))
-                                onDismiss()
+                    *destinationAndLibraryItems.toTypedArray(),
+                    Material3MenuItemData(
+                        title = { Text(text = stringResource(R.string.share)) },
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.share),
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp),
+                            )
+                        },
+                        onClick = {
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, song.shareLink)
                             }
-                        )
-                    } else null,
-                    if (!isGuest) {
-                        Material3MenuItemData(
-                            title = { Text(text = stringResource(R.string.add_to_queue)) },
-                            description = { Text(text = stringResource(R.string.add_to_queue_desc)) },
-                            icon = {
-                                Icon(
-                                    painter = painterResource(R.drawable.queue_music),
-                                    contentDescription = null,
-                                )
-                            },
-                            onClick = {
-                                playerConnection.addToQueue(song.toMediaItem())
-                                onDismiss()
-                            }
-                        )
-                    } else null
+                            context.startActivity(Intent.createChooser(intent, null))
+                            onDismiss()
+                        },
+                    ),
                 )
             )
         }
 
-        item { Spacer(modifier = Modifier.height(12.dp)) }
+        item { RiffMenuDivider() }
 
         item {
             Material3MenuGroup(
@@ -498,74 +690,13 @@ fun YouTubeSongMenu(
                             )
                         )
                     }
-                    add(
-                        Material3MenuItemData(
-                            title = { 
-                                Text(
-                                    text = if (isPinned) stringResource(R.string.unpin_from_speed_dial) else stringResource(R.string.pin_to_speed_dial)
-                                ) 
-                            },
-                            icon = {
-                                Icon(
-                                    painter = painterResource(if (isPinned) R.drawable.remove else R.drawable.add),
-                                    contentDescription = null,
-                                )
-                            },
-                            onClick = {
-                                coroutineScope.launch(Dispatchers.IO) {
-                                    if (isPinned) {
-                                        database.speedDialDao.delete(song.id)
-                                    } else {
-                                        database.speedDialDao.insert(SpeedDialItem.fromYTItem(song))
-                                    }
-                                }
-                                onDismiss()
-                            }
-                        )
-                    )
-                    add(
-                        Material3MenuItemData(
-                            title = {
-                                Text(text = if (librarySong?.song?.inLibrary != null) stringResource(R.string.remove_from_library) else stringResource(R.string.add_to_library))
-                            },
-                            description = { Text(text = stringResource(R.string.add_to_library_desc)) },
-                            icon = {
-                                Icon(
-                                    painter = painterResource(if (librarySong?.song?.inLibrary != null) R.drawable.library_add_check else R.drawable.library_add),
-                                    contentDescription = null,
-                                )
-                            },
-                            onClick = {
-                                val isInLibrary = librarySong?.song?.inLibrary != null
-
-                                // Use the new reliable method that fetches fresh tokens
-                                coroutineScope.launch {
-                                    YouTube.toggleSongLibrary(song.id, !isInLibrary)
-                                }
-
-                                if (isInLibrary) {
-                                    database.query {
-                                        inLibrary(song.id, null)
-                                    }
-                                } else {
-                                    database.transaction {
-                                        insert(song.toMediaMetadata())
-                                        inLibrary(song.id, LocalDateTime.now())
-                                        addLibraryTokens(
-                                            song.id,
-                                            song.libraryAddToken,
-                                            song.libraryRemoveToken
-                                        )
-                                    }
-                                }
-                            }
-                        )
-                    )
                 }
             )
         }
 
-        item { Spacer(modifier = Modifier.height(12.dp)) }
+        if (song.isEpisode || song.historyRemoveToken != null) {
+            item { RiffMenuDivider() }
+        }
 
         item {
             Material3MenuGroup(
@@ -646,79 +777,91 @@ fun YouTubeSongMenu(
             )
         }
 
-        item { Spacer(modifier = Modifier.height(12.dp)) }
+        item { RiffMenuDivider() }
 
         item {
-            // Check if this is a podcast episode (album ID doesn't start with MPREb_)
-            val isPodcast = song.album?.let { !it.id.startsWith("MPREb_") } ?: false
-
             Material3MenuGroup(
-                items = buildList {
-                    // Don't show "View Artist" for podcasts - only show "View Podcast"
-                    if (artists.isNotEmpty() && !isPodcast) {
-                        add(
-                            Material3MenuItemData(
-                                title = { Text(text = stringResource(R.string.view_artist)) },
-                                description = { Text(text = song.artists.joinToString { it.name }) },
-                                icon = {
-                                    Icon(
-                                        painter = painterResource(R.drawable.artist),
-                                        contentDescription = null,
-                                    )
-                                },
-                                onClick = {
-                                    if (artists.size == 1) {
-                                        navController.navigate("artist/${artists[0].id}")
-                                        onDismiss()
-                                    } else {
-                                        showSelectArtistDialog = true
-                                    }
-                                }
-                            )
-                        )
-                    }
-                    song.album?.let { album ->
-                        add(
-                            Material3MenuItemData(
-                                title = { Text(text = stringResource(if (isPodcast) R.string.view_podcast else R.string.view_album)) },
-                                description = { Text(text = album.name) },
-                                icon = {
-                                    Icon(
-                                        painter = painterResource(if (isPodcast) R.drawable.mic else R.drawable.album),
-                                        contentDescription = null,
-                                    )
-                                },
-                                onClick = {
-                                    if (isPodcast) {
-                                        navController.navigate("online_podcast/${album.id}")
-                                    } else {
-                                        navController.navigate("album/${album.id}")
-                                    }
-                                    onDismiss()
-                                }
-                            )
-                        )
-                    }
-                    add(
+                items =
+                    listOf(
                         Material3MenuItemData(
                             title = { Text(text = stringResource(R.string.details)) },
                             description = { Text(text = stringResource(R.string.details_desc)) },
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.info),
+                                    painter = painterResource(R.drawable.tabler_ic_info_circle),
                                     contentDescription = null,
                                 )
                             },
                             onClick = {
                                 onDismiss()
-                                bottomSheetPageState.show {
-                                    ShowMediaInfo(song.id)
-                                }
-                            }
-                        )
-                    )
-                }
+                                bottomSheetPageState.show { ShowMediaInfo(song.id) }
+                            },
+                        ),
+                    ),
             )
         }
     }
 }
+
+@Composable
+internal fun RiffMenuDivider() {
+    HorizontalDivider(
+        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f),
+    )
+}
+
+@Composable
+internal fun RiffDestinationPill(
+    imageUrl: String?,
+    label: String,
+    circularImage: Boolean,
+    modifier: Modifier = Modifier,
+    @androidx.annotation.DrawableRes iconRes: Int? = null,
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(50),
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.07f),
+    ) {
+        Row(
+            modifier = Modifier.padding(start = 4.dp, top = 3.dp, end = 9.dp, bottom = 3.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (iconRes != null) {
+                Icon(
+                    painter = painterResource(iconRes),
+                    contentDescription = null,
+                    modifier = Modifier.size(22.dp).padding(2.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = null,
+                    placeholder = painterResource(if (circularImage) R.drawable.artist else R.drawable.album),
+                    error = painterResource(if (circularImage) R.drawable.artist else R.drawable.album),
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(22.dp)
+                        .clip(if (circularImage) CircleShape else RoundedCornerShape(5.dp)),
+                )
+            }
+            Spacer(Modifier.width(6.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = RiffSubtextWeight,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ColumnScope.item(content: @Composable ColumnScope.() -> Unit) = content()
+
+internal fun String.truncateMenuLabel(maxCharacters: Int): String =
+    if (length <= maxCharacters) this else take(maxCharacters).trimEnd() + "…"

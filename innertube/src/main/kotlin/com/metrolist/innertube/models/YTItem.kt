@@ -26,6 +26,7 @@ data class SongItem(
     val artists: List<Artist>,
     val album: Album? = null,
     val duration: Int? = null,
+    val viewsText: String? = null,
     val musicVideoType: String? = null,
     val chartPosition: Int? = null,
     val chartChange: String? = null,
@@ -35,6 +36,7 @@ data class SongItem(
     val setVideoId: String? = null,
     val libraryAddToken: String? = null,
     val libraryRemoveToken: String? = null,
+    val isInLibrary: Boolean? = null,
     val historyRemoveToken: String? = null,
     val isEpisode: Boolean = false,
     val uploadEntityId: String? = null
@@ -73,6 +75,7 @@ data class PlaylistItem(
     val isPodcast: Boolean = false,
     val description: String? = null,
     val authorAvatarUrl: String? = null,
+    val viewsText: String? = null,
 ) : YTItem() {
     override val explicit: Boolean
         get() = false

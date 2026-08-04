@@ -78,7 +78,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -93,12 +92,15 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.zIndex
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -118,12 +120,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
-import coil3.imageLoader
-import coil3.request.CachePolicy
-import coil3.request.ImageRequest
-import coil3.request.allowHardware
-import coil3.request.crossfade
-import coil3.toBitmap
 import com.metrolist.innertube.YouTube
 import com.metrolist.innertube.models.SongItem
 import com.metrolist.innertube.models.WatchEndpoint
@@ -133,10 +129,10 @@ import com.metrolist.music.constants.CheckForUpdatesKey
 import com.metrolist.music.constants.DarkModeKey
 import com.metrolist.music.constants.DefaultOpenTabKey
 import com.metrolist.music.constants.DisableScreenshotKey
-import com.metrolist.music.constants.DynamicThemeKey
 import com.metrolist.music.constants.EnableHighRefreshRateKey
 import com.metrolist.music.constants.EnableLandscapeScalingKey
 import com.metrolist.music.constants.ExperimentalLyricsKey
+import com.metrolist.music.constants.FloatingPlayerDockKey
 import com.metrolist.music.constants.LastSeenVersionKey
 import com.metrolist.music.constants.ListenTogetherInTopBarKey
 import com.metrolist.music.constants.ListenTogetherUsernameKey
@@ -151,7 +147,6 @@ import com.metrolist.music.constants.PreferredLyricsProvider
 import com.metrolist.music.constants.PreferredLyricsProviderKey
 import com.metrolist.music.constants.PureBlackKey
 import com.metrolist.music.constants.SYSTEM_DEFAULT
-import com.metrolist.music.constants.SelectedThemeColorKey
 import com.metrolist.music.constants.SimpMusicMigrationDoneKey
 import com.metrolist.music.constants.SlimNavBarHeight
 import com.metrolist.music.constants.SlimNavBarKey
@@ -169,12 +164,16 @@ import com.metrolist.music.playback.MusicService.MusicBinder
 import com.metrolist.music.playback.PlayerConnection
 import com.metrolist.music.playback.queues.YouTubeQueue
 import com.metrolist.music.ui.component.AccountSettingsDialog
-import com.metrolist.music.ui.component.AppNavigationBar
 import com.metrolist.music.ui.component.AppNavigationRail
 import com.metrolist.music.ui.component.BottomSheetMenu
 import com.metrolist.music.ui.component.BottomSheetPage
 import com.metrolist.music.ui.component.LocalBottomSheetPageState
 import com.metrolist.music.ui.component.LocalMenuState
+import com.metrolist.music.ui.component.RiffPlayerDock
+import com.metrolist.music.ui.component.RiffDockNavigationHeight
+import com.metrolist.music.ui.component.RiffDockPlayerExpansionHeight
+import com.metrolist.music.ui.component.RiffDockPageSpacing
+import com.metrolist.music.ui.component.RiffStaticDockNavigationHeight
 import com.metrolist.music.ui.component.rememberBottomSheetState
 import com.metrolist.music.ui.component.shimmer.ShimmerTheme
 import com.metrolist.music.ui.menu.YouTubeSongMenu
@@ -184,10 +183,7 @@ import com.metrolist.music.ui.screens.navigationBuilder
 import com.metrolist.music.ui.screens.settings.ChangelogScreen
 import com.metrolist.music.ui.screens.settings.DarkMode
 import com.metrolist.music.ui.screens.settings.NavigationTab
-import com.metrolist.music.ui.theme.ColorSaver
-import com.metrolist.music.ui.theme.DefaultThemeColor
 import com.metrolist.music.ui.theme.MetrolistTheme
-import com.metrolist.music.ui.theme.extractThemeColor
 import com.metrolist.music.ui.utils.appBarScrollBehavior
 import com.metrolist.music.ui.utils.resetHeightOffset
 import com.metrolist.music.utils.SearchRoutes
@@ -517,7 +513,6 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        val enableDynamicTheme by rememberPreference(DynamicThemeKey, defaultValue = true)
         val enableHighRefreshRate by rememberPreference(EnableHighRefreshRateKey, defaultValue = true)
 
         LaunchedEffect(enableHighRefreshRate) {
@@ -566,73 +561,11 @@ class MainActivity : ComponentActivity() {
                 pureBlackEnabled && useDarkTheme
             }
 
-        val (selectedThemeColorInt) = rememberPreference(SelectedThemeColorKey, defaultValue = DefaultThemeColor.toArgb())
-        val selectedThemeColor = Color(selectedThemeColorInt)
-
         val showChangelog = rememberSaveable { mutableStateOf(false) }
-
-        var themeColor by rememberSaveable(stateSaver = ColorSaver) {
-            mutableStateOf(selectedThemeColor)
-        }
-
-        val themeColorCache = remember { mutableMapOf<String, Color>() }
-
-        LaunchedEffect(selectedThemeColor) {
-            if (!enableDynamicTheme) {
-                themeColor = selectedThemeColor
-            }
-        }
-
-        LaunchedEffect(playerConnection, enableDynamicTheme, selectedThemeColor) {
-            val playerConnection = playerConnection
-            if (!enableDynamicTheme || playerConnection == null) {
-                themeColor = selectedThemeColor
-                return@LaunchedEffect
-            }
-
-            playerConnection.service.currentMediaMetadata
-                .distinctUntilChanged { old, new -> old?.id == new?.id }
-                .collectLatest { song ->
-                    if (song?.thumbnailUrl != null) {
-                        val cached = themeColorCache[song.thumbnailUrl]
-                        if (cached != null) {
-                            withFrameNanos { }
-                            themeColor = cached
-                            return@collectLatest
-                        }
-                        withContext(Dispatchers.IO) {
-                            try {
-                                val result =
-                                    imageLoader.execute(
-                                        ImageRequest
-                                            .Builder(this@MainActivity)
-                                            .data(song.thumbnailUrl)
-                                            .allowHardware(false)
-                                            .memoryCachePolicy(CachePolicy.ENABLED)
-                                            .diskCachePolicy(CachePolicy.ENABLED)
-                                            .networkCachePolicy(CachePolicy.ENABLED)
-                                            .crossfade(false)
-                                            .build(),
-                                    )
-                                val extractedColor = result.image?.toBitmap()?.extractThemeColor() ?: selectedThemeColor
-                                themeColorCache[song.thumbnailUrl] = extractedColor
-                                withFrameNanos { }
-                                themeColor = extractedColor
-                            } catch (e: Exception) {
-                                withFrameNanos { }
-                                themeColor = selectedThemeColor
-                            }
-                        }
-                    } else {
-                        themeColor = selectedThemeColor
-                    }
-                }
-        }
 
         MetrolistTheme(
             darkTheme = useDarkTheme,
             pureBlack = pureBlack,
-            themeColor = themeColor,
         ) {
             val currentDensity = LocalDensity.current
             val windowInfo = LocalWindowInfo.current
@@ -670,7 +603,6 @@ class MainActivity : ComponentActivity() {
                 val cutoutInsets = WindowInsets.displayCutout
                 val windowsInsets = WindowInsets.systemBars
                 val bottomInset = with(density) { windowsInsets.getBottom(density).toDp() }
-                val bottomInsetDp = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()
 
                 val navController = rememberNavController()
 
@@ -701,6 +633,7 @@ class MainActivity : ComponentActivity() {
                 }
                 val (slimNav) = rememberPreference(SlimNavBarKey, defaultValue = false)
                 val (useNewMiniPlayerDesign) = rememberPreference(UseNewMiniPlayerDesignKey, defaultValue = true)
+                val (floatingPlayerDock) = rememberPreference(FloatingPlayerDockKey, defaultValue = true)
                 val (defaultOpenTabInt) = rememberPreference(DefaultOpenTabKey, defaultValue = NavigationTab.HOME.name)
                 val defaultOpenTab = remember(defaultOpenTabInt) {
                     try {
@@ -722,6 +655,7 @@ class MainActivity : ComponentActivity() {
                     remember {
                         listOf(
                             Screens.Home.route,
+                            Screens.Explore.route,
                             Screens.Library.route,
                             Screens.ListenTogether.route,
                             "settings",
@@ -768,9 +702,26 @@ class MainActivity : ComponentActivity() {
 
                 val shouldShowNavigationBar =
                     remember(currentRoute, navigationItemRoutes) {
-                        currentRoute == null ||
-                            navigationItemRoutes.contains(currentRoute) ||
-                            currentRoute!!.startsWith("search/")
+                        val route = currentRoute
+                        route == null ||
+                            (
+                                route != "wrapped" &&
+                                    route != "login" &&
+                                    route != "equalizer" &&
+                                    route != "eq_wizard" &&
+                                    route != "recognition" &&
+                                    !route.startsWith("settings")
+                            )
+                    }
+
+                val selectedNavigationRoute =
+                    remember(currentRoute, previousTab, navigationItemRoutes) {
+                        when {
+                            currentRoute?.startsWith("search/") == true || currentRoute == Screens.Search.route -> Screens.Explore.route
+                            currentRoute in navigationItemRoutes -> currentRoute
+                            previousTab in navigationItemRoutes -> previousTab
+                            else -> Screens.Home.route
+                        }
                     }
 
                 val isLandscape = configuration.containerDpSize.width > configuration.containerDpSize.height
@@ -814,12 +765,20 @@ class MainActivity : ComponentActivity() {
                         shouldShowNavigationBar,
                         playerBottomSheetState.isDismissed,
                         showRail,
+                        floatingPlayerDock,
                     ) {
                         var bottom = bottomInset
                         if (shouldShowNavigationBar && !showRail) {
-                            bottom += NavigationBarHeight
+                            bottom +=
+                                if (floatingPlayerDock) {
+                                    RiffDockNavigationHeight + RiffDockPageSpacing
+                                } else {
+                                    RiffStaticDockNavigationHeight
+                                }
+                            if (!playerBottomSheetState.isDismissed) {
+                                bottom += RiffDockPlayerExpansionHeight
+                            }
                         }
-                        if (!playerBottomSheetState.isDismissed) bottom += MiniPlayerHeight
                         windowsInsets
                             .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
                             .add(WindowInsets(top = AppBarHeight, bottom = bottom))
@@ -872,9 +831,12 @@ class MainActivity : ComponentActivity() {
                         playerBottomSheetState.collapseSoft()
                     }
 
-                    // Track previous tab for animations
-                    navController.currentBackStackEntry?.destination?.route?.let {
-                        setPreviousTab(it)
+                    // Content detail screens keep the tab that launched them selected in the Riff dock.
+                    navController.currentBackStackEntry?.destination?.route?.let { route ->
+                        when {
+                            route.startsWith("search/") || route == Screens.Search.route -> setPreviousTab(Screens.Explore.route)
+                            route in navigationItemRoutes -> setPreviousTab(route)
+                        }
                     }
                 }
 
@@ -962,6 +924,7 @@ class MainActivity : ComponentActivity() {
                     remember(navBackStackEntry) {
                         when (navBackStackEntry?.destination?.route) {
                             Screens.Home.route -> R.string.home
+                            Screens.Explore.route -> R.string.search
                             Screens.Search.route -> R.string.search
                             Screens.Library.route -> R.string.filter_library
                             Screens.ListenTogether.route -> R.string.together
@@ -977,8 +940,6 @@ class MainActivity : ComponentActivity() {
                     remember(pauseListenHistory, eventCount) {
                         !(pauseListenHistory && eventCount == 0)
                     }
-
-                val baseBg = if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainer
 
                 CompositionLocalProvider(
                     LocalDatabase provides database,
@@ -1009,7 +970,16 @@ class MainActivity : ComponentActivity() {
                                         title = {
                                             Text(
                                                 text = currentTitleRes?.let { stringResource(it) } ?: "",
-                                                style = MaterialTheme.typography.titleLarge,
+                                                style =
+                                                    if (currentRoute == Screens.Home.route || currentRoute == Screens.Explore.route || currentRoute == Screens.Library.route) {
+                                                        MaterialTheme.typography.titleLarge.copy(
+                                                            fontSize = 27.sp,
+                                                            fontWeight = FontWeight(650),
+                                                            letterSpacing = (-0.27).sp,
+                                                        )
+                                                    } else {
+                                                        MaterialTheme.typography.titleLarge
+                                                    },
                                             )
                                         },
                                         actions = {
@@ -1063,8 +1033,22 @@ class MainActivity : ComponentActivity() {
                                         scrollBehavior = topAppBarScrollBehavior,
                                         colors =
                                             TopAppBarDefaults.topAppBarColors(
-                                                containerColor = if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainer,
-                                                scrolledContainerColor = if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainer,
+                                                containerColor =
+                                                    if (currentRoute == Screens.Home.route || currentRoute == Screens.Explore.route || currentRoute == Screens.Library.route) {
+                                                        Color.Transparent
+                                                    } else if (pureBlack) {
+                                                        Color.Black
+                                                    } else {
+                                                        MaterialTheme.colorScheme.surfaceContainer
+                                                    },
+                                                scrolledContainerColor =
+                                                    if (currentRoute == Screens.Home.route || currentRoute == Screens.Explore.route || currentRoute == Screens.Library.route) {
+                                                        if (pureBlack) Color.Black else MaterialTheme.colorScheme.background
+                                                    } else if (pureBlack) {
+                                                        Color.Black
+                                                    } else {
+                                                        MaterialTheme.colorScheme.surfaceContainer
+                                                    },
                                                 titleContentColor = MaterialTheme.colorScheme.onSurface,
                                                 actionIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                                 navigationIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -1149,64 +1133,30 @@ class MainActivity : ComponentActivity() {
 
                             if (!showRail && currentRoute != "wrapped") {
                                 Box {
+                                    if (shouldShowNavigationBar) {
+                                        RiffPlayerDock(
+                                            navigationItems = navigationItems,
+                                            currentRoute = selectedNavigationRoute,
+                                            playerConnection = activePlayerConnection,
+                                            onItemClick = onNavItemClick,
+                                            onPlayerClick = { playerBottomSheetState.expandSoft() },
+                                            floating = floatingPlayerDock,
+                                            modifier =
+                                                Modifier
+                                                    .align(Alignment.BottomCenter)
+                                                    .zIndex(if (playerBottomSheetState.progress < 0.01f) 1f else -1f),
+                                        )
+                                    }
+
                                     if (activePlayerConnection != null) {
                                         BottomSheetPlayer(
                                             state = playerBottomSheetState,
                                             navController = navController,
                                             pureBlack = pureBlack,
+                                            showCollapsedPlayer = false,
                                         )
                                     }
 
-                                    AppNavigationBar(
-                                        navigationItems = navigationItems,
-                                        currentRoute = currentRoute,
-                                        onItemClick = onNavItemClick,
-                                        pureBlack = pureBlack,
-                                        slimNav = slimNav,
-                                        onSearchLongClick = onSearchLongClick,
-                                        modifier =
-                                            Modifier
-                                                .align(Alignment.BottomCenter)
-                                                .height(bottomInset + navPadding)
-                                                // Use graphicsLayer instead of offset to avoid recomposition
-                                                // graphicsLayer runs during draw phase, not composition phase
-                                                .graphicsLayer {
-                                                    val navBarHeightPx = navigationBarHeight.toPx()
-                                                    val totalHeightPx = navBarTotalHeight.toPx()
-
-                                                    translationY =
-                                                        if (navBarHeightPx == 0f) {
-                                                            totalHeightPx
-                                                        } else {
-                                                            // Read progress only during draw phase
-                                                            val progress = playerBottomSheetState.progress.coerceIn(0f, 1f)
-                                                            val slideOffset = totalHeightPx * progress
-                                                            val hideOffset =
-                                                                totalHeightPx * (1 - navBarHeightPx / NavigationBarHeight.toPx())
-                                                            slideOffset + hideOffset
-                                                        }
-                                                },
-                                    )
-
-                                    Box(
-                                        modifier =
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .align(Alignment.BottomCenter)
-                                                .height(bottomInsetDp)
-                                                // Use graphicsLayer for background color changes
-                                                .graphicsLayer {
-                                                    val progress = playerBottomSheetState.progress
-                                                    alpha =
-                                                        if (progress > 0f ||
-                                                            (useNewMiniPlayerDesign && !shouldShowNavigationBar)
-                                                        ) {
-                                                            0f
-                                                        } else {
-                                                            1f
-                                                        }
-                                                }.background(baseBg),
-                                    )
                                 }
                             } else {
                                 if (currentRoute != "wrapped") {
@@ -1215,23 +1165,11 @@ class MainActivity : ComponentActivity() {
                                             state = playerBottomSheetState,
                                             navController = navController,
                                             pureBlack = pureBlack,
+                                            showCollapsedPlayer = false,
                                         )
                                     }
                                 }
 
-                                Box(
-                                    modifier =
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .align(Alignment.BottomCenter)
-                                            .height(bottomInsetDp)
-                                            // Use graphicsLayer for background color changes
-                                            .graphicsLayer {
-                                                val progress = playerBottomSheetState.progress
-                                                alpha =
-                                                    if (progress > 0f || (useNewMiniPlayerDesign && !shouldShowNavigationBar)) 0f else 1f
-                                            }.background(baseBg),
-                                )
                             }
                         },
                         modifier =
@@ -1568,6 +1506,10 @@ class MainActivity : ComponentActivity() {
 
     @SuppressLint("ObsoleteSdkInt")
     private fun setSystemBarAppearance(isDark: Boolean) {
+        window.navigationBarColor = Color.Transparent.toArgb()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            window.isNavigationBarContrastEnforced = false
+        }
         WindowCompat.getInsetsController(window, window.decorView.rootView).apply {
             isAppearanceLightStatusBars = !isDark
             isAppearanceLightNavigationBars = !isDark

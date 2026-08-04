@@ -23,11 +23,14 @@ data class LibraryPage(
     companion object {
         fun fromMusicTwoRowItemRenderer(renderer: MusicTwoRowItemRenderer): YTItem? {
             return when {
-                renderer.isAlbum -> AlbumItem(
+                renderer.isAlbum ||
+                    renderer.navigationEndpoint.browseEndpoint?.browseId?.startsWith("MPRE") == true -> AlbumItem(
                     browseId = renderer.navigationEndpoint.browseEndpoint?.browseId ?: return null,
                     playlistId = renderer.thumbnailOverlay?.musicItemThumbnailOverlayRenderer?.content
                         ?.musicPlayButtonRenderer?.playNavigationEndpoint
-                        ?.watchPlaylistEndpoint?.playlistId ?: return null,
+                        ?.watchPlaylistEndpoint?.playlistId
+                        ?: renderer.navigationEndpoint.browseEndpoint?.browseId
+                        ?: return null,
                     title = renderer.title.runs?.firstOrNull()?.text ?: return null,
                     artists = parseArtists(renderer.subtitle?.runs),
                     year = renderer.subtitle?.runs?.lastOrNull()?.text?.toIntOrNull(),
@@ -149,6 +152,7 @@ data class LibraryPage(
                             .watchEndpoint,
                         libraryAddToken = libraryTokens.addToken,
                         libraryRemoveToken = libraryTokens.removeToken,
+                        isInLibrary = true,
                         isEpisode = renderer.isEpisode,
                     )
                 }
@@ -160,8 +164,60 @@ data class LibraryPage(
         fun fromMusicResponsiveListItemRenderer(renderer: MusicResponsiveListItemRenderer): YTItem? {
             // Extract library tokens using the new method that properly handles multiple toggle items
             val libraryTokens = PageHelper.extractLibraryTokensFromMenuItems(renderer.menu?.menuRenderer?.items)
+            val rowBrowseEndpoint = renderer.navigationEndpoint?.browseEndpoint
+                ?: renderer.flexColumns.firstOrNull()
+                    ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs
+                    ?.firstOrNull()?.navigationEndpoint?.browseEndpoint
+            val rowBrowseId = rowBrowseEndpoint?.browseId
 
             return when {
+                // Depending on the account and server experiment, saved albums are returned
+                // either as grid cards or responsive list rows. Previously only the grid form
+                // was parsed, so albums that were already in a user's YT Music library simply
+                // disappeared from the local saved-album snapshot.
+                renderer.isAlbum || rowBrowseEndpoint?.isAlbumEndpoint == true ||
+                    rowBrowseId?.startsWith("MPRE") == true -> {
+                    val browseId = rowBrowseId ?: return null
+                    val playlistId = renderer.overlay
+                        ?.musicItemThumbnailOverlayRenderer
+                        ?.content
+                        ?.musicPlayButtonRenderer
+                        ?.playNavigationEndpoint
+                        ?.anyWatchEndpoint
+                        ?.playlistId
+                        ?: renderer.menu?.menuRenderer?.items
+                            ?.firstNotNullOfOrNull { item ->
+                                item.menuNavigationItemRenderer
+                                    ?.navigationEndpoint
+                                    ?.anyWatchEndpoint
+                                    ?.playlistId
+                            }
+                        // Some library experiments omit the playable overlay entirely. The
+                        // browse id is still sufficient to identify this saved album; album
+                        // detail data will supply the canonical playlist id when it is opened.
+                        ?: browseId
+                    val subtitleRuns = renderer.flexColumns.getOrNull(1)
+                        ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs
+
+                    AlbumItem(
+                        browseId = browseId,
+                        playlistId = playlistId,
+                        title = renderer.flexColumns.firstOrNull()
+                            ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs
+                            ?.firstOrNull()?.text ?: return null,
+                        artists = subtitleRuns?.mapNotNull { run ->
+                            run.navigationEndpoint?.browseEndpoint?.browseId?.let { artistId ->
+                                Artist(name = run.text, id = artistId)
+                            }
+                        },
+                        year = subtitleRuns?.lastOrNull()?.text?.toIntOrNull(),
+                        thumbnail = renderer.thumbnail?.getThumbnailUrl() ?: return null,
+                        explicit = renderer.badges?.any {
+                            it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
+                        } == true,
+                    )
+                }
+
                 renderer.isSong -> {
                     val videoId = renderer.videoId ?: return null
                     val title = renderer.flexColumns.firstOrNull()
@@ -211,6 +267,7 @@ data class LibraryPage(
                         endpoint = renderer.overlay?.musicItemThumbnailOverlayRenderer?.content?.musicPlayButtonRenderer?.playNavigationEndpoint?.watchEndpoint,
                         libraryAddToken = libraryTokens.addToken,
                         libraryRemoveToken = libraryTokens.removeToken,
+                        isInLibrary = true,
                         isEpisode = renderer.isEpisode,
                         uploadEntityId = uploadEntityId
                     )

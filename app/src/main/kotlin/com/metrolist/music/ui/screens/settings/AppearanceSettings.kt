@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.compose.foundation.border
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -46,7 +48,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -61,11 +62,11 @@ import com.metrolist.music.constants.CropAlbumArtKey
 import com.metrolist.music.constants.DefaultOpenTabKey
 import com.metrolist.music.constants.DensityScale
 import com.metrolist.music.constants.DensityScaleKey
-import com.metrolist.music.constants.DynamicThemeKey
 import com.metrolist.music.constants.EnableDynamicIconKey
 import com.metrolist.music.constants.EnableHighRefreshRateKey
 import com.metrolist.music.constants.EnableLandscapeScalingKey
 import com.metrolist.music.constants.ExperimentalLyricsKey
+import com.metrolist.music.constants.FloatingPlayerDockKey
 import com.metrolist.music.constants.GridItemSize
 import com.metrolist.music.constants.GridItemsSizeKey
 import com.metrolist.music.constants.HidePlayerThumbnailKey
@@ -88,7 +89,6 @@ import com.metrolist.music.constants.PlayerButtonsStyle
 import com.metrolist.music.constants.PlayerButtonsStyleKey
 import com.metrolist.music.constants.PureBlackMiniPlayerKey
 import com.metrolist.music.constants.RespectAgentPositioningKey
-import com.metrolist.music.constants.SelectedThemeColorKey
 import com.metrolist.music.constants.ShowCachedPlaylistKey
 import com.metrolist.music.constants.ShowDownloadedPlaylistKey
 import com.metrolist.music.constants.ShowLikedPlaylistKey
@@ -112,7 +112,6 @@ import com.metrolist.music.ui.component.Material3SettingsItem
 import com.metrolist.music.ui.component.PlayerSliderTrack
 import com.metrolist.music.ui.component.SquigglySlider
 import com.metrolist.music.ui.component.WavySlider
-import com.metrolist.music.ui.theme.DefaultThemeColor
 import com.metrolist.music.ui.theme.PlayerSliderColors
 import com.metrolist.music.ui.utils.backToMain
 import com.metrolist.music.utils.IconUtils
@@ -129,11 +128,6 @@ fun AppearanceSettings(
     activity: Activity,
     snackbarHostState: SnackbarHostState,
 ) {
-    val (dynamicTheme, onDynamicThemeChange) =
-        rememberPreference(
-            DynamicThemeKey,
-            defaultValue = true,
-        )
     val (enableDynamicIcon, onEnableDynamicIconPrefChange) =
         rememberPreference(
             EnableDynamicIconKey,
@@ -154,14 +148,6 @@ fun AppearanceSettings(
             EnableLandscapeScalingKey,
             defaultValue = false,
         )
-    val (selectedThemeColorInt) =
-        rememberPreference(
-            SelectedThemeColorKey,
-            defaultValue = DefaultThemeColor.toArgb(),
-        )
-    // Check if user has selected a custom color (not the default/dynamic color)
-    val isUsingCustomColor = selectedThemeColorInt != DefaultThemeColor.toArgb()
-
     val (useNewPlayerDesign, onUseNewPlayerDesignChange) =
         rememberPreference(
             UseNewPlayerDesignKey,
@@ -183,6 +169,11 @@ fun AppearanceSettings(
     val (useNewMiniPlayerDesign, onUseNewMiniPlayerDesignChange) =
         rememberPreference(
             UseNewMiniPlayerDesignKey,
+            defaultValue = true,
+        )
+    val (floatingPlayerDock, onFloatingPlayerDockChange) =
+        rememberPreference(
+            FloatingPlayerDockKey,
             defaultValue = true,
         )
     val (hidePlayerThumbnail, onHidePlayerThumbnailChange) =
@@ -951,6 +942,64 @@ fun AppearanceSettings(
                         )
                     }
                 }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier =
+                            Modifier
+                                .aspectRatio(1f)
+                                .weight(1f)
+                                .clip(RoundedCornerShape(16.dp))
+                                .border(
+                                    1.dp,
+                                    if (sliderStyle == SliderStyle.STANDARD) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.outlineVariant
+                                    },
+                                    RoundedCornerShape(16.dp),
+                                ).clickable {
+                                    onSliderStyleChange(SliderStyle.STANDARD)
+                                    onSquigglySliderChange(false)
+                                    showSliderOptionDialog = false
+                                }.padding(12.dp),
+                    ) {
+                        Slider(
+                            value = 0.35f,
+                            valueRange = 0f..1f,
+                            onValueChange = { },
+                            colors = sliderPreviewColors,
+                            thumb = {
+                                androidx.compose.foundation.layout.Box(
+                                    Modifier
+                                        .offset(y = 2.dp)
+                                        .size(12.dp)
+                                        .clip(androidx.compose.foundation.shape.CircleShape)
+                                        .background(MaterialTheme.colorScheme.primary),
+                                )
+                            },
+                            track = { sliderState ->
+                                PlayerSliderTrack(
+                                    sliderState = sliderState,
+                                    colors = sliderPreviewColors,
+                                    trackHeight = 4.dp,
+                                )
+                            },
+                            enabled = false,
+                            modifier = Modifier.weight(1f),
+                        )
+                        Text(
+                            text = stringResource(R.string.riff_standard),
+                            style = MaterialTheme.typography.labelSmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    Spacer(Modifier.weight(1f))
+                }
             }
         }
     }
@@ -1013,33 +1062,6 @@ fun AppearanceSettings(
                             onClick = { onEnableLandscapeScalingChange(!enableLandscapeScaling) },
                         ),
                     )
-                    // Only show dynamic theme option when using the default/dynamic color
-                    // When a custom color is selected, dynamic theme is automatically disabled
-                    if (!isUsingCustomColor) {
-                        add(
-                            Material3SettingsItem(
-                                icon = painterResource(R.drawable.palette),
-                                title = { Text(stringResource(R.string.enable_dynamic_theme)) },
-                                trailingContent = {
-                                    Switch(
-                                        checked = dynamicTheme,
-                                        onCheckedChange = onDynamicThemeChange,
-                                        thumbContent = {
-                                            Icon(
-                                                painter =
-                                                    painterResource(
-                                                        id = if (dynamicTheme) R.drawable.check else R.drawable.close,
-                                                    ),
-                                                contentDescription = null,
-                                                modifier = Modifier.size(SwitchDefaults.IconSize),
-                                            )
-                                        },
-                                    )
-                                },
-                                onClick = { onDynamicThemeChange(!dynamicTheme) },
-                            ),
-                        )
-                    }
                     add(
                         Material3SettingsItem(
                             icon = painterResource(R.drawable.palette),
@@ -1087,6 +1109,29 @@ fun AppearanceSettings(
             title = stringResource(id = R.string.mini_player),
             items =
                 buildList {
+                    add(
+                        Material3SettingsItem(
+                            icon = painterResource(R.drawable.nav_bar),
+                            title = { Text(stringResource(R.string.riff_floating_player_dock)) },
+                            description = { Text(stringResource(R.string.riff_floating_player_dock_desc)) },
+                            trailingContent = {
+                                Switch(
+                                    checked = floatingPlayerDock,
+                                    onCheckedChange = onFloatingPlayerDockChange,
+                                    thumbContent = {
+                                        Icon(
+                                            painter = painterResource(
+                                                id = if (floatingPlayerDock) R.drawable.check else R.drawable.close,
+                                            ),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(SwitchDefaults.IconSize),
+                                        )
+                                    },
+                                )
+                            },
+                            onClick = { onFloatingPlayerDockChange(!floatingPlayerDock) },
+                        ),
+                    )
                     add(
                         Material3SettingsItem(
                             icon = painterResource(R.drawable.nav_bar),
@@ -1261,6 +1306,10 @@ fun AppearanceSettings(
                                 when (sliderStyle) {
                                     SliderStyle.DEFAULT -> {
                                         stringResource(R.string.default_)
+                                    }
+
+                                    SliderStyle.STANDARD -> {
+                                        stringResource(R.string.riff_standard)
                                     }
 
                                     SliderStyle.WAVY -> {

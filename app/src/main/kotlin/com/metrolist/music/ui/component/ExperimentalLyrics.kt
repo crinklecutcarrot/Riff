@@ -150,6 +150,9 @@ fun ExperimentalLyrics(
     sliderPositionProvider: () -> Long?,
     modifier: Modifier = Modifier,
     showLyrics: Boolean,
+    expressiveAccentOverride: Color? = null,
+    anchorRatioOverride: Float? = null,
+    textSizeOverride: Float? = null,
     lyricsViewModel: LyricsViewModel = hiltViewModel()
 ) {
     val playerConnection = LocalPlayerConnection.current ?: return
@@ -296,7 +299,7 @@ fun ExperimentalLyrics(
         }
     }
 
-    val expressiveAccent = when (playerBackground) {
+    val expressiveAccent = expressiveAccentOverride ?: when (playerBackground) {
         PlayerBackgroundStyle.DEFAULT -> MaterialTheme.colorScheme.primary
         PlayerBackgroundStyle.BLUR, PlayerBackgroundStyle.GRADIENT -> Color.White
     }
@@ -335,6 +338,8 @@ fun ExperimentalLyrics(
     var lastMainMaxSeen by remember(lyrics, lines) { mutableIntStateOf(-1) }
     var smoothPositionForSync by remember { mutableLongStateOf(0L) }
 
+    val latestSliderPositionProvider by rememberUpdatedState(sliderPositionProvider)
+
     LaunchedEffect(lyrics, lines) {
         if (lyrics.isNullOrEmpty() || lines.isEmpty()) {
             activeLineIndices = emptySet()
@@ -347,7 +352,7 @@ fun ExperimentalLyrics(
         while (isActive) {
             withFrameNanos { _ -> }
             val now = System.currentTimeMillis()
-            val sliderPosition = sliderPositionProvider()
+            val sliderPosition = latestSliderPositionProvider()
             isSeeking = sliderPosition != null
             
             val position = if (isSeeking) {
@@ -497,7 +502,7 @@ fun ExperimentalLyrics(
         modifier = modifier.fillMaxSize().padding(bottom = 12.dp)
     ) {
         val maxHeightPx = constraints.maxHeight.toFloat()
-        val anchorY = maxHeightPx * LYRICS_ANCHOR_RATIO
+        val anchorY = maxHeightPx * (anchorRatioOverride ?: LYRICS_ANCHOR_RATIO)
         val lineHeightPx = with(density) { LYRICS_ITEM_FALLBACK_HEIGHT_DP.toPx() }
         val indicatorHeightPx = with(density) { 72.dp.toPx() }
         
@@ -780,7 +785,7 @@ fun ExperimentalLyrics(
                                         bgVisible = bgVisible, isSelected = selectedIndices.contains(index),
                                         isSelectionModeActive = isSelectionModeActive, currentPositionState = currentPositionState,
                                         lyricsOffset = (currentSong?.song?.lyricsOffset ?: 0).toLong(),
-                                        playerConnection = playerConnection, lyricsTextSize = 36f, lyricsLineSpacing = 1.3f,
+                                        playerConnection = playerConnection, lyricsTextSize = textSizeOverride ?: 36f, lyricsLineSpacing = 1.3f,
                                         expressiveAccent = expressiveAccent, lyricsTextPosition = lyricsTextPosition,
                                         respectAgentPositioning = respectAgentPositioning, isAutoScrollEnabled = isAutoScrollEnabled,
                                         displayedCurrentLineIndex = deferredCurrentLineIndex, romanizeAsMain = romanizeAsMain,

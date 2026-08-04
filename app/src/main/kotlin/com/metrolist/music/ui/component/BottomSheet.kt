@@ -64,6 +64,7 @@ fun BottomSheet(
     onDismiss: (() -> Unit)? = null,
     collapsedContent: @Composable BoxScope.() -> Unit,
     isExpandable: Boolean = true,
+    isDragEnabled: Boolean = isExpandable,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val density = LocalDensity.current
@@ -87,8 +88,8 @@ fun BottomSheet(
                     .coerceAtLeast(0f)
                 translationY = y
             }
-            .pointerInput(state, isExpandable) {
-                if (!isExpandable) return@pointerInput
+            .pointerInput(state, isDragEnabled) {
+                if (!isDragEnabled) return@pointerInput
                 val velocityTracker = VelocityTracker()
 
                 detectVerticalDragGestures(

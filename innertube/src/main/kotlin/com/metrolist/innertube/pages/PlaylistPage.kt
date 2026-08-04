@@ -32,6 +32,19 @@ data class PlaylistPage(
             }
 
             val artists = PageHelper.extractArtists(secondaryLineRuns)
+            val customIndex = renderer.customIndexColumn?.musicCustomIndexColumnRenderer
+            val chartPosition = customIndex
+                ?.text
+                ?.runs
+                ?.firstOrNull()
+                ?.text
+                ?.filter(Char::isDigit)
+                ?.toIntOrNull()
+            val chartChange = listOfNotNull(
+                customIndex?.icon?.iconType,
+                customIndex?.iconColorStyle,
+                customIndex?.accessibilityData?.accessibilityData?.label,
+            ).joinToString(" ").ifBlank { null }
 
             return SongItem(
                 id = renderer.videoId ?: return null,
@@ -45,6 +58,8 @@ data class PlaylistPage(
                 },
                 duration = renderer.fixedColumns?.firstOrNull()?.musicResponsiveListItemFlexColumnRenderer?.text?.runs?.firstOrNull()?.text?.parseTime(),
                 musicVideoType = renderer.musicVideoType,
+                chartPosition = chartPosition,
+                chartChange = chartChange,
                 thumbnail = renderer.thumbnail?.getThumbnailUrl() ?: return null,
                 explicit = renderer.badges?.find {
                     it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
@@ -53,6 +68,7 @@ data class PlaylistPage(
                 setVideoId = renderer.playlistSetVideoId ?: return null,
                 libraryAddToken = libraryTokens.addToken,
                 libraryRemoveToken = libraryTokens.removeToken,
+                isInLibrary = PageHelper.extractLibraryStateFromMenuItems(renderer.menu?.menuRenderer?.items),
                 isEpisode = renderer.isEpisode
             )
         }
