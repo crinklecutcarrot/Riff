@@ -96,7 +96,6 @@ fun YouTubeAlbumMenu(
     onDismiss: () -> Unit,
 ) {
     val menuState = LocalMenuState.current
-    LaunchedEffect(Unit) { menuState.requestHeightFraction(0.56f) }
     val navController = LocalNavController.current
     val context = LocalContext.current
     val database = LocalDatabase.current

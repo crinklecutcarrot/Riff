@@ -116,7 +116,6 @@ fun YouTubeSongMenu(
     onHistoryRemoved: () -> Unit = {}
 ) {
     val menuState = LocalMenuState.current
-    LaunchedEffect(Unit) { menuState.requestHeightFraction(0.65f) }
     val navController = LocalNavController.current
     val context = LocalContext.current
     val database = LocalDatabase.current
@@ -493,8 +492,7 @@ fun YouTubeSongMenu(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentHeight(unbounded = true)
-            .padding(bottom = 20.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()),
+            .padding(bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()),
     ) {
         item {
             NewActionGrid(

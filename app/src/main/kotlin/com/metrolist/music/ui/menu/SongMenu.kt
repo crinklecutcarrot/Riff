@@ -120,7 +120,6 @@ fun SongMenu(
     isFromCache: Boolean = false,
 ) {
     val menuState = LocalMenuState.current
-    LaunchedEffect(Unit) { menuState.requestHeightFraction(0.65f) }
     val navController = LocalNavController.current
     val context = LocalContext.current
     val database = LocalDatabase.current

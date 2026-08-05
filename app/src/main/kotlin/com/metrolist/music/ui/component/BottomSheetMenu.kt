@@ -15,6 +15,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Surface
@@ -200,6 +201,11 @@ fun BottomSheetMenu(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        // wrapContentHeight ignores the min-height the sheet's
+                        // parent imposes, so the column hugs its content instead
+                        // of stretching to the 84% cap; heightIn still caps tall
+                        // menus and verticalScroll lets them scroll.
+                        .wrapContentHeight()
                         .then(
                             if (state.preferredHeightFraction > 0f) {
                                 Modifier.height(screenHeight * state.preferredHeightFraction)
