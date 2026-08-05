@@ -6,26 +6,21 @@
 package com.metrolist.music.ui.menu
 
 import android.content.Intent
-import android.content.res.Configuration
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -38,8 +33,6 @@ import com.metrolist.music.R
 import com.metrolist.music.db.entities.SpeedDialItem
 import com.metrolist.music.db.entities.ArtistEntity
 import com.metrolist.music.playback.queues.YouTubeQueue
-import com.metrolist.music.ui.component.Material3MenuGroup
-import com.metrolist.music.ui.component.Material3MenuItemData
 import com.metrolist.music.ui.component.NewAction
 import com.metrolist.music.ui.component.NewActionGrid
 import com.metrolist.music.ui.component.YouTubeListItem
@@ -68,17 +61,13 @@ fun YouTubeArtistMenu(
         trailingContent = {},
     )
 
-    HorizontalDivider()
-
-    Spacer(modifier = Modifier.height(12.dp))
-
-    val configuration = LocalConfiguration.current
-    val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+    RiffMenuDivider()
 
     Column(
-        modifier = Modifier.padding(
-            bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
-        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(unbounded = true)
+            .padding(bottom = 20.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()),
     ) {
             NewActionGrid(
                 actions = buildList {
@@ -91,7 +80,7 @@ fun YouTubeArtistMenu(
                                             painter = painterResource(R.drawable.radio),
                                             contentDescription = null,
                                             modifier = Modifier.size(28.dp),
-                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                            tint = MaterialTheme.colorScheme.onSurface
                                         )
                                     },
                                     text = stringResource(R.string.start_radio),
@@ -111,7 +100,7 @@ fun YouTubeArtistMenu(
                                     painter = painterResource(if (isPinned) R.drawable.remove else R.drawable.add),
                                     contentDescription = null,
                                     modifier = Modifier.size(28.dp),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    tint = MaterialTheme.colorScheme.onSurface
                                 )
                             },
                             text = if (isPinned) stringResource(R.string.unpin) else stringResource(R.string.pin),
@@ -135,7 +124,7 @@ fun YouTubeArtistMenu(
                                     painter = painterResource(R.drawable.share),
                                     contentDescription = null,
                                     modifier = Modifier.size(28.dp),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    tint = MaterialTheme.colorScheme.onSurface
                                 )
                             },
                             text = stringResource(R.string.share),
@@ -150,47 +139,40 @@ fun YouTubeArtistMenu(
                             }
                         )
                     )
+
+                    add(
+                        NewAction(
+                            icon = {
+                                Icon(
+                                    painter = painterResource(if (libraryArtist?.artist?.bookmarkedAt != null) R.drawable.subscribed else R.drawable.subscribe),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(28.dp),
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            },
+                            text = if (libraryArtist?.artist?.bookmarkedAt != null) stringResource(R.string.subscribed) else stringResource(R.string.subscribe),
+                            onClick = {
+                                database.query {
+                                    val libraryArtistValue = libraryArtist
+                                    if (libraryArtistValue != null) {
+                                        update(libraryArtistValue.artist.toggleLike())
+                                    } else {
+                                        insert(
+                                            ArtistEntity(
+                                                id = artist.id,
+                                                name = artist.title,
+                                                channelId = artist.channelId,
+                                                thumbnailUrl = artist.thumbnail,
+                                            ).toggleLike()
+                                        )
+                                    }
+                                }
+                            }
+                        )
+                    )
                 },
                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp),
                 columns = if (isGuest) 1 else 3
-            )
-            Material3MenuGroup(
-                items = listOf(
-                    Material3MenuItemData(
-                        title = {
-                            Text(text = if (libraryArtist?.artist?.bookmarkedAt != null) stringResource(R.string.subscribed) else stringResource(R.string.subscribe))
-                        },
-                        icon = {
-                            Icon(
-                                painter = painterResource(
-                                    if (libraryArtist?.artist?.bookmarkedAt != null) {
-                                        R.drawable.subscribed
-                                    } else {
-                                        R.drawable.subscribe
-                                    }
-                                ),
-                                contentDescription = null,
-                            )
-                        },
-                        onClick = {
-                            database.query {
-                                val libraryArtist = libraryArtist
-                                if (libraryArtist != null) {
-                                    update(libraryArtist.artist.toggleLike())
-                                } else {
-                                    insert(
-                                        ArtistEntity(
-                                            id = artist.id,
-                                            name = artist.title,
-                                            channelId = artist.channelId,
-                                            thumbnailUrl = artist.thumbnail,
-                                        ).toggleLike()
-                                    )
-                                }
-                            }
-                        }
-                    )
-                )
             )
     }
 }

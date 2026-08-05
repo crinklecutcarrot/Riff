@@ -624,6 +624,14 @@ private fun OnlinePlaylistTrackRow(
                 rawChange = song.chartChange,
             )
         }
+        if (liked) {
+            Icon(
+                painterResource(R.drawable.tabler_ic_thumb_up_filled),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(end = 10.dp).size(17.dp),
+            )
+        }
         song.duration?.let {
             Text(
                 makeTimeString(it * 1000L),
@@ -631,14 +639,6 @@ private fun OnlinePlaylistTrackRow(
                 fontFamily = RiffAzeretMono,
                 fontSize = 11.sp,
                 fontWeight = RiffSubtextWeight,
-            )
-        }
-        if (liked) {
-            Icon(
-                painterResource(R.drawable.tabler_ic_thumb_up_filled),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(start = 10.dp).size(17.dp),
             )
         }
         if (!selecting) {
