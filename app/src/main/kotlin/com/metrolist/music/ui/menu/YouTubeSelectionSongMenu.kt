@@ -5,13 +5,13 @@
 
 package com.metrolist.music.ui.menu
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -213,16 +213,11 @@ fun YouTubeSelectionSongMenu(
 
     val queueAllSongsStr = stringResource(R.string.queue_all_songs)
 
-    LazyColumn(
-        contentPadding =
-            PaddingValues(
-                start = 8.dp,
-                top = 8.dp,
-                end = 8.dp,
-                bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
-            ),
+    Column(
+        modifier = Modifier.padding(
+            bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
+        ),
     ) {
-        item {
             Material3MenuGroup(
                 listOfNotNull(
                     if (!isGuest) {
@@ -450,6 +445,5 @@ fun YouTubeSelectionSongMenu(
                     ),
                 ),
             )
-        }
     }
 }

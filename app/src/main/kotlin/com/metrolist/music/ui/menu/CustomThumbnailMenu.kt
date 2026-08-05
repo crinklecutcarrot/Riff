@@ -6,11 +6,12 @@
 package com.metrolist.music.ui.menu
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -29,15 +30,11 @@ fun CustomThumbnailMenu(
     onRemove: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    LazyColumn(
-        contentPadding = PaddingValues(
-            start = 8.dp,
-            top = 8.dp,
-            end = 8.dp,
+    Column(
+        modifier = Modifier.padding(
             bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
         ),
     ) {
-        item {
             ListItem(
                 headlineContent = { 
                     Text(text = stringResource(R.string.choose_from_library)) 
@@ -53,8 +50,6 @@ fun CustomThumbnailMenu(
                     onDismiss()
                 }
             )
-        }
-        item {
             ListItem(
                 headlineContent = { 
                     Text(text = stringResource(R.string.remove_custom_image)) 
@@ -70,6 +65,5 @@ fun CustomThumbnailMenu(
                     onDismiss()
                 }
             )
-        }
     }
 }

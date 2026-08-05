@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -383,15 +382,11 @@ fun LyricsMenu(
     val configuration = LocalConfiguration.current
     val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
-    LazyColumn(
-        contentPadding = PaddingValues(
-            start = 0.dp,
-            top = 0.dp,
-            end = 0.dp,
+    Column(
+        modifier = Modifier.padding(
             bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
         ),
     ) {
-        item {
             NewActionGrid(
                 actions =
                     listOf(
@@ -469,9 +464,7 @@ fun LyricsMenu(
                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp),
                 columns = 4,
             )
-        }
 
-        item {
             Material3MenuGroup(
                 items = buildList {
                     // Add translation toggle option if API key is configured
@@ -686,6 +679,5 @@ fun LyricsMenu(
                     )
                 }
             )
-        }
     }
 }

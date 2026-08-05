@@ -11,6 +11,7 @@ import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -21,7 +22,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -397,16 +397,11 @@ fun YouTubePlaylistMenu(
     val configuration = LocalConfiguration.current
     val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
-    LazyColumn(
-        contentPadding =
-            PaddingValues(
-                start = 0.dp,
-                top = 0.dp,
-                end = 0.dp,
-                bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
-            ),
+    Column(
+        modifier = Modifier.padding(
+            bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
+        ),
     ) {
-        item {
             NewActionGrid(
                 actions =
                     buildList {
@@ -472,9 +467,7 @@ fun YouTubePlaylistMenu(
                     },
                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp),
             )
-        }
 
-        item {
             Material3MenuGroup(
                 items =
                     listOfNotNull(
@@ -586,11 +579,9 @@ fun YouTubePlaylistMenu(
                         ),
                     ),
             )
-        }
 
-        item { Spacer(modifier = Modifier.height(12.dp)) }
+        Spacer(modifier = Modifier.height(12.dp))
 
-        item {
             Material3MenuGroup(
                 items =
                     buildList {
@@ -715,7 +706,6 @@ fun YouTubePlaylistMenu(
                         }
                     },
             )
-        }
     }
 
     if (showExportDialog) {

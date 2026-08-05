@@ -11,7 +11,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -260,16 +259,12 @@ fun QueueMenu(
     val configuration = LocalConfiguration.current
     val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
-    LazyColumn(
-        contentPadding = PaddingValues(
-            start = 0.dp,
-            top = 0.dp,
-            end = 0.dp,
+    Column(
+        modifier = Modifier.padding(
             bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
         ),
     ) {
         // Quick actions grid
-        item {
             NewActionGrid(
                 actions = listOf(
                     NewAction(
@@ -334,10 +329,8 @@ fun QueueMenu(
                 ),
                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp)
             )
-        }
 
         // Play next / Add to queue
-        item {
             Material3MenuGroup(
                 items = listOf(
                     Material3MenuItemData(
@@ -378,12 +371,10 @@ fun QueueMenu(
                     )
                 )
             )
-        }
 
-        item { Spacer(modifier = Modifier.height(12.dp)) }
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Download section
-        item {
             Material3MenuGroup(
                 items = listOf(
                     when (download?.state) {
@@ -463,12 +454,10 @@ fun QueueMenu(
                     }
                 )
             )
-        }
 
-        item { Spacer(modifier = Modifier.height(12.dp)) }
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Navigation section (Artist, Album)
-        item {
             Material3MenuGroup(
                 items = buildList {
                     if (artists.isNotEmpty()) {
@@ -529,12 +518,10 @@ fun QueueMenu(
                     }
                 }
             )
-        }
 
-        item { Spacer(modifier = Modifier.height(12.dp)) }
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Details and refetch section
-        item {
             Material3MenuGroup(
                 items = buildList {
                     add(
@@ -582,6 +569,5 @@ fun QueueMenu(
                     )
                 }
             )
-        }
     }
 }

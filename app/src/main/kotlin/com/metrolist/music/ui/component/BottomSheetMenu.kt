@@ -5,8 +5,20 @@
 
 package com.metrolist.music.ui.component
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,9 +55,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -131,7 +141,6 @@ fun AnimatedBottomSheet(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheetMenu(
     modifier: Modifier = Modifier,
@@ -139,91 +148,78 @@ fun BottomSheetMenu(
     background: Color = MaterialTheme.colorScheme.surface,
 ) {
     val focusManager = LocalFocusManager.current
-    val menuMaxHeight = LocalConfiguration.current.screenHeightDp.dp * 0.84f
-    // A fresh SheetState for every presentation prevents an expanded anchor
-    // measured for one menu from being reused by the next menu.
-    key(state.presentationId) {
-        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-        val density = LocalDensity.current
-        val scrollState = rememberScrollState()
-        val menuMaxHeightPx = with(density) { menuMaxHeight.roundToPx() }
-        var viewportHeightPx by remember { mutableIntStateOf(0) }
-        var resolvedHeightPx by remember { mutableIntStateOf(0) }
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
 
-        // Scrollable content initially reports only its viewport to the sheet.
-        // Resolve the real height from viewport + overflow, so every option is
-        // visible when it fits and genuinely long menus stop at the screen cap.
-        LaunchedEffect(viewportHeightPx, scrollState.maxValue) {
-            if (viewportHeightPx > 0 && scrollState.maxValue > 0) {
-                val contentHeight = (viewportHeightPx + scrollState.maxValue).coerceAtMost(menuMaxHeightPx)
-                if (contentHeight > resolvedHeightPx) {
-                    resolvedHeightPx = contentHeight
-                    withFrameNanos { }
-                    if (state.isVisible) sheetState.expand()
-                }
-            }
-        }
+    // Keep composed through the exit animation, then stop rendering entirely so
+    // the overlay never sits over the app while no menu is showing.
+    val transitionState = remember { MutableTransitionState(false) }
+    transitionState.targetState = state.isVisible
+    if (!transitionState.currentState && !transitionState.targetState) return
 
-        LaunchedEffect(state.preferredHeightFraction) {
-            if (state.preferredHeightFraction > 0f && state.isVisible) {
-                withFrameNanos { }
-                sheetState.expand()
-            }
-        }
+    val dismiss: () -> Unit = {
+        focusManager.clearFocus()
+        state.isVisible = false
+    }
 
-        AnimatedBottomSheet(
-            isVisible = state.isVisible,
-            onDismissRequest = {
-                focusManager.clearFocus()
-                state.isVisible = false
-            },
-            sheetState = sheetState,
-            sheetMaxWidth = Dp.Unspecified,
-            shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-            containerColor = background,
-            contentColor = MaterialTheme.colorScheme.onSurface,
-            dragHandle = {
-                Box(
-                    modifier = Modifier
-                        .padding(top = 8.dp, bottom = 6.dp)
-                        .size(width = 40.dp, height = 4.dp)
-                        .clip(RoundedCornerShape(2.dp))
-                        .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)),
-                )
-            },
-            scrimColor = Color.Black.copy(alpha = 0.55f),
-            contentWindowInsets = { WindowInsets(0) },
-            // Wrap short menus, but cap long menus at the same deterministic
-            // viewport where their option list owns overflow.
-            modifier = modifier
-                .fillMaxWidth()
-                .then(
-                    if (state.preferredHeightFraction > 0f) {
-                        Modifier.height(LocalConfiguration.current.screenHeightDp.dp * state.preferredHeightFraction)
-                    } else if (resolvedHeightPx > 0) {
-                        Modifier.height(with(density) { resolvedHeightPx.toDp() })
-                    } else {
-                        Modifier.heightIn(max = menuMaxHeight)
-                    },
-                ),
+    BackHandler(enabled = state.isVisible, onBack = dismiss)
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Scrim.
+        AnimatedVisibility(
+            visibleState = transitionState,
+            enter = fadeIn(),
+            exit = fadeOut(),
         ) {
-            Column(
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .then(
-                        if (state.preferredHeightFraction > 0f) {
-                            Modifier.height(LocalConfiguration.current.screenHeightDp.dp * state.preferredHeightFraction)
-                        } else if (resolvedHeightPx > 0) {
-                            Modifier.height(with(density) { resolvedHeightPx.toDp() })
-                        } else {
-                            Modifier.heightIn(max = menuMaxHeight)
-                        },
-                    )
-                    .onSizeChanged { viewportHeightPx = it.height }
-                    .verticalScroll(scrollState)
-                    .padding(horizontal = 10.dp),
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.55f))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = dismiss,
+                    ),
+            )
+        }
+
+        // Sheet. Plain layout wraps its content and re-measures every frame, so
+        // menus whose rows load asynchronously grow the sheet instead of being
+        // trapped as scroll overflow behind a stale bottom-sheet anchor.
+        AnimatedVisibility(
+            visibleState = transitionState,
+            enter = slideInVertically { it },
+            exit = slideOutVertically { it },
+            modifier = Modifier.align(Alignment.BottomCenter),
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+                color = background,
+                contentColor = MaterialTheme.colorScheme.onSurface,
             ) {
-                state.content(this)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .then(
+                            if (state.preferredHeightFraction > 0f) {
+                                Modifier.height(screenHeight * state.preferredHeightFraction)
+                            } else {
+                                Modifier.heightIn(max = screenHeight * 0.84f)
+                            },
+                        )
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 10.dp),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(top = 8.dp, bottom = 6.dp)
+                            .size(width = 40.dp, height = 4.dp)
+                            .clip(RoundedCornerShape(2.dp))
+                            .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)),
+                    )
+                    state.content(this)
+                }
             }
         }
     }
