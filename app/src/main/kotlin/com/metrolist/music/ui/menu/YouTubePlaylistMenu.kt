@@ -7,30 +7,25 @@ package com.metrolist.music.ui.menu
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -47,7 +42,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -155,102 +149,76 @@ fun YouTubePlaylistMenu(
         onDismiss = { showChoosePlaylistDialog = false },
     )
 
-    YouTubeListItem(
-        item = playlist,
-        trailingContent = {
-            if (playlist.id != "LM" && !playlist.isEditable) {
-                IconButton(
-                    onClick = {
-                        val isCurrentlySaved = dbPlaylist?.playlist?.bookmarkedAt != null
-                        if (dbPlaylist?.playlist == null) {
-                            database.transaction {
-                                val playlistEntity =
-                                    PlaylistEntity(
-                                        name = playlist.title,
-                                        browseId = playlist.id,
-                                        thumbnailUrl = playlist.thumbnail,
-                                        isEditable = playlist.isEditable,
-                                        remoteSongCount =
-                                            playlist.songCountText?.let {
-                                                Regex("""\d+""").find(it)?.value?.toIntOrNull()
-                                            },
-                                        playEndpointParams = playlist.playEndpoint?.params,
-                                        shuffleEndpointParams = playlist.shuffleEndpoint?.params,
-                                        radioEndpointParams = playlist.radioEndpoint?.params,
-                                    ).toggleLike()
-                                insert(playlistEntity)
-                            }
-                        } else {
-                            database.transaction {
-                                val currentPlaylist = dbPlaylist!!.playlist
-                                update(currentPlaylist, playlist)
-                                update(currentPlaylist.toggleLike())
-                            }
-                        }
-                        coroutineScope.launch(Dispatchers.IO) {
-                            if (!isCurrentlySaved) {
-                                val playlistFull = database.playlistByBrowseId(playlist.id).first()
-                                if (playlistFull != null) {
-                                    val songIds = songs
-                                        .ifEmpty {
-                                            YouTube
-                                                .playlist(playlist.id)
-                                                .completed()
-                                                .getOrNull()
-                                                ?.songs
-                                                .orEmpty()
-                                        }.map { it.toMediaMetadata() }
-                                        .onEach { database.transaction { insert(it) } }
-                                        .map { it.id to it.setVideoId }
-                                    database.addSongsToPlaylist(playlistFull, songIds)
-                                }
-                            }
-                            if (playlist.isPodcast) {
-                                YouTube
-                                    .savePodcast(playlist.id, !isCurrentlySaved)
-                                    .onSuccess {
-                                        timber.log.Timber.d("[PODCAST_SAVE] savePodcast API success for ${playlist.id}")
-                                    }.onFailure { e ->
-                                        timber.log.Timber.e(e, "[PODCAST_SAVE] savePodcast API failed for ${playlist.id}")
-                                        withContext(Dispatchers.Main) {
-                                            android.widget.Toast
-                                                .makeText(
-                                                    context,
-                                                    if (isCurrentlySaved) R.string.error_podcast_unsubscribe else R.string.error_podcast_subscribe,
-                                                    android.widget.Toast.LENGTH_SHORT,
-                                                ).show()
-                                        }
-                                    }
-                            }
-                        }
-                    },
-                ) {
-                    Icon(
-                        painter =
-                            painterResource(
-                                if (dbPlaylist?.playlist?.bookmarkedAt !=
-                                    null
-                                ) {
-                                    R.drawable.favorite
-                                } else {
-                                    R.drawable.favorite_border
-                                },
-                            ),
-                        tint =
-                            if (dbPlaylist?.playlist?.bookmarkedAt !=
-                                null
-                            ) {
-                                MaterialTheme.colorScheme.error
-                            } else {
-                                LocalContentColor.current
+    val saveToLibrary: () -> Unit = {
+        val isCurrentlySaved = dbPlaylist?.playlist?.bookmarkedAt != null
+        if (dbPlaylist?.playlist == null) {
+            database.transaction {
+                val playlistEntity =
+                    PlaylistEntity(
+                        name = playlist.title,
+                        browseId = playlist.id,
+                        thumbnailUrl = playlist.thumbnail,
+                        isEditable = playlist.isEditable,
+                        remoteSongCount =
+                            playlist.songCountText?.let {
+                                Regex("""\d+""").find(it)?.value?.toIntOrNull()
                             },
-                        contentDescription = null,
-                    )
+                        playEndpointParams = playlist.playEndpoint?.params,
+                        shuffleEndpointParams = playlist.shuffleEndpoint?.params,
+                        radioEndpointParams = playlist.radioEndpoint?.params,
+                    ).toggleLike()
+                insert(playlistEntity)
+            }
+        } else {
+            database.transaction {
+                val currentPlaylist = dbPlaylist!!.playlist
+                update(currentPlaylist, playlist)
+                update(currentPlaylist.toggleLike())
+            }
+        }
+        coroutineScope.launch(Dispatchers.IO) {
+            if (!isCurrentlySaved) {
+                val playlistFull = database.playlistByBrowseId(playlist.id).first()
+                if (playlistFull != null) {
+                    val songIds = songs
+                        .ifEmpty {
+                            YouTube
+                                .playlist(playlist.id)
+                                .completed()
+                                .getOrNull()
+                                ?.songs
+                                .orEmpty()
+                        }.map { it.toMediaMetadata() }
+                        .onEach { database.transaction { insert(it) } }
+                        .map { it.id to it.setVideoId }
+                    database.addSongsToPlaylist(playlistFull, songIds)
                 }
             }
-        },
+            if (playlist.isPodcast) {
+                YouTube
+                    .savePodcast(playlist.id, !isCurrentlySaved)
+                    .onSuccess {
+                        timber.log.Timber.d("[PODCAST_SAVE] savePodcast API success for ${playlist.id}")
+                    }.onFailure { e ->
+                        timber.log.Timber.e(e, "[PODCAST_SAVE] savePodcast API failed for ${playlist.id}")
+                        withContext(Dispatchers.Main) {
+                            android.widget.Toast
+                                .makeText(
+                                    context,
+                                    if (isCurrentlySaved) R.string.error_podcast_unsubscribe else R.string.error_podcast_subscribe,
+                                    android.widget.Toast.LENGTH_SHORT,
+                                ).show()
+                        }
+                    }
+            }
+        }
+    }
+
+    YouTubeListItem(
+        item = playlist,
     )
-    HorizontalDivider()
+
+    RiffMenuDivider()
 
     var downloadState by remember {
         mutableIntStateOf(Download.STATE_STOPPED)
@@ -394,13 +362,11 @@ fun YouTubePlaylistMenu(
         }
     }
 
-    val configuration = LocalConfiguration.current
-    val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
-
     Column(
-        modifier = Modifier.padding(
-            bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
-        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(unbounded = true)
+            .padding(bottom = 20.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()),
     ) {
             NewActionGrid(
                 actions =
@@ -414,10 +380,11 @@ fun YouTubePlaylistMenu(
                                                 painter = painterResource(R.drawable.play),
                                                 contentDescription = null,
                                                 modifier = Modifier.size(28.dp),
-                                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                tint = MaterialTheme.colorScheme.onSurface,
                                             )
                                         },
                                         text = stringResource(R.string.play),
+                                        contentColor = MaterialTheme.colorScheme.onSurface,
                                         onClick = {
                                             playerConnection.playQueue(YouTubeQueue(playEndpoint))
                                             onDismiss()
@@ -433,10 +400,11 @@ fun YouTubePlaylistMenu(
                                                 painter = painterResource(R.drawable.shuffle),
                                                 contentDescription = null,
                                                 modifier = Modifier.size(28.dp),
-                                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                tint = MaterialTheme.colorScheme.onSurface,
                                             )
                                         },
                                         text = stringResource(R.string.shuffle),
+                                        contentColor = MaterialTheme.colorScheme.onSurface,
                                         onClick = {
                                             playerConnection.playQueue(YouTubeQueue(shuffleEndpoint))
                                             onDismiss()
@@ -452,10 +420,11 @@ fun YouTubePlaylistMenu(
                                                 painter = painterResource(R.drawable.radio),
                                                 contentDescription = null,
                                                 modifier = Modifier.size(28.dp),
-                                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                tint = MaterialTheme.colorScheme.onSurface,
                                             )
                                         },
                                         text = stringResource(R.string.start_radio),
+                                        contentColor = MaterialTheme.colorScheme.onSurface,
                                         onClick = {
                                             playerConnection.playQueue(YouTubeQueue(radioEndpoint))
                                             onDismiss()
@@ -471,6 +440,42 @@ fun YouTubePlaylistMenu(
             Material3MenuGroup(
                 items =
                     listOfNotNull(
+                        if (playlist.id != "LM" && !playlist.isEditable) {
+                            val isSaved = dbPlaylist?.playlist?.bookmarkedAt != null
+                            Material3MenuItemData(
+                                title = {
+                                    Text(
+                                        text =
+                                            when {
+                                                playlist.isPodcast && isSaved -> stringResource(R.string.subscribed)
+                                                playlist.isPodcast -> stringResource(R.string.subscribe)
+                                                isSaved -> stringResource(R.string.remove_from_library)
+                                                else -> stringResource(R.string.add_to_library)
+                                            },
+                                    )
+                                },
+                                icon = {
+                                    Icon(
+                                        painter =
+                                            painterResource(
+                                                when {
+                                                    playlist.isPodcast && isSaved -> R.drawable.subscribed
+                                                    playlist.isPodcast -> R.drawable.subscribe
+                                                    isSaved -> R.drawable.library_add_check
+                                                    else -> R.drawable.library_add
+                                                },
+                                            ),
+                                        contentDescription = null,
+                                    )
+                                },
+                                onClick = {
+                                    saveToLibrary()
+                                    onDismiss()
+                                },
+                            )
+                        } else {
+                            null
+                        },
                         if (!isGuest) {
                             Material3MenuItemData(
                                 title = { Text(text = stringResource(R.string.play_next)) },
@@ -580,7 +585,7 @@ fun YouTubePlaylistMenu(
                     ),
             )
 
-        Spacer(modifier = Modifier.height(12.dp))
+            RiffMenuDivider()
 
             Material3MenuGroup(
                 items =

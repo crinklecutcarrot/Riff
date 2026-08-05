@@ -6,22 +6,17 @@
 package com.metrolist.music.ui.menu
 
 import android.content.Intent
-import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -34,7 +29,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -264,52 +258,15 @@ fun PlaylistMenu(
 
     PlaylistListItem(
         playlist = playlist,
-        trailingContent = {
-            if (playlist.playlist.isEditable != true) {
-                IconButton(
-                    onClick = {
-                        database.query {
-                            dbPlaylist?.playlist?.toggleLike()?.let { update(it) }
-                        }
-                    },
-                ) {
-                    Icon(
-                        painter =
-                            painterResource(
-                                if (dbPlaylist?.playlist?.bookmarkedAt !=
-                                    null
-                                ) {
-                                    R.drawable.favorite
-                                } else {
-                                    R.drawable.favorite_border
-                                },
-                            ),
-                        tint =
-                            if (dbPlaylist?.playlist?.bookmarkedAt !=
-                                null
-                            ) {
-                                MaterialTheme.colorScheme.error
-                            } else {
-                                LocalContentColor.current
-                            },
-                        contentDescription = null,
-                    )
-                }
-            }
-        },
     )
 
-    HorizontalDivider()
-
-    Spacer(modifier = Modifier.height(12.dp))
-
-    val configuration = LocalConfiguration.current
-    val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+    RiffMenuDivider()
 
     Column(
-        modifier = Modifier.padding(
-            bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
-        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(unbounded = true)
+            .padding(bottom = 20.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()),
     ) {
             NewActionGrid(
                 actions =
@@ -321,10 +278,11 @@ fun PlaylistMenu(
                                         painter = painterResource(R.drawable.play),
                                         contentDescription = null,
                                         modifier = Modifier.size(28.dp),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        tint = MaterialTheme.colorScheme.onSurface,
                                     )
                                 },
                                 text = stringResource(R.string.play),
+                                contentColor = MaterialTheme.colorScheme.onSurface,
                                 onClick = {
                                     onDismiss()
                                     if (songs.isNotEmpty()) {
@@ -337,16 +295,21 @@ fun PlaylistMenu(
                                     }
                                 },
                             )
+                        } else {
+                            null
+                        },
+                        if (!isGuest) {
                             NewAction(
                                 icon = {
                                     Icon(
                                         painter = painterResource(R.drawable.shuffle),
                                         contentDescription = null,
                                         modifier = Modifier.size(28.dp),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        tint = MaterialTheme.colorScheme.onSurface,
                                     )
                                 },
                                 text = stringResource(R.string.shuffle),
+                                contentColor = MaterialTheme.colorScheme.onSurface,
                                 onClick = {
                                     onDismiss()
                                     if (songs.isNotEmpty()) {
@@ -368,10 +331,11 @@ fun PlaylistMenu(
                                     painter = painterResource(R.drawable.share),
                                     contentDescription = null,
                                     modifier = Modifier.size(28.dp),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    tint = MaterialTheme.colorScheme.onSurface,
                                 )
                             },
                             text = stringResource(R.string.share),
+                            contentColor = MaterialTheme.colorScheme.onSurface,
                             onClick = {
                                 onDismiss()
                                 val intent =
@@ -388,7 +352,7 @@ fun PlaylistMenu(
                         ),
                     ),
                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp),
-                columns = if (isGuest) 2 else 3,
+                columns = if (isGuest) 1 else 3,
             )
 
             Material3MenuGroup(
@@ -463,7 +427,7 @@ fun PlaylistMenu(
                     },
             )
 
-        Spacer(modifier = Modifier.height(12.dp))
+            RiffMenuDivider()
 
             Material3MenuGroup(
                 items =
