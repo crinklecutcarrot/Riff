@@ -317,7 +317,7 @@ fun AccountSettings(
                             }
                         )
                     },
-                    icon = painterResource(R.drawable.token),
+                    icon = painterResource(R.drawable.tabler_ic_coin_outline),
                     onClick = {
                         if (!isLoggedIn) showTokenEditor = true
                         else if (!showToken) showToken = true
@@ -382,7 +382,7 @@ fun AccountSettings(
         ) {
             PreferenceEntry(
                 title = { Text(stringResource(R.string.integrations)) },
-                icon = { Icon(painterResource(R.drawable.integration), null) },
+                icon = { Icon(painterResource(R.drawable.tabler_ic_plug_outline), null) },
                 onClick = {
                     onClose()
                     navController.navigate("settings/integrations")

@@ -285,7 +285,7 @@ private fun EqScreenContent(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Icon(
-                                painter = painterResource(R.drawable.equalizer),
+                                painter = painterResource(R.drawable.tabler_ic_adjustments_outline),
                                 contentDescription = null,
                                 modifier = Modifier.size(48.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant

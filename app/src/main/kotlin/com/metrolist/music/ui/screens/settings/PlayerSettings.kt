@@ -301,7 +301,7 @@ fun PlayerSettings(
                     onClick = { showAudioQualityDialog = true }
                 ))
                 add(Material3SettingsItem(
-                    icon = painterResource(R.drawable.linear_scale),
+                    icon = painterResource(R.drawable.tabler_ic_adjustments_horizontal),
                     title = { Text(stringResource(R.string.crossfade)) },
                     description = { Text(stringResource(R.string.crossfade_desc)) },
                     trailingContent = {
@@ -524,7 +524,7 @@ fun PlayerSettings(
                 // Only show Cast setting in GMS builds (not in F-Droid/FOSS)
                 if (BuildConfig.CAST_AVAILABLE) {
                     add(Material3SettingsItem(
-                        icon = painterResource(R.drawable.cast),
+                        icon = painterResource(R.drawable.tabler_ic_cast_outline),
                         title = { Text(stringResource(R.string.google_cast)) },
                         description = { Text(stringResource(R.string.google_cast_description)) },
                         trailingContent = {
@@ -635,7 +635,7 @@ fun PlayerSettings(
             items = buildList {
                 add(
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.time_auto),
+                        icon = painterResource(R.drawable.tabler_ic_clock_outline),
                         title = { Text(stringResource(R.string.enable_automatic_sleeptimer)) },
                         description = { Text(stringResource(R.string.sleeptimer_description)) },
                         trailingContent = {
@@ -688,7 +688,7 @@ fun PlayerSettings(
 
                 add(
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.more_time),
+                        icon = painterResource(R.drawable.tabler_ic_clock_outline),
                         title = { Text(stringResource(R.string.sleep_timer_stop_after_current_song_title)) },
                         description = { Text(stringResource(R.string.sleep_timer_stop_after_current_song_description)) },
                         trailingContent = {
@@ -712,7 +712,7 @@ fun PlayerSettings(
 
                 add(
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.timer_arrow_down),
+                        icon = painterResource(R.drawable.tabler_ic_clock_outline),
                         title = { Text(stringResource(R.string.sleep_timer_fade_out_title)) },
                         description = { Text(stringResource(R.string.sleep_timer_fade_out_description)) },
                         trailingContent = {
@@ -873,7 +873,7 @@ fun PlayerSettings(
                     onClick = { onAutoDownloadOnLikeChange(!autoDownloadOnLike) }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.similar),
+                    icon = painterResource(R.drawable.tabler_ic_sparkles_outline),
                     title = { Text(stringResource(R.string.enable_similar_content)) },
                     description = { Text(stringResource(R.string.similar_content_desc)) },
                     trailingContent = {
@@ -1027,7 +1027,7 @@ fun PlayerSettings(
                     onClick = { onStopMusicOnTaskClearChange(!stopMusicOnTaskClear) }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.volume_off_pause),
+                    icon = painterResource(R.drawable.tabler_ic_volume_off_outline),
                     title = { Text(stringResource(R.string.pause_music_when_media_is_muted)) },
                     trailingContent = {
                         Switch(
@@ -1047,7 +1047,7 @@ fun PlayerSettings(
                     onClick = { onPauseOnMuteChange(!pauseOnMute) }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.bluetooth),
+                    icon = painterResource(R.drawable.tabler_ic_bluetooth_outline),
                     title = { Text(stringResource(R.string.resume_on_bluetooth_connect)) },
                     trailingContent = {
                         Switch(
@@ -1067,7 +1067,7 @@ fun PlayerSettings(
                     onClick = { onResumeOnBluetoothConnectChange(!resumeOnBluetoothConnect) }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.screenshot),
+                    icon = painterResource(R.drawable.tabler_ic_screenshot_outline),
                     title = { Text(stringResource(R.string.keep_screen_on_when_player_is_expanded)) },
                     trailingContent = {
                         Switch(

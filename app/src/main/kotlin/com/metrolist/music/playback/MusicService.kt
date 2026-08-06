@@ -1617,8 +1617,8 @@ class MusicService :
                     ).setIconResId(
                         when (player.repeatMode) {
                             REPEAT_MODE_OFF -> R.drawable.tabler_ic_repeat_outline
-                            REPEAT_MODE_ONE -> R.drawable.repeat_one_on
-                            REPEAT_MODE_ALL -> R.drawable.repeat_on
+                            REPEAT_MODE_ONE -> R.drawable.tabler_ic_repeat_once_outline
+                            REPEAT_MODE_ALL -> R.drawable.tabler_ic_repeat_outline
                             else -> throw IllegalStateException()
                         },
                     ).setSessionCommand(CommandToggleRepeatMode)
@@ -1626,7 +1626,7 @@ class MusicService :
                 CommandButton
                     .Builder()
                     .setDisplayName(getString(if (player.shuffleModeEnabled) R.string.action_shuffle_off else R.string.action_shuffle_on))
-                    .setIconResId(if (player.shuffleModeEnabled) R.drawable.shuffle_on else R.drawable.tabler_ic_arrows_shuffle_outline)
+                    .setIconResId(if (player.shuffleModeEnabled) R.drawable.tabler_ic_arrows_shuffle_outline else R.drawable.tabler_ic_arrows_shuffle_outline)
                     .setSessionCommand(CommandToggleShuffle)
                     .build(),
                 CommandButton

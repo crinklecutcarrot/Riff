@@ -688,7 +688,7 @@ fun ContentSettings(
                     onClick = { showContentLanguageDialog = true }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.location_on),
+                    icon = painterResource(R.drawable.tabler_ic_map_pin_outline),
                     title = { Text(stringResource(R.string.content_country)) },
                     description = {
                         Text(
@@ -718,7 +718,7 @@ fun ContentSettings(
                     onClick = { onHideExplicitChange(!hideExplicit) }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.slow_motion_video),
+                    icon = painterResource(R.drawable.tabler_ic_gauge_outline),
                     title = { Text(stringResource(R.string.hide_video_songs)) },
                     trailingContent = {
                         Switch(

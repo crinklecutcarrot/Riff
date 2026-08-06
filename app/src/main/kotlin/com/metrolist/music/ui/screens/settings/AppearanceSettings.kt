@@ -1263,7 +1263,7 @@ fun AppearanceSettings(
                         onClick = { onHidePlayerThumbnailChange(!hidePlayerThumbnail) },
                     ),
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.crop),
+                        icon = painterResource(R.drawable.tabler_ic_crop_outline),
                         title = { Text(stringResource(R.string.crop_album_art)) },
                         description = { Text(stringResource(R.string.crop_album_art_desc)) },
                         trailingContent = {
@@ -1331,7 +1331,7 @@ fun AppearanceSettings(
                         onClick = { showSliderOptionDialog = true },
                     ),
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.swipe),
+                        icon = painterResource(R.drawable.tabler_ic_hand_finger_outline),
                         title = { Text(stringResource(R.string.enable_swipe_thumbnail)) },
                         trailingContent = {
                             Switch(
@@ -1697,7 +1697,7 @@ fun AppearanceSettings(
                         onClick = { showDefaultChipDialog = true },
                     ),
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.swipe),
+                        icon = painterResource(R.drawable.tabler_ic_hand_finger_outline),
                         title = { Text(stringResource(R.string.swipe_song_to_add)) },
                         trailingContent = {
                             Switch(
@@ -1718,7 +1718,7 @@ fun AppearanceSettings(
                         onClick = { onSwipeToSongChange(!swipeToSong) },
                     ),
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.swipe),
+                        icon = painterResource(R.drawable.tabler_ic_hand_finger_outline),
                         title = { Text(stringResource(R.string.swipe_song_to_remove)) },
                         trailingContent = {
                             Switch(

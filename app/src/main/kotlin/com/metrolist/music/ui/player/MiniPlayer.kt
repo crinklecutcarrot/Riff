@@ -460,7 +460,7 @@ private fun NewMiniPlayer(
                 // Cast indicator
                 if (isCasting) {
                     Icon(
-                        painter = painterResource(R.drawable.cast_connected),
+                        painter = painterResource(R.drawable.tabler_ic_cast_outline),
                         contentDescription = "Casting",
                         tint = primaryColor,
                         modifier = Modifier.size(20.dp),

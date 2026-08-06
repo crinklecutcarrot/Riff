@@ -2014,7 +2014,7 @@ fun ListenTogetherDialog(
                             },
                             leadingIcon = {
                                 Icon(
-                                    painterResource(R.drawable.token),
+                                    painterResource(R.drawable.tabler_ic_coin_outline),
                                     null,
                                     tint = MaterialTheme.colorScheme.primary,
                                 )

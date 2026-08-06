@@ -83,9 +83,9 @@ inline fun <reified T : Enum<T>> SortHeader(
                                 if (sortType ==
                                     type
                                 ) {
-                                    R.drawable.radio_button_checked
+                                    R.drawable.tabler_ic_circle_dot_outline
                                 } else {
-                                    R.drawable.radio_button_unchecked
+                                    R.drawable.tabler_ic_circle_outline
                                 },
                             ),
                             contentDescription = null,

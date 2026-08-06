@@ -690,7 +690,7 @@ fun SuggestionItem(
             modifier = Modifier.alpha(0.5f),
         ) {
             Icon(
-                painter = painterResource(R.drawable.arrow_top_left),
+                painter = painterResource(R.drawable.tabler_ic_arrow_up_left_outline),
                 contentDescription = null,
             )
         }

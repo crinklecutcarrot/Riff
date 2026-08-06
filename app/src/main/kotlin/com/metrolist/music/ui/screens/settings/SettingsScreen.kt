@@ -226,7 +226,7 @@ fun SettingsScreen(
                 val showChangelog = com.metrolist.music.LocalChangelogState.current
                 add(
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.newspaper),
+                        icon = painterResource(R.drawable.tabler_ic_news_outline),
                         title = { Text(stringResource(R.string.changelog)) },
                         onClick = { showChangelog.value = true }
                     )
