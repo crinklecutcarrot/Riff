@@ -115,7 +115,7 @@ fun RomanizationSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (lyricsRomanizeAsMain) R.drawable.check else R.drawable.close
+                                        id = if (lyricsRomanizeAsMain) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -123,7 +123,7 @@ fun RomanizationSettings(
                             }
                         )
                     },
-                    icon = painterResource(R.drawable.queue_music)
+                    icon = painterResource(R.drawable.tabler_ic_playlist_outline)
                 ),
                 Material3SettingsItem(
                     title = { Text(stringResource(R.string.line_by_line_option_title)) },
@@ -134,7 +134,7 @@ fun RomanizationSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (lyricsRomanizeCyrillicByLine) R.drawable.check else R.drawable.close
+                                        id = if (lyricsRomanizeCyrillicByLine) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -142,7 +142,7 @@ fun RomanizationSettings(
                             }
                         )
                     },
-                    icon = painterResource(R.drawable.info)
+                    icon = painterResource(R.drawable.tabler_ic_info_circle)
                 )
             )
         )
@@ -163,7 +163,7 @@ fun RomanizationSettings(
                     }
                 )
             },
-            icon = painterResource(R.drawable.info)
+            icon = painterResource(R.drawable.tabler_ic_info_circle)
         )
 
         states.forEachIndexed { index, (language, checked) ->
@@ -178,7 +178,7 @@ fun RomanizationSettings(
                         }
                     )
                 },
-                icon = painterResource(R.drawable.language)
+                icon = painterResource(R.drawable.tabler_ic_language_outline)
             )
         }
 
@@ -196,7 +196,7 @@ fun RomanizationSettings(
                 onLongClick = navController::backToMain,
             ) {
                 Icon(
-                    painterResource(R.drawable.arrow_back),
+                    painterResource(R.drawable.tabler_ic_arrow_left_outline),
                     contentDescription = null,
                 )
             }

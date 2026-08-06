@@ -56,7 +56,7 @@ fun CustomThumbnailMenu(
                 },
                 leadingContent = {
                     Icon(
-                        painter = painterResource(R.drawable.delete),
+                        painter = painterResource(R.drawable.tabler_ic_trash),
                         contentDescription = null,
                     )
                 },

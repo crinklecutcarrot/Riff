@@ -146,7 +146,7 @@ fun ArtistSongsScreen(
                             },
                         ) {
                             Icon(
-                                painter = painterResource(R.drawable.more_vert),
+                                painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                                 contentDescription = null,
                             )
                         }
@@ -190,7 +190,7 @@ fun ArtistSongsScreen(
                     onLongClick = navController::backToMain,
                 ) {
                     Icon(
-                        painterResource(R.drawable.arrow_back),
+                        painterResource(R.drawable.tabler_ic_arrow_left_outline),
                         contentDescription = null,
                     )
                 }
@@ -199,7 +199,7 @@ fun ArtistSongsScreen(
 
         HideOnScrollFAB(
             lazyListState = lazyListState,
-            icon = R.drawable.shuffle,
+            icon = R.drawable.tabler_ic_arrows_shuffle_outline,
             onClick = {
                 playerConnection.playQueue(
                     ListQueue(

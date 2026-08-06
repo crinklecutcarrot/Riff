@@ -129,8 +129,8 @@ fun ShowMediaInfo(videoId: String) {
                     )
 
                     val baseIconsList = listOf(
-                        R.drawable.music_note,
-                        R.drawable.person,
+                        R.drawable.tabler_ic_music_outline,
+                        R.drawable.tabler_ic_user,
                         R.drawable.media3_icon_bookmark_filled,
                     )
 
@@ -138,18 +138,18 @@ fun ShowMediaInfo(videoId: String) {
                         R.drawable.media3_icon_feed,
                         R.drawable.media3_icon_thumb_up_unfilled,
                         R.drawable.media3_icon_thumb_down_unfilled,
-                        R.drawable.key,
-                        R.drawable.play,
-                        R.drawable.lock,
+                        R.drawable.tabler_ic_key_outline,
+                        R.drawable.tabler_ic_player_play_filled,
+                        R.drawable.tabler_ic_lock_outline,
                         R.drawable.key_vertical,
-                        R.drawable.info,
-                        R.drawable.radio,
+                        R.drawable.tabler_ic_info_circle,
+                        R.drawable.tabler_ic_radio,
                         R.drawable.gradient,
                         R.drawable.contrast,
-                        R.drawable.volume_up,
-                        R.drawable.volume_up,
-                        R.drawable.volume_mute,
-                        R.drawable.content_copy
+                        R.drawable.tabler_ic_volume_outline,
+                        R.drawable.tabler_ic_volume_outline,
+                        R.drawable.tabler_ic_volume_3_outline,
+                        R.drawable.tabler_ic_copy_outline
                     )
 
                     val notApplicable = stringResource(R.string.not_applicable)

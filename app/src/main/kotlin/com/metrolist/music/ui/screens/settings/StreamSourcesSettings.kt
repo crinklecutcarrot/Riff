@@ -153,7 +153,7 @@ fun StreamSourcesSettings(
                 onLongClick = navController::backToMain,
             ) {
                 Icon(
-                    painterResource(R.drawable.arrow_back),
+                    painterResource(R.drawable.tabler_ic_arrow_left_outline),
                     contentDescription = null,
                 )
             }
@@ -168,7 +168,7 @@ private fun streamClientItem(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
 ): Material3SettingsItem = Material3SettingsItem(
-    icon = painterResource(R.drawable.play),
+    icon = painterResource(R.drawable.tabler_ic_player_play_filled),
     title = { Text(stringResource(titleRes)) },
     description = { Text(stringResource(descriptionRes)) },
     trailingContent = {
@@ -177,7 +177,7 @@ private fun streamClientItem(
             onCheckedChange = onCheckedChange,
             thumbContent = {
                 Icon(
-                    painter = painterResource(id = if (checked) R.drawable.check else R.drawable.close),
+                    painter = painterResource(id = if (checked) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline),
                     contentDescription = null,
                     modifier = Modifier.size(SwitchDefaults.IconSize),
                 )

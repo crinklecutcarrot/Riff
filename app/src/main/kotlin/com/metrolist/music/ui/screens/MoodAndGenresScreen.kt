@@ -113,7 +113,7 @@ fun MoodAndGenresScreen(
                 onLongClick = navController::backToMain,
             ) {
                 Icon(
-                    painterResource(R.drawable.arrow_back),
+                    painterResource(R.drawable.tabler_ic_arrow_left_outline),
                     contentDescription = null,
                 )
             }

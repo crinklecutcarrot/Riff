@@ -255,7 +255,7 @@ fun TopPlaylistScreen(
                 if (songs!!.isEmpty()) {
                     item(key = "empty_placeholder") {
                         EmptyPlaceholder(
-                            icon = R.drawable.music_note,
+                            icon = R.drawable.tabler_ic_music_outline,
                             text = stringResource(R.string.playlist_is_empty),
                         )
                     }
@@ -339,7 +339,7 @@ fun TopPlaylistScreen(
                                         },
                                     ) {
                                         Icon(
-                                            painter = painterResource(R.drawable.more_vert),
+                                            painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                                             contentDescription = null,
                                         )
                                     }
@@ -471,7 +471,7 @@ fun TopPlaylistScreen(
                 ) {
                     Icon(
                         painter = painterResource(
-                            if (inSelectMode) R.drawable.close else R.drawable.arrow_back
+                            if (inSelectMode) R.drawable.tabler_ic_x_outline else R.drawable.tabler_ic_arrow_left_outline
                         ),
                         contentDescription = null
                     )
@@ -503,7 +503,7 @@ fun TopPlaylistScreen(
                         },
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.more_vert),
+                            painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                             contentDescription = null
                         )
                     }
@@ -512,7 +512,7 @@ fun TopPlaylistScreen(
                         onClick = { isSearching = true }
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.search),
+                            painter = painterResource(R.drawable.tabler_ic_search_outline),
                             contentDescription = null
                         )
                     }
@@ -619,7 +619,7 @@ private fun TopPlaylistHeader(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.shuffle),
+                        painter = painterResource(R.drawable.tabler_ic_arrows_shuffle_outline),
                         contentDescription = stringResource(R.string.shuffle),
                         modifier = Modifier.size(24.dp)
                     )
@@ -645,7 +645,7 @@ private fun TopPlaylistHeader(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.play),
+                        painter = painterResource(R.drawable.tabler_ic_player_play_filled),
                         contentDescription = stringResource(R.string.play),
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(32.dp)
@@ -707,7 +707,7 @@ private fun TopPlaylistHeader(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.more_vert),
+                        painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                         contentDescription = null,
                         modifier = Modifier.size(24.dp)
                     )

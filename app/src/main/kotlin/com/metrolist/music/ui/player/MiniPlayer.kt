@@ -625,11 +625,11 @@ private fun NewMiniPlayerPlayButton(
                     painter =
                         painterResource(
                             if (isListenTogetherGuest) {
-                                if (isMuted) R.drawable.volume_off else R.drawable.volume_up
+                                if (isMuted) R.drawable.tabler_ic_volume_off_outline else R.drawable.tabler_ic_volume_outline
                             } else if (playbackState == Player.STATE_ENDED) {
-                                R.drawable.replay
+                                R.drawable.tabler_ic_rotate_clockwise_outline
                             } else {
-                                R.drawable.play
+                                R.drawable.tabler_ic_player_play_filled
                             },
                         ),
                     contentDescription = null,
@@ -883,7 +883,7 @@ private fun LegacyMiniPlayer(
                 enabled = canSkipNext && !isListenTogetherGuest,
                 onClick = if (isListenTogetherGuest) ({}) else ({ playerConnection.seekToNext() }),
             ) {
-                Icon(painter = painterResource(R.drawable.skip_next), contentDescription = null)
+                Icon(painter = painterResource(R.drawable.tabler_ic_player_track_next_filled), contentDescription = null)
             }
         }
 
@@ -898,7 +898,7 @@ private fun LegacyMiniPlayer(
                 Icon(
                     painter =
                         painterResource(
-                            if (offsetXAnimatable.value > 0) R.drawable.skip_previous else R.drawable.skip_next,
+                            if (offsetXAnimatable.value > 0) R.drawable.tabler_ic_player_track_prev_filled else R.drawable.tabler_ic_player_track_next_filled,
                         ),
                     contentDescription = null,
                     tint =
@@ -946,10 +946,10 @@ private fun LegacyPlayPauseButton(
             painter =
                 painterResource(
                     when {
-                        isListenTogetherGuest -> if (isMuted) R.drawable.volume_off else R.drawable.volume_up
-                        playbackState == Player.STATE_ENDED -> R.drawable.replay
-                        effectiveIsPlaying -> R.drawable.pause
-                        else -> R.drawable.play
+                        isListenTogetherGuest -> if (isMuted) R.drawable.tabler_ic_volume_off_outline else R.drawable.tabler_ic_volume_outline
+                        playbackState == Player.STATE_ENDED -> R.drawable.tabler_ic_rotate_clockwise_outline
+                        effectiveIsPlaying -> R.drawable.tabler_ic_player_pause_filled
+                        else -> R.drawable.tabler_ic_player_play_filled
                     },
                 ),
             contentDescription = null,
@@ -1008,7 +1008,7 @@ private fun LegacyMiniMediaInfo(
                         ),
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.info),
+                        painter = painterResource(R.drawable.tabler_ic_info_circle),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.align(Alignment.Center),
@@ -1097,7 +1097,7 @@ private fun SubscribeButton(
                 },
     ) {
         Icon(
-            painter = painterResource(if (isSubscribed) R.drawable.subscribed else R.drawable.subscribe),
+            painter = painterResource(if (isSubscribed) R.drawable.tabler_ic_bell_filled else R.drawable.tabler_ic_bell_outline),
             contentDescription = null,
             tint = if (isSubscribed) primaryColor else onSurfaceColor.copy(alpha = 0.7f),
             modifier = Modifier.size(20.dp),
@@ -1132,7 +1132,7 @@ private fun AddToPlaylistButton(
             .clickable { onClick() },
     ) {
         Icon(
-            painter = painterResource(R.drawable.add),
+            painter = painterResource(R.drawable.tabler_ic_plus_outline),
             contentDescription = contentDescription,
             tint = onSurfaceColor.copy(alpha = 0.7f),
             modifier = Modifier.size(20.dp),
@@ -1170,7 +1170,7 @@ private fun FavoriteButton(
                 ).clickable { playerConnection.service.toggleLike() },
     ) {
         Icon(
-            painter = painterResource(if (isLiked) R.drawable.favorite else R.drawable.favorite_border),
+            painter = painterResource(if (isLiked) R.drawable.tabler_ic_heart_filled else R.drawable.tabler_ic_heart_outline),
             contentDescription = null,
             tint = if (isLiked) errorColor else onSurfaceColor.copy(alpha = 0.7f),
             modifier = Modifier.size(20.dp),

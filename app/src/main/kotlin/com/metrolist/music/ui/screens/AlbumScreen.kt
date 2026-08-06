@@ -228,7 +228,7 @@ fun AlbumScreen(
                     contentColor = controls.onAccent,
                 ) {
                     Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                        Icon(painterResource(R.drawable.play), stringResource(R.string.play), Modifier.size(19.dp))
+                        Icon(painterResource(R.drawable.tabler_ic_player_play_filled), stringResource(R.string.play), Modifier.size(19.dp))
                         Spacer(Modifier.width(9.dp))
                         Text(stringResource(R.string.play), fontWeight = FontWeight.SemiBold)
                     }
@@ -342,7 +342,7 @@ fun AlbumScreen(
         TopAppBar(
             title = { Text(pluralStringResource(R.plurals.n_selected, selection.size, selection.size)) },
             navigationIcon = {
-                IconButton(onClick = exitSelection) { Icon(painterResource(R.drawable.close), null) }
+                IconButton(onClick = exitSelection) { Icon(painterResource(R.drawable.tabler_ic_x_outline), null) }
             },
             actions = {
                 Checkbox(
@@ -418,7 +418,7 @@ private fun AlbumHero(
                 color = Color(0xB3121315),
                 contentColor = Color.White,
             ) {
-                Box(contentAlignment = Alignment.Center) { Icon(painterResource(R.drawable.arrow_back), null, Modifier.size(20.dp)) }
+                Box(contentAlignment = Alignment.Center) { Icon(painterResource(R.drawable.tabler_ic_arrow_left_outline), null, Modifier.size(20.dp)) }
             }
             Surface(onClick = onMenu, modifier = Modifier.size(44.dp), shape = CircleShape, color = Color(0xB3121315), contentColor = Color.White) {
                 Box(contentAlignment = Alignment.Center) { Icon(painterResource(R.drawable.tabler_ic_dots_vertical_outline), null, Modifier.size(21.dp)) }

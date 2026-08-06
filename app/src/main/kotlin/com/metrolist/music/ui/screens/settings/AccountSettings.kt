@@ -127,7 +127,7 @@ fun AccountSettings(
             )
             Spacer(modifier = Modifier.weight(1f))
             IconButton(onClick = onClose) {
-                Icon(painterResource(R.drawable.close), contentDescription = null)
+                Icon(painterResource(R.drawable.tabler_ic_x_outline), contentDescription = null)
             }
         }
 
@@ -273,7 +273,7 @@ fun AccountSettings(
                             )
                         }
                     },
-                    icon = if (!isLoggedIn) painterResource(R.drawable.login) else null,
+                    icon = if (!isLoggedIn) painterResource(R.drawable.tabler_ic_login_outline) else null,
                     trailingContent = {
                         if (isLoggedIn) {
                             OutlinedButton(
@@ -326,7 +326,7 @@ fun AccountSettings(
                 ),
                 Material3SettingsItem(
                     title = { Text(stringResource(R.string.more_content)) },
-                    icon = painterResource(R.drawable.cached),
+                    icon = painterResource(R.drawable.tabler_ic_database_outline),
                     trailingContent = {
                         Switch(
                             enabled = isLoggedIn,
@@ -338,7 +338,7 @@ fun AccountSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (useLoginForBrowse) R.drawable.check else R.drawable.close
+                                        id = if (useLoginForBrowse) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -350,7 +350,7 @@ fun AccountSettings(
                 ),
                 Material3SettingsItem(
                     title = { Text(stringResource(R.string.yt_sync)) },
-                    icon = painterResource(R.drawable.cached),
+                    icon = painterResource(R.drawable.tabler_ic_database_outline),
                     trailingContent = {
                         Switch(
                             enabled = isLoggedIn,
@@ -359,7 +359,7 @@ fun AccountSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (ytmSync) R.drawable.check else R.drawable.close
+                                        id = if (ytmSync) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -404,7 +404,7 @@ fun AccountSettings(
                             }
                         }
                     ) {
-                        Icon(painterResource(R.drawable.settings), contentDescription = null)
+                        Icon(painterResource(R.drawable.tabler_ic_settings_outline), contentDescription = null)
                     }
                 },
                 onClick = {
@@ -430,7 +430,7 @@ fun AccountSettings(
                         description = latestVersionName,
                         icon = {
                             BadgedBox(badge = { Badge() }) {
-                                Icon(painterResource(R.drawable.update), null)
+                                Icon(painterResource(R.drawable.tabler_ic_refresh), null)
                             }
                         },
                         onClick = {

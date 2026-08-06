@@ -470,7 +470,7 @@ fun OnlinePlaylistScreen(
                     Icon(
                         painter =
                             painterResource(
-                                if (inSelectMode) R.drawable.close else R.drawable.arrow_back,
+                                if (inSelectMode) R.drawable.tabler_ic_x_outline else R.drawable.tabler_ic_arrow_left_outline,
                             ),
                         contentDescription = null,
                     )
@@ -505,7 +505,7 @@ fun OnlinePlaylistScreen(
                         },
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.more_vert),
+                            painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                             contentDescription = null,
                         )
                     }
@@ -514,7 +514,7 @@ fun OnlinePlaylistScreen(
                         onClick = { isSearching = true },
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.search),
+                            painter = painterResource(R.drawable.tabler_ic_search_outline),
                             contentDescription = null,
                         )
                     }
@@ -754,7 +754,7 @@ private fun RiffOnlinePlaylistHeader(
                     contentColor = Color.White,
                 ) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Icon(painterResource(R.drawable.arrow_back), null, Modifier.size(20.dp))
+                        Icon(painterResource(R.drawable.tabler_ic_arrow_left_outline), null, Modifier.size(20.dp))
                     }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -766,7 +766,7 @@ private fun RiffOnlinePlaylistHeader(
                         contentColor = Color.White,
                     ) {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Icon(painterResource(R.drawable.search), null, Modifier.size(20.dp))
+                            Icon(painterResource(R.drawable.tabler_ic_search_outline), null, Modifier.size(20.dp))
                         }
                     }
                     Surface(
@@ -852,7 +852,7 @@ private fun RiffOnlinePlaylistHeader(
                 contentColor = controls.onAccent,
             ) {
                 Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                    Icon(painterResource(R.drawable.play), null, Modifier.size(19.dp))
+                    Icon(painterResource(R.drawable.tabler_ic_player_play_filled), null, Modifier.size(19.dp))
                     Spacer(Modifier.width(9.dp))
                     Text(stringResource(R.string.play), fontWeight = FontWeight.SemiBold)
                 }
@@ -1102,7 +1102,7 @@ private fun OnlinePlaylistHeader(
                     Icon(
                         painter =
                             painterResource(
-                                if (dbPlaylist?.playlist?.bookmarkedAt != null) R.drawable.favorite else R.drawable.favorite_border,
+                                if (dbPlaylist?.playlist?.bookmarkedAt != null) R.drawable.tabler_ic_heart_filled else R.drawable.tabler_ic_heart_outline,
                             ),
                         contentDescription = null,
                         tint =
@@ -1139,7 +1139,7 @@ private fun OnlinePlaylistHeader(
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.play),
+                        painter = painterResource(R.drawable.tabler_ic_player_play_filled),
                         contentDescription = stringResource(R.string.play),
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(32.dp),
@@ -1168,7 +1168,7 @@ private fun OnlinePlaylistHeader(
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.more_vert),
+                        painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                         contentDescription = null,
                         modifier = Modifier.size(24.dp),
                     )

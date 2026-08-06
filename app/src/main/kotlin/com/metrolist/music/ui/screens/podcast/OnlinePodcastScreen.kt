@@ -225,7 +225,7 @@ fun OnlinePodcastScreen(
                                         YouTubeSongMenu(episode.asSongItem(), menuState::dismiss)
                                     }
                                 }) {
-                                    Icon(painterResource(R.drawable.more_vert), null)
+                                    Icon(painterResource(R.drawable.tabler_ic_dots_vertical_outline), null)
                                 }
                             }
                         )
@@ -279,7 +279,7 @@ fun OnlinePodcastScreen(
                     }
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.arrow_back),
+                        painter = painterResource(R.drawable.tabler_ic_arrow_left_outline),
                         contentDescription = null
                     )
                 }
@@ -288,7 +288,7 @@ fun OnlinePodcastScreen(
                 if (!isSearching) {
                     IconButton(onClick = { isSearching = true }) {
                         Icon(
-                            painter = painterResource(R.drawable.search),
+                            painter = painterResource(R.drawable.tabler_ic_search_outline),
                             contentDescription = stringResource(R.string.search)
                         )
                     }
@@ -372,7 +372,7 @@ private fun PodcastHeader(
                 modifier = Modifier.height(40.dp)
             ) {
                 Icon(
-                    painter = painterResource(if (inLibrary) R.drawable.library_add_check else R.drawable.library_add),
+                    painter = painterResource(if (inLibrary) R.drawable.tabler_ic_circle_check_filled else R.drawable.tabler_ic_library_plus),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp)
                 )
@@ -388,7 +388,7 @@ private fun PodcastHeader(
                 modifier = Modifier.height(40.dp)
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.person),
+                    painter = painterResource(R.drawable.tabler_ic_user),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp)
                 )

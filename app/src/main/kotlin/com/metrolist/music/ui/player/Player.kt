@@ -628,7 +628,7 @@ fun BottomSheetPlayer(
             onDismissRequest = { showSleepTimerDialog = false },
             icon = {
                 Icon(
-                    painter = painterResource(R.drawable.bedtime),
+                    painter = painterResource(R.drawable.tabler_ic_moon_outline),
                     contentDescription = null,
                 )
             },
@@ -1154,7 +1154,7 @@ fun BottomSheetPlayer(
                                     modifier = Modifier.size(42.dp),
                                 ) {
                                     Icon(
-                                        painter = painterResource(R.drawable.fullscreen),
+                                        painter = painterResource(R.drawable.tabler_ic_arrows_maximize_outline),
                                         contentDescription = null,
                                         modifier = Modifier.size(24.dp),
                                     )
@@ -1182,7 +1182,7 @@ fun BottomSheetPlayer(
                                     modifier = Modifier.size(42.dp),
                                 ) {
                                     Icon(
-                                        painter = painterResource(R.drawable.share),
+                                        painter = painterResource(R.drawable.tabler_ic_share_3),
                                         contentDescription = null,
                                         modifier = Modifier.size(24.dp),
                                     )
@@ -1220,7 +1220,7 @@ fun BottomSheetPlayer(
                                     modifier = Modifier.size(42.dp),
                                 ) {
                                     Icon(
-                                        painter = painterResource(R.drawable.more_horiz),
+                                        painter = painterResource(R.drawable.tabler_ic_dots_outline),
                                         contentDescription = null,
                                         modifier = Modifier.size(24.dp),
                                     )
@@ -1243,9 +1243,9 @@ fun BottomSheetPlayer(
                                         painter =
                                             painterResource(
                                                 if (isFavorite) {
-                                                    R.drawable.favorite
+                                                    R.drawable.tabler_ic_heart_filled
                                                 } else {
-                                                    R.drawable.favorite_border
+                                                    R.drawable.tabler_ic_heart_outline
                                                 },
                                             ),
                                         contentDescription = null,
@@ -1267,7 +1267,7 @@ fun BottomSheetPlayer(
                                         .clickable { isFullScreen = !isFullScreen },
                             ) {
                                 Icon(
-                                    painter = painterResource(R.drawable.fullscreen),
+                                    painter = painterResource(R.drawable.tabler_ic_arrows_maximize_outline),
                                     contentDescription = null,
                                     tint = iconButtonColor,
                                     modifier =
@@ -1297,7 +1297,7 @@ fun BottomSheetPlayer(
                                         },
                             ) {
                                 Icon(
-                                    painter = painterResource(R.drawable.share),
+                                    painter = painterResource(R.drawable.tabler_ic_share_3),
                                     contentDescription = null,
                                     tint = iconButtonColor,
                                     modifier =
@@ -1339,7 +1339,7 @@ fun BottomSheetPlayer(
                                         },
                             ) {
                                 Icon(
-                                    painter = painterResource(R.drawable.more_horiz),
+                                    painter = painterResource(R.drawable.tabler_ic_dots_outline),
                                     contentDescription = null,
                                     tint = iconButtonColor,
                                     modifier =
@@ -1597,7 +1597,7 @@ fun BottomSheetPlayer(
                                         .weight(backButtonWeight),
                             ) {
                                 Icon(
-                                    painter = painterResource(R.drawable.skip_previous),
+                                    painter = painterResource(R.drawable.tabler_ic_player_track_prev_filled),
                                     contentDescription = null,
                                     modifier = Modifier.size(32.dp),
                                 )
@@ -1645,9 +1645,9 @@ fun BottomSheetPlayer(
                                         painter =
                                             painterResource(
                                                 if (isListenTogetherGuest) {
-                                                    if (isMuted) R.drawable.volume_off else R.drawable.volume_up
+                                                    if (isMuted) R.drawable.tabler_ic_volume_off_outline else R.drawable.tabler_ic_volume_outline
                                                 } else {
-                                                    if (effectiveIsPlaying) R.drawable.pause else R.drawable.play
+                                                    if (effectiveIsPlaying) R.drawable.tabler_ic_player_pause_filled else R.drawable.tabler_ic_player_play_filled
                                                 },
                                             ),
                                         contentDescription =
@@ -1689,7 +1689,7 @@ fun BottomSheetPlayer(
                                         .weight(nextButtonWeight),
                             ) {
                                 Icon(
-                                    painter = painterResource(R.drawable.skip_next),
+                                    painter = painterResource(R.drawable.tabler_ic_player_track_next_filled),
                                     contentDescription = null,
                                     modifier = Modifier.size(32.dp),
                                 )
@@ -1707,8 +1707,8 @@ fun BottomSheetPlayer(
                                 ResizableIconButton(
                                     icon =
                                         when (repeatMode) {
-                                            Player.REPEAT_MODE_OFF, Player.REPEAT_MODE_ALL -> R.drawable.repeat
-                                            Player.REPEAT_MODE_ONE -> R.drawable.repeat_one
+                                            Player.REPEAT_MODE_OFF, Player.REPEAT_MODE_ALL -> R.drawable.tabler_ic_repeat_outline
+                                            Player.REPEAT_MODE_ONE -> R.drawable.tabler_ic_repeat_once_outline
                                             else -> throw IllegalStateException()
                                         },
                                     color = TextBackgroundColor,
@@ -1727,7 +1727,7 @@ fun BottomSheetPlayer(
 
                             Box(modifier = Modifier.weight(1f)) {
                                 ResizableIconButton(
-                                    icon = R.drawable.skip_previous,
+                                    icon = R.drawable.tabler_ic_player_track_prev_filled,
                                     enabled = canSkipPrevious && !isListenTogetherGuest,
                                     color = TextBackgroundColor,
                                     modifier =
@@ -1771,15 +1771,15 @@ fun BottomSheetPlayer(
                                     painter =
                                         painterResource(
                                             if (isListenTogetherGuest) {
-                                                if (isMuted) R.drawable.volume_off else R.drawable.volume_up
+                                                if (isMuted) R.drawable.tabler_ic_volume_off_outline else R.drawable.tabler_ic_volume_outline
                                             } else if (playbackState ==
                                                 STATE_ENDED
                                             ) {
-                                                R.drawable.replay
+                                                R.drawable.tabler_ic_rotate_clockwise_outline
                                             } else if (effectiveIsPlaying) {
-                                                R.drawable.pause
+                                                R.drawable.tabler_ic_player_pause_filled
                                             } else {
-                                                R.drawable.play
+                                                R.drawable.tabler_ic_player_play_filled
                                             },
                                         ),
                                     contentDescription = null,
@@ -1795,7 +1795,7 @@ fun BottomSheetPlayer(
 
                             Box(modifier = Modifier.weight(1f)) {
                                 ResizableIconButton(
-                                    icon = R.drawable.skip_next,
+                                    icon = R.drawable.tabler_ic_player_track_next_filled,
                                     enabled = canSkipNext && !isListenTogetherGuest,
                                     color = TextBackgroundColor,
                                     modifier =
@@ -1812,7 +1812,7 @@ fun BottomSheetPlayer(
                                 val isEpisode = currentSong?.song?.isEpisode == true
                                 val isFavorite = if (isEpisode) currentSong?.song?.inLibrary != null else currentSong?.song?.liked == true
                                 ResizableIconButton(
-                                    icon = if (isFavorite) R.drawable.favorite else R.drawable.favorite_border,
+                                    icon = if (isFavorite) R.drawable.tabler_ic_heart_filled else R.drawable.tabler_ic_heart_outline,
                                     color = if (isFavorite) MaterialTheme.colorScheme.error else TextBackgroundColor,
                                     modifier =
                                         Modifier
@@ -2156,7 +2156,7 @@ fun MoreActionsButton(
                 },
     ) {
         Image(
-            painter = painterResource(R.drawable.more_horiz),
+            painter = painterResource(R.drawable.tabler_ic_dots_outline),
             contentDescription = null,
             colorFilter = ColorFilter.tint(iconButtonColor),
         )
@@ -2199,7 +2199,7 @@ private fun PlayerMoreMenuButton(
                 },
     ) {
         Image(
-            painter = painterResource(R.drawable.more_horiz),
+            painter = painterResource(R.drawable.tabler_ic_dots_outline),
             contentDescription = null,
             colorFilter = ColorFilter.tint(iconButtonColor),
         )

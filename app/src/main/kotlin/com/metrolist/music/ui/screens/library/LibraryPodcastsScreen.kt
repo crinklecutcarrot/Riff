@@ -402,7 +402,7 @@ fun LibraryPodcastsScreen(
                                     },
                                 ) {
                                 Icon(
-                                    painter = painterResource(R.drawable.more_vert),
+                                    painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                                     contentDescription = stringResource(R.string.more_options),
                                 )
                                 }
@@ -448,7 +448,7 @@ fun LibraryPodcastsScreen(
                 HideOnScrollFAB(
                     visible = downloadedEpisodes.isNotEmpty(),
                     lazyListState = lazyListState,
-                    icon = R.drawable.shuffle,
+                    icon = R.drawable.tabler_ic_arrows_shuffle_outline,
                     containerColor = MaterialTheme.colorScheme.onBackground,
                     contentColor = MaterialTheme.colorScheme.background,
                     bottomPadding = 0.dp,
@@ -512,7 +512,7 @@ private fun AutoPlaylistCard(
                 )
             } else {
                 Icon(
-                    painter = painterResource(R.drawable.queue_music),
+                    painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.size(28.dp),
@@ -582,7 +582,7 @@ private fun PodcastEpisodePlaylistItem(
                 )
             } else {
                 Icon(
-                    painter = painterResource(R.drawable.queue_music),
+                    painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.size(28.dp),
@@ -612,7 +612,7 @@ private fun PodcastEpisodePlaylistItem(
 
         IconButton(onClick = onMenuClick) {
             Icon(
-                painter = painterResource(R.drawable.more_vert),
+                painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                 contentDescription = stringResource(R.string.more_options),
             )
         }
@@ -642,7 +642,7 @@ private fun PodcastEpisodePlaylistMenu(
                     title = { Text(text = stringResource(R.string.remove_from_library)) },
                     icon = {
                         Icon(
-                            painter = painterResource(R.drawable.delete),
+                            painter = painterResource(R.drawable.tabler_ic_trash),
                             contentDescription = null,
                         )
                     },
@@ -662,7 +662,7 @@ private fun PodcastEpisodePlaylistMenu(
                     title = { Text(text = stringResource(R.string.share)) },
                     icon = {
                         Icon(
-                            painter = painterResource(R.drawable.share),
+                            painter = painterResource(R.drawable.tabler_ic_share_3),
                             contentDescription = null,
                         )
                     },
@@ -694,7 +694,7 @@ private fun PodcastEpisodePlaylistMenu(
                         Icon(
                             painter =
                                 painterResource(
-                                    if (isPinned) R.drawable.remove else R.drawable.add,
+                                    if (isPinned) R.drawable.tabler_ic_minus_outline else R.drawable.tabler_ic_plus_outline,
                                 ),
                             contentDescription = null,
                         )

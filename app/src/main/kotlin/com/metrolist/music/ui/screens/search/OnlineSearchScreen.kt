@@ -232,7 +232,7 @@ fun OnlineSearchScreen(
                             },
                         ) {
                             Icon(
-                                painter = painterResource(R.drawable.more_vert),
+                                painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                                 contentDescription = null,
                             )
                         }
@@ -505,7 +505,7 @@ fun OnlineSearchScreen(
                         },
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.more_vert),
+                            painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                             contentDescription = null,
                         )
                     }
@@ -661,7 +661,7 @@ fun SuggestionItem(
                 .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal)),
     ) {
         Icon(
-            painterResource(if (online) R.drawable.search else R.drawable.history),
+            painterResource(if (online) R.drawable.tabler_ic_search_outline else R.drawable.tabler_ic_history_outline),
             contentDescription = null,
             modifier = Modifier.padding(horizontal = 16.dp).alpha(0.5f),
         )
@@ -679,7 +679,7 @@ fun SuggestionItem(
                 modifier = Modifier.alpha(0.5f),
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.close),
+                    painter = painterResource(R.drawable.tabler_ic_x_outline),
                     contentDescription = null,
                 )
             }

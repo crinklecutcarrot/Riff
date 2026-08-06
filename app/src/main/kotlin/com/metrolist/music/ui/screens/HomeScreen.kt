@@ -461,7 +461,7 @@ fun CommunityPlaylistCard(
                     contentColor = controls.onAccent,
                 ) {
                     Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                        Icon(painterResource(R.drawable.play), null, Modifier.size(17.dp))
+                        Icon(painterResource(R.drawable.tabler_ic_player_play_filled), null, Modifier.size(17.dp))
                         Spacer(Modifier.width(7.dp))
                         Text("Play", fontWeight = FontWeight.SemiBold)
                     }
@@ -1943,7 +1943,7 @@ fun HomeScreen(
                                                         },
                                                     ) {
                                                         Icon(
-                                                            painter = painterResource(R.drawable.more_vert),
+                                                            painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                                                             contentDescription = null,
                                                         )
                                                     }
@@ -2157,8 +2157,8 @@ fun HomeScreen(
                                                             .diskCacheKey(url)
                                                             .crossfade(false)
                                                             .build(),
-                                                    placeholder = painterResource(id = R.drawable.person),
-                                                    error = painterResource(id = R.drawable.person),
+                                                    placeholder = painterResource(id = R.drawable.tabler_ic_user),
+                                                    error = painterResource(id = R.drawable.tabler_ic_user),
                                                     contentDescription = null,
                                                     contentScale = ContentScale.Crop,
                                                     modifier =
@@ -2168,7 +2168,7 @@ fun HomeScreen(
                                                 )
                                             } else {
                                                 Icon(
-                                                    painter = painterResource(id = R.drawable.person),
+                                                    painter = painterResource(id = R.drawable.tabler_ic_user),
                                                     contentDescription = null,
                                                     modifier = Modifier.size(ListThumbnailSize),
                                                 )
@@ -2266,7 +2266,7 @@ fun HomeScreen(
                                                         },
                                                     ) {
                                                         Icon(
-                                                            painter = painterResource(R.drawable.more_vert),
+                                                            painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                                                             contentDescription = null,
                                                         )
                                                     }
@@ -2603,7 +2603,7 @@ fun HomeScreen(
                                                             },
                                                         ) {
                                                             Icon(
-                                                                painter = painterResource(R.drawable.more_vert),
+                                                                painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                                                                 contentDescription = null,
                                                             )
                                                         }
@@ -2761,7 +2761,7 @@ fun HomeScreen(
             HideOnScrollFAB(
                 visible = allLocalItems.isNotEmpty() || allYtItems.isNotEmpty(),
                 lazyListState = lazylistState,
-                icon = R.drawable.shuffle,
+                icon = R.drawable.tabler_ic_arrows_shuffle_outline,
                 onClick = {
                     if (!isListenTogetherGuest) {
                         val local =

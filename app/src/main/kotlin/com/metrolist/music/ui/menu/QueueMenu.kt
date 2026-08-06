@@ -241,8 +241,8 @@ fun QueueMenu(
             ) {
                 Icon(
                     painter = painterResource(
-                        if (isFavorite) R.drawable.favorite
-                        else R.drawable.favorite_border
+                        if (isFavorite) R.drawable.tabler_ic_heart_filled
+                        else R.drawable.tabler_ic_heart_outline
                     ),
                     tint = if (isFavorite) MaterialTheme.colorScheme.error
                     else LocalContentColor.current,
@@ -270,7 +270,7 @@ fun QueueMenu(
                     NewAction(
                         icon = {
                             Icon(
-                                painter = painterResource(R.drawable.radio),
+                                painter = painterResource(R.drawable.tabler_ic_radio),
                                 contentDescription = null,
                                 modifier = Modifier.size(28.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -294,7 +294,7 @@ fun QueueMenu(
                     NewAction(
                         icon = {
                             Icon(
-                                painter = painterResource(R.drawable.playlist_add),
+                                painter = painterResource(R.drawable.tabler_ic_playlist_add),
                                 contentDescription = null,
                                 modifier = Modifier.size(28.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -306,7 +306,7 @@ fun QueueMenu(
                     NewAction(
                         icon = {
                             Icon(
-                                painter = painterResource(R.drawable.share),
+                                painter = painterResource(R.drawable.tabler_ic_share_3),
                                 contentDescription = null,
                                 modifier = Modifier.size(28.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -338,7 +338,7 @@ fun QueueMenu(
                         description = { Text(text = stringResource(R.string.play_next_desc)) },
                         icon = {
                             Icon(
-                                painter = painterResource(R.drawable.playlist_play),
+                                painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                 contentDescription = null,
                             )
                         },
@@ -356,7 +356,7 @@ fun QueueMenu(
                         description = { Text(text = stringResource(R.string.add_to_queue_desc)) },
                         icon = {
                             Icon(
-                                painter = painterResource(R.drawable.queue_music),
+                                painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                 contentDescription = null,
                             )
                         },
@@ -385,7 +385,7 @@ fun QueueMenu(
                                 },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.offline),
+                                        painter = painterResource(R.drawable.tabler_ic_cloud_off_outline),
                                         contentDescription = null,
                                         modifier = Modifier.size(24.dp)
                                     )
@@ -427,7 +427,7 @@ fun QueueMenu(
                                 description = { Text(text = stringResource(R.string.download_desc)) },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.download),
+                                        painter = painterResource(R.drawable.tabler_ic_download),
                                         contentDescription = null,
                                         modifier = Modifier.size(24.dp)
                                     )
@@ -473,7 +473,7 @@ fun QueueMenu(
                                 },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.artist),
+                                        painter = painterResource(R.drawable.tabler_ic_microphone_2_outline),
                                         contentDescription = null,
                                         modifier = Modifier.size(24.dp)
                                     )
@@ -503,7 +503,7 @@ fun QueueMenu(
                                 },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.album),
+                                        painter = painterResource(R.drawable.tabler_ic_disc),
                                         contentDescription = null,
                                         modifier = Modifier.size(24.dp)
                                     )
@@ -530,7 +530,7 @@ fun QueueMenu(
                             description = { Text(text = stringResource(R.string.refetch_desc)) },
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.sync),
+                                    painter = painterResource(R.drawable.tabler_ic_refresh),
                                     contentDescription = null,
                                     modifier = Modifier.graphicsLayer(rotationZ = rotationAnimation),
                                 )
@@ -556,7 +556,7 @@ fun QueueMenu(
                             description = { Text(text = stringResource(R.string.details_desc)) },
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.info),
+                                    painter = painterResource(R.drawable.tabler_ic_info_circle),
                                     contentDescription = null,
                                     modifier = Modifier.size(24.dp)
                                 )

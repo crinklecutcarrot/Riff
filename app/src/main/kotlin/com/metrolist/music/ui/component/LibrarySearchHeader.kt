@@ -82,7 +82,7 @@ fun LibrarySearchHeader(
 
             IconButton(onClick = onBack) {
                 Icon(
-                    painter = painterResource(R.drawable.close),
+                    painter = painterResource(R.drawable.tabler_ic_x_outline),
                     contentDescription = stringResource(R.string.close),
                 )
             }
@@ -95,7 +95,7 @@ fun LibrarySearchHeader(
 @Composable
 fun LibrarySearchEmptyPlaceholder(
     modifier: Modifier = Modifier,
-    icon: Int = R.drawable.search,
+    icon: Int = R.drawable.tabler_ic_search_outline,
     text: String? = null,
 ) {
     EmptyPlaceholder(

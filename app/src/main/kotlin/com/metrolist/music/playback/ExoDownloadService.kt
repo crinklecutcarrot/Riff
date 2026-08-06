@@ -54,7 +54,7 @@ class ExoDownloadService : DownloadService(
         val progressNotification =
             downloadUtil.downloadNotificationHelper.buildProgressNotification(
                 this,
-                R.drawable.download,
+                R.drawable.tabler_ic_download,
                 null,
                 if (downloads.size == 1) {
                     Util.fromUtf8Bytes(downloads[0].request.data)
@@ -67,7 +67,7 @@ class ExoDownloadService : DownloadService(
 
         val cancelAction =
             Notification.Action.Builder(
-                Icon.createWithResource(this, R.drawable.close),
+                Icon.createWithResource(this, R.drawable.tabler_ic_x_outline),
                 getString(android.R.string.cancel),
                 PendingIntent.getService(
                     this,
@@ -101,7 +101,7 @@ class ExoDownloadService : DownloadService(
             if (download.state == Download.STATE_FAILED) {
                 val notification = notificationHelper.buildDownloadFailedNotification(
                     context,
-                    R.drawable.error,
+                    R.drawable.tabler_ic_alert_circle_outline,
                     null,
                     Util.fromUtf8Bytes(download.request.data)
                 )

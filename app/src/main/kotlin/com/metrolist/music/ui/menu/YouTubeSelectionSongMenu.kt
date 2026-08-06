@@ -222,7 +222,7 @@ fun YouTubeSelectionSongMenu(
                 listOfNotNull(
                     if (!isGuest) {
                         Material3MenuItemData(
-                            icon = { Icon(painterResource(R.drawable.play), null) },
+                            icon = { Icon(painterResource(R.drawable.tabler_ic_player_play_filled), null) },
                             title = { Text(stringResource(R.string.play)) },
                             onClick = {
                                 playerConnection.playQueue(
@@ -240,7 +240,7 @@ fun YouTubeSelectionSongMenu(
                     },
                     if (!isGuest) {
                         Material3MenuItemData(
-                            icon = { Icon(painterResource(R.drawable.shuffle), null) },
+                            icon = { Icon(painterResource(R.drawable.tabler_ic_arrows_shuffle_outline), null) },
                             title = { Text(stringResource(R.string.shuffle)) },
                             onClick = {
                                 playerConnection.playQueue(
@@ -258,7 +258,7 @@ fun YouTubeSelectionSongMenu(
                     },
                     if (!isGuest) {
                         Material3MenuItemData(
-                            icon = { Icon(painterResource(R.drawable.queue_music), null) },
+                            icon = { Icon(painterResource(R.drawable.tabler_ic_playlist_outline), null) },
                             title = { Text(stringResource(R.string.add_to_queue)) },
                             onClick = {
                                 playerConnection.addToQueue(songSelection.map { it.toMediaItem() })
@@ -270,7 +270,7 @@ fun YouTubeSelectionSongMenu(
                         null
                     },
                     Material3MenuItemData(
-                        icon = { Icon(painterResource(R.drawable.playlist_add), null) },
+                        icon = { Icon(painterResource(R.drawable.tabler_ic_playlist_add), null) },
                         title = { Text(stringResource(R.string.add_to_playlist)) },
                         onClick = {
                             showChoosePlaylistDialog = true
@@ -289,7 +289,7 @@ fun YouTubeSelectionSongMenu(
                             Icon(
                                 painter =
                                     painterResource(
-                                        if (allInLibrary) R.drawable.library_add_check else R.drawable.library_add,
+                                        if (allInLibrary) R.drawable.tabler_ic_circle_check_filled else R.drawable.tabler_ic_library_plus,
                                     ),
                                 contentDescription = null,
                             )
@@ -338,7 +338,7 @@ fun YouTubeSelectionSongMenu(
                                 },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.offline),
+                                        painter = painterResource(R.drawable.tabler_ic_cloud_off_outline),
                                         contentDescription = null,
                                     )
                                 },
@@ -368,7 +368,7 @@ fun YouTubeSelectionSongMenu(
                                 title = { Text(text = stringResource(R.string.action_download)) },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.download),
+                                        painter = painterResource(R.drawable.tabler_ic_download),
                                         contentDescription = null,
                                     )
                                 },
@@ -406,7 +406,7 @@ fun YouTubeSelectionSongMenu(
                             Icon(
                                 painter =
                                     painterResource(
-                                        if (allLiked) R.drawable.favorite else R.drawable.favorite_border,
+                                        if (allLiked) R.drawable.tabler_ic_heart_filled else R.drawable.tabler_ic_heart_outline,
                                     ),
                                 contentDescription = null,
                             )

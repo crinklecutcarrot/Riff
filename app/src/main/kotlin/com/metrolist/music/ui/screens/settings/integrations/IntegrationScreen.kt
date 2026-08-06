@@ -47,7 +47,7 @@ fun IntegrationScreen(
                     onClick = { navController.navigate("settings/integrations/discord") }
                 ),
                 IntegrationCardItem(
-                    icon = painterResource(R.drawable.music_note),
+                    icon = painterResource(R.drawable.tabler_ic_music_outline),
                     title = { Text(stringResource(R.string.lastfm_integration)) },
                     onClick = {
                         navController.navigate("settings/integrations/lastfm")
@@ -65,7 +65,7 @@ fun IntegrationScreen(
                 onLongClick = navController::backToMain,
             ) {
                 Icon(
-                    painterResource(R.drawable.arrow_back),
+                    painterResource(R.drawable.tabler_ic_arrow_left_outline),
                     contentDescription = null,
                 )
             }

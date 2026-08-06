@@ -176,7 +176,7 @@ fun LibraryArtistsScreen(
                 modifier = Modifier.padding(start = 8.dp).size(40.dp),
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.search),
+                    painter = painterResource(R.drawable.tabler_ic_search_outline),
                     contentDescription = stringResource(R.string.search),
                 )
             }
@@ -191,8 +191,8 @@ fun LibraryArtistsScreen(
                     painter =
                     painterResource(
                         when (viewType) {
-                            LibraryViewType.LIST -> R.drawable.list
-                            LibraryViewType.GRID -> R.drawable.grid_view
+                            LibraryViewType.LIST -> R.drawable.tabler_ic_list_outline
+                            LibraryViewType.GRID -> R.drawable.tabler_ic_layout_grid_outline
                         },
                     ),
                     contentDescription = stringResource(
@@ -234,13 +234,13 @@ fun LibraryArtistsScreen(
                             item(key = "empty_placeholder") {
                                 if (searchQuery.isNotBlank()) {
                                     LibrarySearchEmptyPlaceholder(
-                                        icon = R.drawable.search,
+                                        icon = R.drawable.tabler_ic_search_outline,
                                         text = stringResource(R.string.no_results_found),
                                         modifier = Modifier.animateItem(),
                                     )
                                 } else {
                                     LibrarySearchEmptyPlaceholder(
-                                        icon = R.drawable.artist,
+                                        icon = R.drawable.tabler_ic_microphone_2_outline,
                                         text = stringResource(R.string.library_artist_empty),
                                         modifier = Modifier.animateItem(),
                                     )
@@ -293,13 +293,13 @@ fun LibraryArtistsScreen(
                             item(span = { GridItemSpan(maxLineSpan) }) {
                                 if (searchQuery.isNotBlank()) {
                                     LibrarySearchEmptyPlaceholder(
-                                        icon = R.drawable.search,
+                                        icon = R.drawable.tabler_ic_search_outline,
                                         text = stringResource(R.string.no_results_found),
                                         modifier = Modifier.animateItem(),
                                     )
                                 } else {
                                     LibrarySearchEmptyPlaceholder(
-                                        icon = R.drawable.artist,
+                                        icon = R.drawable.tabler_ic_microphone_2_outline,
                                         text = stringResource(R.string.library_artist_empty),
                                         modifier = Modifier.animateItem(),
                                     )

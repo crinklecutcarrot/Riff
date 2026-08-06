@@ -353,7 +353,7 @@ fun SleepTimerDialog(
                                 thumbContent = {
                                     Icon(
                                         painter = painterResource(
-                                            if (weekdaysEnabled) R.drawable.check else R.drawable.close,
+                                            if (weekdaysEnabled) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                         ),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -405,7 +405,7 @@ fun SleepTimerDialog(
                                 thumbContent = {
                                     Icon(
                                         painter = painterResource(
-                                            if (weekendsEnabled) R.drawable.check else R.drawable.close,
+                                            if (weekendsEnabled) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                         ),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -501,7 +501,7 @@ fun SleepTimerDialog(
                                         thumbContent = {
                                             Icon(
                                                 painter = painterResource(
-                                                    if (isDaySelected) R.drawable.check else R.drawable.close,
+                                                    if (isDaySelected) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                                 ),
                                                 contentDescription = null,
                                                 modifier = Modifier.size(SwitchDefaults.IconSize),

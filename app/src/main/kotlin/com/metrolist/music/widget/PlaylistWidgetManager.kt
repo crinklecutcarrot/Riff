@@ -400,7 +400,7 @@ class PlaylistWidgetManager @Inject constructor(
                             targetId = item.id,
                             title = item.title,
                             thumbnailUrl = item.thumbnailUrl,
-                            fallbackIconRes = R.drawable.playlist_play,
+                            fallbackIconRes = R.drawable.tabler_ic_playlist_outline,
                         ),
                     )
                 } else {
@@ -417,7 +417,7 @@ class PlaylistWidgetManager @Inject constructor(
                                 targetId = item.id,
                                 title = item.title,
                                 thumbnailUrl = item.thumbnailUrl,
-                                fallbackIconRes = R.drawable.playlist_play,
+                                fallbackIconRes = R.drawable.tabler_ic_playlist_outline,
                             ),
                         )
                     }
@@ -453,7 +453,7 @@ class PlaylistWidgetManager @Inject constructor(
                     targetId = PlaylistWidgetReceiver.TARGET_TYPE_DOWNLOADED,
                     title = context.getString(R.string.downloaded_songs),
                     thumbnailUrl = downloadedSongs.firstOrNull()?.thumbnailUrl,
-                    fallbackIconRes = R.drawable.cached,
+                    fallbackIconRes = R.drawable.tabler_ic_database_outline,
                 ),
             )
         }
@@ -466,7 +466,7 @@ class PlaylistWidgetManager @Inject constructor(
                     targetId = "50",
                     title = context.getString(R.string.my_top),
                     thumbnailUrl = topSongs.firstOrNull()?.thumbnailUrl,
-                    fallbackIconRes = R.drawable.trending_up,
+                    fallbackIconRes = R.drawable.tabler_ic_trending_up_outline,
                 ),
             )
         }
@@ -487,7 +487,7 @@ class PlaylistWidgetManager @Inject constructor(
             targetId = browseId ?: playlist.id,
             title = playlist.name,
             thumbnailUrl = thumbnails.firstOrNull(),
-            fallbackIconRes = R.drawable.playlist_play,
+            fallbackIconRes = R.drawable.tabler_ic_playlist_outline,
         )
     }
 

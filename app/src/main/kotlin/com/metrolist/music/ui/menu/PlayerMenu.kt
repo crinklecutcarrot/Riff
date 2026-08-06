@@ -501,7 +501,7 @@ fun PlayerMenu(
                                     description = { Text(text = stringResource(R.string.add_to_queue_desc)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.queue_music),
+                                            painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                             contentDescription = null,
                                         )
                                     },
@@ -570,7 +570,7 @@ fun PlayerMenu(
                                 title = { Text(text = stringResource(R.string.share)) },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.share),
+                                        painter = painterResource(R.drawable.tabler_ic_share_3),
                                         contentDescription = null,
                                         modifier = Modifier.size(24.dp),
                                     )
@@ -884,7 +884,7 @@ fun TempoPitchDialog(onDismiss: () -> Unit) {
             Column {
                 if (!isInRoom) {
                     ValueAdjuster(
-                        icon = R.drawable.speed,
+                        icon = R.drawable.tabler_ic_gauge_outline,
                         currentValue = tempo,
                         values = (0..35).map { round((0.25f + it * 0.05f) * 100) / 100 },
                         onValueUpdate = {
@@ -896,7 +896,7 @@ fun TempoPitchDialog(onDismiss: () -> Unit) {
                     )
                 }
                 ValueAdjuster(
-                    icon = R.drawable.discover_tune,
+                    icon = R.drawable.tabler_ic_adjustments_outline,
                     currentValue = transposeValue,
                     values = (-12..12).toList(),
                     onValueUpdate = {
@@ -948,7 +948,7 @@ fun SpeedDialog(onDismiss: () -> Unit) {
         text = {
             Column {
                 ValueAdjuster(
-                    icon = R.drawable.speed,
+                    icon = R.drawable.tabler_ic_gauge_outline,
                     currentValue = speed,
                     values = (0..35).map { round((0.25f + it * 0.05f) * 100) / 100 },
                     onValueUpdate = {
@@ -989,7 +989,7 @@ fun <T> ValueAdjuster(
             },
         ) {
             Icon(
-                painter = painterResource(R.drawable.remove),
+                painter = painterResource(R.drawable.tabler_ic_minus_outline),
                 contentDescription = null,
             )
         }
@@ -1008,7 +1008,7 @@ fun <T> ValueAdjuster(
             },
         ) {
             Icon(
-                painter = painterResource(R.drawable.add),
+                painter = painterResource(R.drawable.tabler_ic_plus_outline),
                 contentDescription = null,
             )
         }
@@ -1039,7 +1039,7 @@ fun ListenTogetherDialog(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.group),
+                        painter = painterResource(R.drawable.tabler_ic_users_outline),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(48.dp),
@@ -1117,7 +1117,7 @@ fun ListenTogetherDialog(
                     horizontalArrangement = Arrangement.Start,
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.group),
+                        painter = painterResource(R.drawable.tabler_ic_users_outline),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(40.dp),
@@ -1163,7 +1163,7 @@ fun ListenTogetherDialog(
                         modifier = Modifier.padding(16.dp),
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.close),
+                            painter = painterResource(R.drawable.tabler_ic_x_outline),
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.error,
                             modifier = Modifier.size(24.dp),
@@ -1213,7 +1213,7 @@ fun ListenTogetherDialog(
                         modifier = Modifier.padding(16.dp),
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.close),
+                            painter = painterResource(R.drawable.tabler_ic_x_outline),
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.error,
                             modifier = Modifier.size(24.dp),
@@ -1260,7 +1260,7 @@ fun ListenTogetherDialog(
                         modifier = Modifier.padding(16.dp),
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.crown),
+                            painter = painterResource(R.drawable.tabler_ic_crown_outline),
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(24.dp),
@@ -1345,7 +1345,7 @@ fun ListenTogetherDialog(
                 horizontalArrangement = Arrangement.Start,
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.group),
+                    painter = painterResource(R.drawable.tabler_ic_users_outline),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(40.dp),
@@ -1545,7 +1545,7 @@ fun ListenTogetherDialog(
                                         },
                                     ) {
                                         Icon(
-                                            painter = painterResource(R.drawable.link),
+                                            painter = painterResource(R.drawable.tabler_ic_link_outline),
                                             contentDescription = stringResource(R.string.copy_link),
                                             modifier = Modifier.size(18.dp),
                                         )
@@ -1567,7 +1567,7 @@ fun ListenTogetherDialog(
                                         },
                                     ) {
                                         Icon(
-                                            painter = painterResource(R.drawable.content_copy),
+                                            painter = painterResource(R.drawable.tabler_ic_copy_outline),
                                             contentDescription = stringResource(R.string.copy_code),
                                             modifier = Modifier.size(18.dp),
                                         )
@@ -1674,7 +1674,7 @@ fun ListenTogetherDialog(
                                                     Icon(
                                                         painter =
                                                             painterResource(
-                                                                if (user.isHost) R.drawable.crown else R.drawable.person,
+                                                                if (user.isHost) R.drawable.tabler_ic_crown_outline else R.drawable.tabler_ic_user,
                                                             ),
                                                         contentDescription = null,
                                                         tint = MaterialTheme.colorScheme.onPrimary,
@@ -1788,7 +1788,7 @@ fun ListenTogetherDialog(
                                         onClick = { listenTogetherManager.approveJoin(request.userId) },
                                     ) {
                                         Icon(
-                                            painter = painterResource(R.drawable.check),
+                                            painter = painterResource(R.drawable.tabler_ic_check_outline),
                                             contentDescription = stringResource(R.string.approve),
                                             tint = MaterialTheme.colorScheme.primary,
                                             modifier = Modifier.size(24.dp),
@@ -1798,7 +1798,7 @@ fun ListenTogetherDialog(
                                         onClick = { listenTogetherManager.rejectJoin(request.userId, "Rejected by host") },
                                     ) {
                                         Icon(
-                                            painter = painterResource(R.drawable.close),
+                                            painter = painterResource(R.drawable.tabler_ic_x_outline),
                                             contentDescription = stringResource(R.string.reject),
                                             tint = MaterialTheme.colorScheme.error,
                                             modifier = Modifier.size(24.dp),
@@ -1846,7 +1846,7 @@ fun ListenTogetherDialog(
                                     modifier = Modifier.weight(1f),
                                 ) {
                                     Icon(
-                                        painter = painterResource(R.drawable.queue_music),
+                                        painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(24.dp),
@@ -1875,7 +1875,7 @@ fun ListenTogetherDialog(
                                         onClick = { listenTogetherManager.approveSuggestion(suggestion.suggestionId) },
                                     ) {
                                         Icon(
-                                            painter = painterResource(R.drawable.check),
+                                            painter = painterResource(R.drawable.tabler_ic_check_outline),
                                             contentDescription = stringResource(R.string.approve),
                                             tint = MaterialTheme.colorScheme.primary,
                                             modifier = Modifier.size(24.dp),
@@ -1885,7 +1885,7 @@ fun ListenTogetherDialog(
                                         onClick = { listenTogetherManager.rejectSuggestion(suggestion.suggestionId, "Rejected by host") },
                                     ) {
                                         Icon(
-                                            painter = painterResource(R.drawable.close),
+                                            painter = painterResource(R.drawable.tabler_ic_x_outline),
                                             contentDescription = stringResource(R.string.reject),
                                             tint = MaterialTheme.colorScheme.error,
                                             modifier = Modifier.size(24.dp),
@@ -1928,7 +1928,7 @@ fun ListenTogetherDialog(
                                 ),
                         ) {
                             Icon(
-                                painter = painterResource(R.drawable.logout),
+                                painter = painterResource(R.drawable.tabler_ic_logout_outline),
                                 contentDescription = null,
                                 modifier = Modifier.size(18.dp),
                             )
@@ -1968,7 +1968,7 @@ fun ListenTogetherDialog(
                             placeholder = { Text(stringResource(R.string.enter_username)) },
                             leadingIcon = {
                                 Icon(
-                                    painterResource(R.drawable.person),
+                                    painterResource(R.drawable.tabler_ic_user),
                                     null,
                                     tint = MaterialTheme.colorScheme.primary,
                                 )
@@ -1976,7 +1976,7 @@ fun ListenTogetherDialog(
                             trailingIcon = {
                                 if (usernameInput.isNotBlank()) {
                                     IconButton(onClick = { usernameInput = "" }) {
-                                        Icon(painterResource(R.drawable.close), null)
+                                        Icon(painterResource(R.drawable.tabler_ic_x_outline), null)
                                     }
                                 }
                             },
@@ -2064,7 +2064,7 @@ fun ListenTogetherDialog(
                                     modifier = Modifier.padding(12.dp),
                                 ) {
                                     Icon(
-                                        painterResource(R.drawable.error),
+                                        painterResource(R.drawable.tabler_ic_alert_circle_outline),
                                         contentDescription = null,
                                         modifier = Modifier.size(18.dp),
                                         tint = MaterialTheme.colorScheme.error,
@@ -2122,7 +2122,7 @@ fun ListenTogetherDialog(
                                 ),
                         ) {
                             Icon(
-                                painter = painterResource(R.drawable.add),
+                                painter = painterResource(R.drawable.tabler_ic_plus_outline),
                                 contentDescription = null,
                                 modifier = Modifier.size(18.dp),
                             )
@@ -2161,7 +2161,7 @@ fun ListenTogetherDialog(
                                     ),
                             ) {
                                 Icon(
-                                    painter = painterResource(R.drawable.login),
+                                    painter = painterResource(R.drawable.tabler_ic_login_outline),
                                     contentDescription = null,
                                     modifier = Modifier.size(18.dp),
                                 )

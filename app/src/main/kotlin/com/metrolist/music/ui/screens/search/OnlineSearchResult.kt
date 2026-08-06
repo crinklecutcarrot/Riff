@@ -295,7 +295,7 @@ fun OnlineSearchResult(
                     onClick = longClick,
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.more_vert),
+                        painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                         contentDescription = null,
                     )
                 }
@@ -385,7 +385,7 @@ fun OnlineSearchResult(
                     onClick = { navController.navigateUp() },
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.arrow_back),
+                        painter = painterResource(R.drawable.tabler_ic_arrow_left_outline),
                         contentDescription = stringResource(R.string.dismiss),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -399,7 +399,7 @@ fun OnlineSearchResult(
                         },
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.close),
+                            painter = painterResource(R.drawable.tabler_ic_x_outline),
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -507,7 +507,7 @@ fun OnlineSearchResult(
                         if (searchSummary?.summaries?.isEmpty() == true) {
                             item {
                                 EmptyPlaceholder(
-                                    icon = R.drawable.search,
+                                    icon = R.drawable.tabler_ic_search_outline,
                                     text = stringResource(R.string.no_results_found),
                                 )
                             }
@@ -532,7 +532,7 @@ fun OnlineSearchResult(
                         if (itemsPage?.items?.isEmpty() == true) {
                             item {
                                 EmptyPlaceholder(
-                                    icon = R.drawable.search,
+                                    icon = R.drawable.tabler_ic_search_outline,
                                     text = stringResource(R.string.no_results_found),
                                 )
                             }
@@ -568,7 +568,7 @@ fun OnlineSearchResult(
             }
             HideOnScrollFAB(
                 lazyListState = lazyListState,
-                icon = R.drawable.mic,
+                icon = R.drawable.tabler_ic_microphone_outline,
                 onClick = { navController.navigate("recognition") },
             )
         }

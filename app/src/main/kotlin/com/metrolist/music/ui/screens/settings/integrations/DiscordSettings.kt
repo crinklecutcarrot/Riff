@@ -265,7 +265,7 @@ fun DiscordSettings(
                     verticalAlignment = Alignment.Top,
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.warning),
+                        painter = painterResource(R.drawable.tabler_ic_alert_triangle_outline),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.size(24.dp),
@@ -312,7 +312,7 @@ fun DiscordSettings(
                     verticalAlignment = Alignment.Top,
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.warning),
+                        painter = painterResource(R.drawable.tabler_ic_alert_triangle_outline),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onErrorContainer,
                         modifier = Modifier.size(24.dp),
@@ -504,7 +504,7 @@ fun DiscordSettings(
                                 thumbContent = {
                                     Icon(
                                         painter = painterResource(
-                                            id = if (discordRPC) R.drawable.check else R.drawable.close
+                                            id = if (discordRPC) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                         ),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -529,7 +529,7 @@ fun DiscordSettings(
                                 thumbContent = {
                                     Icon(
                                         painter = painterResource(
-                                            id = if (advancedMode) R.drawable.check else R.drawable.close
+                                            id = if (advancedMode) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                         ),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -602,7 +602,7 @@ fun DiscordSettings(
                                             thumbContent = {
                                                 Icon(
                                                     painter = painterResource(
-                                                        id = if (btn1Enabled) R.drawable.check else R.drawable.close
+                                                        id = if (btn1Enabled) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                                     ),
                                                     contentDescription = null,
                                                     modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -645,7 +645,7 @@ fun DiscordSettings(
                                             thumbContent = {
                                                 Icon(
                                                     painter = painterResource(
-                                                        id = if (btn2Enabled) R.drawable.check else R.drawable.close
+                                                        id = if (btn2Enabled) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                                     ),
                                                     contentDescription = null,
                                                     modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -885,7 +885,7 @@ fun DiscordSettings(
                 onLongClick = navController::backToMain,
             ) {
                 Icon(
-                    painterResource(R.drawable.arrow_back),
+                    painterResource(R.drawable.tabler_ic_arrow_left_outline),
                     contentDescription = null,
                 )
             }

@@ -212,7 +212,7 @@ fun SelectionSongMenu(
             },
             icon = {
                 Icon(
-                    painter = painterResource(R.drawable.delete),
+                    painter = painterResource(R.drawable.tabler_ic_trash),
                     contentDescription = null,
                 )
             },
@@ -307,7 +307,7 @@ fun SelectionSongMenu(
                             NewAction(
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.play),
+                                        painter = painterResource(R.drawable.tabler_ic_player_play_filled),
                                         contentDescription = null,
                                         modifier = Modifier.size(28.dp),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -332,7 +332,7 @@ fun SelectionSongMenu(
                             NewAction(
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.shuffle),
+                                        painter = painterResource(R.drawable.tabler_ic_arrows_shuffle_outline),
                                         contentDescription = null,
                                         modifier = Modifier.size(28.dp),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -356,7 +356,7 @@ fun SelectionSongMenu(
                         NewAction(
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.playlist_add),
+                                    painter = painterResource(R.drawable.tabler_ic_playlist_add),
                                     contentDescription = null,
                                     modifier = Modifier.size(28.dp),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -380,7 +380,7 @@ fun SelectionSongMenu(
                                     description = { Text(text = stringResource(R.string.play_next_desc)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.playlist_play),
+                                            painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                             contentDescription = null,
                                         )
                                     },
@@ -397,7 +397,7 @@ fun SelectionSongMenu(
                                     description = { Text(text = stringResource(R.string.add_to_queue_desc)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.shuffle),
+                                            painter = painterResource(R.drawable.tabler_ic_arrows_shuffle_outline),
                                             contentDescription = null,
                                         )
                                     },
@@ -419,7 +419,7 @@ fun SelectionSongMenu(
                                     description = { Text(text = stringResource(R.string.add_to_queue_desc)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.queue_music),
+                                            painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                             contentDescription = null,
                                         )
                                     },
@@ -437,7 +437,7 @@ fun SelectionSongMenu(
                                 description = { Text(text = stringResource(R.string.add_to_playlist_desc)) },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.playlist_add),
+                                        painter = painterResource(R.drawable.tabler_ic_playlist_add),
                                         contentDescription = null,
                                     )
                                 },
@@ -460,7 +460,7 @@ fun SelectionSongMenu(
                                     Icon(
                                         painter =
                                             painterResource(
-                                                if (allInLibrary) R.drawable.library_add_check else R.drawable.library_add,
+                                                if (allInLibrary) R.drawable.tabler_ic_circle_check_filled else R.drawable.tabler_ic_library_plus,
                                             ),
                                         contentDescription = null,
                                     )
@@ -516,7 +516,7 @@ fun SelectionSongMenu(
                                         },
                                         icon = {
                                             Icon(
-                                                painter = painterResource(R.drawable.offline),
+                                                painter = painterResource(R.drawable.tabler_ic_cloud_off_outline),
                                                 contentDescription = null,
                                             )
                                         },
@@ -546,7 +546,7 @@ fun SelectionSongMenu(
                                         title = { Text(text = stringResource(R.string.action_download)) },
                                         icon = {
                                             Icon(
-                                                painter = painterResource(R.drawable.download),
+                                                painter = painterResource(R.drawable.tabler_ic_download),
                                                 contentDescription = null,
                                             )
                                         },
@@ -584,7 +584,7 @@ fun SelectionSongMenu(
                                     Icon(
                                         painter =
                                             painterResource(
-                                                if (allLiked) R.drawable.favorite else R.drawable.favorite_border,
+                                                if (allLiked) R.drawable.tabler_ic_heart_filled else R.drawable.tabler_ic_heart_outline,
                                             ),
                                         contentDescription = null,
                                     )
@@ -610,7 +610,7 @@ fun SelectionSongMenu(
                                     title = { Text(text = stringResource(R.string.delete)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.delete),
+                                            painter = painterResource(R.drawable.tabler_ic_trash),
                                             contentDescription = null,
                                         )
                                     },
@@ -635,7 +635,7 @@ fun SelectionSongMenu(
                                     title = { Text(text = stringResource(R.string.delete_uploaded_songs)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.delete),
+                                            painter = painterResource(R.drawable.tabler_ic_trash),
                                             contentDescription = null,
                                         )
                                     },
@@ -770,7 +770,7 @@ fun SelectionMediaMetadataMenu(
                                     title = { Text(text = stringResource(R.string.delete)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.delete),
+                                            painter = painterResource(R.drawable.tabler_ic_trash),
                                             contentDescription = null,
                                         )
                                     },
@@ -796,7 +796,7 @@ fun SelectionMediaMetadataMenu(
                                     title = { Text(text = stringResource(R.string.play)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.play),
+                                            painter = painterResource(R.drawable.tabler_ic_player_play_filled),
                                             contentDescription = null,
                                         )
                                     },
@@ -817,7 +817,7 @@ fun SelectionMediaMetadataMenu(
                                     title = { Text(text = stringResource(R.string.shuffle)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.shuffle),
+                                            painter = painterResource(R.drawable.tabler_ic_arrows_shuffle_outline),
                                             contentDescription = null,
                                         )
                                     },
@@ -839,7 +839,7 @@ fun SelectionMediaMetadataMenu(
                                         title = { Text(text = stringResource(R.string.add_to_queue)) },
                                         icon = {
                                             Icon(
-                                                painter = painterResource(R.drawable.queue_music),
+                                                painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                                 contentDescription = null,
                                             )
                                         },
@@ -857,7 +857,7 @@ fun SelectionMediaMetadataMenu(
                                 title = { Text(text = stringResource(R.string.add_to_playlist)) },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.playlist_add),
+                                        painter = painterResource(R.drawable.tabler_ic_playlist_add),
                                         contentDescription = null,
                                     )
                                 },
@@ -885,7 +885,7 @@ fun SelectionMediaMetadataMenu(
                                     Icon(
                                         painter =
                                             painterResource(
-                                                if (allLiked) R.drawable.favorite else R.drawable.favorite_border,
+                                                if (allLiked) R.drawable.tabler_ic_heart_filled else R.drawable.tabler_ic_heart_outline,
                                             ),
                                         contentDescription = null,
                                     )
@@ -917,7 +917,7 @@ fun SelectionMediaMetadataMenu(
                                         },
                                         icon = {
                                             Icon(
-                                                painter = painterResource(R.drawable.offline),
+                                                painter = painterResource(R.drawable.tabler_ic_cloud_off_outline),
                                                 contentDescription = null,
                                                 tint = MaterialTheme.colorScheme.surface,
                                             )
@@ -952,7 +952,7 @@ fun SelectionMediaMetadataMenu(
                                         title = { Text(text = stringResource(R.string.action_download)) },
                                         icon = {
                                             Icon(
-                                                painter = painterResource(R.drawable.download),
+                                                painter = painterResource(R.drawable.tabler_ic_download),
                                                 contentDescription = null,
                                             )
                                         },

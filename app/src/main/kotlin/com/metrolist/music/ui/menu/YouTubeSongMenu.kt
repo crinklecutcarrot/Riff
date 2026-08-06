@@ -419,7 +419,7 @@ fun YouTubeSongMenu(
                         description = { Text(text = stringResource(R.string.add_to_queue_desc)) },
                         icon = {
                             Icon(
-                                painter = painterResource(R.drawable.queue_music),
+                                painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                 contentDescription = null,
                             )
                         },
@@ -560,7 +560,7 @@ fun YouTubeSongMenu(
                             title = { Text(text = stringResource(R.string.suggest_to_host)) },
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.queue_music),
+                                    painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                     contentDescription = null,
                                 )
                             },
@@ -584,7 +584,7 @@ fun YouTubeSongMenu(
                         title = { Text(text = stringResource(R.string.share)) },
                         icon = {
                             Icon(
-                                painter = painterResource(R.drawable.share),
+                                painter = painterResource(R.drawable.tabler_ic_share_3),
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp),
                             )
@@ -616,7 +616,7 @@ fun YouTubeSongMenu(
                                     title = { Text(text = stringResource(R.string.remove_episode_from_saved)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.remove),
+                                            painter = painterResource(R.drawable.tabler_ic_minus_outline),
                                             contentDescription = null,
                                         )
                                     },
@@ -639,7 +639,7 @@ fun YouTubeSongMenu(
                                     description = { Text(text = stringResource(R.string.save_episode_for_later_desc)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.playlist_add),
+                                            painter = painterResource(R.drawable.tabler_ic_playlist_add),
                                             contentDescription = null,
                                         )
                                     },
@@ -666,7 +666,7 @@ fun YouTubeSongMenu(
                                 title = { Text(text = stringResource(R.string.remove_from_history)) },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.delete),
+                                        painter = painterResource(R.drawable.tabler_ic_trash),
                                         contentDescription = null,
                                     )
                                 },
@@ -709,7 +709,7 @@ fun YouTubeSongMenu(
                                 },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.offline),
+                                        painter = painterResource(R.drawable.tabler_ic_cloud_off_outline),
                                         contentDescription = null
                                     )
                                 },
@@ -748,7 +748,7 @@ fun YouTubeSongMenu(
                                 description = { Text(text = stringResource(R.string.download_desc)) },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.download),
+                                        painter = painterResource(R.drawable.tabler_ic_download),
                                         contentDescription = null,
                                     )
                                 },
@@ -837,8 +837,8 @@ internal fun RiffDestinationPill(
                 AsyncImage(
                     model = imageUrl,
                     contentDescription = null,
-                    placeholder = painterResource(if (circularImage) R.drawable.artist else R.drawable.album),
-                    error = painterResource(if (circularImage) R.drawable.artist else R.drawable.album),
+                    placeholder = painterResource(if (circularImage) R.drawable.tabler_ic_microphone_2_outline else R.drawable.tabler_ic_disc),
+                    error = painterResource(if (circularImage) R.drawable.tabler_ic_microphone_2_outline else R.drawable.tabler_ic_disc),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(22.dp)

@@ -742,7 +742,7 @@ fun OriginalLyrics(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             Icon(
-                                painter = painterResource(R.drawable.error),
+                                painter = painterResource(R.drawable.tabler_ic_alert_circle_outline),
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onErrorContainer,
                                 modifier = Modifier.size(16.dp),
@@ -771,7 +771,7 @@ fun OriginalLyrics(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             Icon(
-                                painter = painterResource(R.drawable.check),
+                                painter = painterResource(R.drawable.tabler_ic_check_outline),
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onTertiaryContainer,
                                 modifier = Modifier.size(16.dp),
@@ -1738,7 +1738,7 @@ fun OriginalLyrics(
             ) {
                 FilledTonalButton(onClick = latestResyncLyrics) {
                     Icon(
-                        painter = painterResource(id = R.drawable.sync),
+                        painter = painterResource(id = R.drawable.tabler_ic_refresh),
                         contentDescription = stringResource(R.string.auto_scroll),
                         modifier = Modifier.size(20.dp),
                     )
@@ -1763,7 +1763,7 @@ fun OriginalLyrics(
                         },
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.close),
+                            painter = painterResource(id = R.drawable.tabler_ic_x_outline),
                             contentDescription = stringResource(R.string.cancel),
                             modifier = Modifier.size(20.dp),
                         )
@@ -1793,7 +1793,7 @@ fun OriginalLyrics(
                         enabled = selectedIndices.isNotEmpty(),
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.share),
+                            painter = painterResource(id = R.drawable.tabler_ic_share_3),
                             contentDescription = stringResource(R.string.share_selected),
                             modifier = Modifier.size(20.dp),
                         )
@@ -1873,7 +1873,7 @@ fun OriginalLyrics(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Icon(
-                                painter = painterResource(id = R.drawable.share), // Use new share icon
+                                painter = painterResource(id = R.drawable.tabler_ic_share_3), // Use new share icon
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary,
                             )
@@ -1898,7 +1898,7 @@ fun OriginalLyrics(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Icon(
-                                painter = painterResource(id = R.drawable.share), // Use new share icon
+                                painter = painterResource(id = R.drawable.tabler_ic_share_3), // Use new share icon
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary,
                             )

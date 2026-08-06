@@ -191,7 +191,7 @@ private fun EqScreenContent(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
-                            painter = painterResource(R.drawable.arrow_back),
+                            painter = painterResource(R.drawable.tabler_ic_arrow_left_outline),
                             contentDescription = null
                         )
                     }
@@ -200,7 +200,7 @@ private fun EqScreenContent(
                     Box {
                         IconButton(onClick = onAddClicked) {
                             Icon(
-                                painter = painterResource(R.drawable.add),
+                                painter = painterResource(R.drawable.tabler_ic_plus_outline),
                                 contentDescription = stringResource(R.string.import_profile)
                             )
                         }
@@ -212,7 +212,7 @@ private fun EqScreenContent(
                                 text = { Text(stringResource(R.string.eq_wizard)) },
                                 leadingIcon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.discover_tune),
+                                        painter = painterResource(R.drawable.tabler_ic_adjustments_outline),
                                         contentDescription = null
                                     )
                                 },
@@ -222,7 +222,7 @@ private fun EqScreenContent(
                                 text = { Text(stringResource(R.string.import_from_file)) },
                                 leadingIcon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.upload),
+                                        painter = painterResource(R.drawable.tabler_ic_upload_outline),
                                         contentDescription = null
                                     )
                                 },
@@ -368,7 +368,7 @@ private fun EQProfileItem(
         trailingContent = {
             IconButton(onClick = { showDeleteDialog = true }) {
                 Icon(
-                    painter = painterResource(R.drawable.delete),
+                    painter = painterResource(R.drawable.tabler_ic_trash),
                     contentDescription = stringResource(R.string.delete_profile_desc),
                     tint = MaterialTheme.colorScheme.error
                 )

@@ -179,7 +179,7 @@ fun AiSettings(navController: NavController) {
                     Text(stringResource(android.R.string.ok))
                 }
             },
-            icon = { Icon(painterResource(R.drawable.info), null) },
+            icon = { Icon(painterResource(R.drawable.tabler_ic_info_circle), null) },
             title = { Text(stringResource(R.string.ai_provider_help)) },
             text = {
                 Column {
@@ -246,7 +246,7 @@ fun AiSettings(navController: NavController) {
                     Text(stringResource(android.R.string.ok))
                 }
             },
-            icon = { Icon(painterResource(R.drawable.info), null) },
+            icon = { Icon(painterResource(R.drawable.tabler_ic_info_circle), null) },
             title = { Text(stringResource(R.string.ai_translation_mode)) },
             text = {
                 Column {
@@ -338,7 +338,7 @@ fun AiSettings(navController: NavController) {
     if (showApiKeyDialog) {
         TextFieldDialog(
             title = { Text(stringResource(R.string.ai_api_key)) },
-            icon = { Icon(painterResource(R.drawable.key), null) },
+            icon = { Icon(painterResource(R.drawable.tabler_ic_key_outline), null) },
             initialTextFieldValue = TextFieldValue(text = openRouterApiKey),
             onDone = {
                 openRouterApiKey = it
@@ -351,7 +351,7 @@ fun AiSettings(navController: NavController) {
     if (showDeeplApiKeyDialog) {
         TextFieldDialog(
             title = { Text("DeepL ${stringResource(R.string.ai_api_key)}") },
-            icon = { Icon(painterResource(R.drawable.key), null) },
+            icon = { Icon(painterResource(R.drawable.tabler_ic_key_outline), null) },
             initialTextFieldValue = TextFieldValue(text = deeplApiKey),
             onDone = {
                 deeplApiKey = it
@@ -385,7 +385,7 @@ fun AiSettings(navController: NavController) {
     if (showBaseUrlDialog && aiProvider == "Custom") {
         TextFieldDialog(
             title = { Text(stringResource(R.string.ai_base_url)) },
-            icon = { Icon(painterResource(R.drawable.link), null) },
+            icon = { Icon(painterResource(R.drawable.tabler_ic_link_outline), null) },
             initialTextFieldValue = TextFieldValue(text = openRouterBaseUrl),
             onDone = {
                 openRouterBaseUrl = it
@@ -419,7 +419,7 @@ fun AiSettings(navController: NavController) {
     if (showCustomModelInput) {
         TextFieldDialog(
             title = { Text(stringResource(R.string.ai_model)) },
-            icon = { Icon(painterResource(R.drawable.discover_tune), null) },
+            icon = { Icon(painterResource(R.drawable.tabler_ic_adjustments_outline), null) },
             initialTextFieldValue = TextFieldValue(text = openRouterModel),
             onDone = {
                 openRouterModel = it
@@ -432,7 +432,7 @@ fun AiSettings(navController: NavController) {
     if (showSystemPromptDialog) {
         TextFieldDialog(
             title = { Text(stringResource(R.string.ai_system_prompt)) },
-            icon = { Icon(painterResource(R.drawable.edit), null) },
+            icon = { Icon(painterResource(R.drawable.tabler_ic_edit_outline), null) },
             initialTextFieldValue = TextFieldValue(text = aiSystemPrompt.ifBlank { DEFAULT_AI_SYSTEM_PROMPT }),
             singleLine = false,
             maxLines = 12,
@@ -488,14 +488,14 @@ fun AiSettings(navController: NavController) {
             items =
                 listOf(
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.explore_outlined),
+                        icon = painterResource(R.drawable.tabler_ic_search_outline),
                         title = { Text(stringResource(R.string.ai_provider)) },
                         description = { Text(aiProvider) },
                         onClick = { showProviderDialog = true },
                         trailingContent = {
                             IconButton(onClick = { showProviderHelpDialog = true }) {
                                 Icon(
-                                    painterResource(R.drawable.info),
+                                    painterResource(R.drawable.tabler_ic_info_circle),
                                     contentDescription = stringResource(R.string.ai_provider_help),
                                     modifier = Modifier.size(20.dp),
                                 )
@@ -504,7 +504,7 @@ fun AiSettings(navController: NavController) {
                     ),
                     if (aiProvider == "Custom") {
                         Material3SettingsItem(
-                            icon = painterResource(R.drawable.link),
+                            icon = painterResource(R.drawable.tabler_ic_link_outline),
                             title = { Text(stringResource(R.string.ai_base_url)) },
                             description = { Text(openRouterBaseUrl.ifBlank { stringResource(R.string.not_set) }) },
                             onClick = { showBaseUrlDialog = true },
@@ -524,7 +524,7 @@ fun AiSettings(navController: NavController) {
                     if (aiProvider == "DeepL") {
                         add(
                             Material3SettingsItem(
-                                icon = painterResource(R.drawable.key),
+                                icon = painterResource(R.drawable.tabler_ic_key_outline),
                                 title = { Text("DeepL ${stringResource(R.string.ai_api_key)}") },
                                 description = {
                                     Text(
@@ -540,7 +540,7 @@ fun AiSettings(navController: NavController) {
                         )
                         add(
                             Material3SettingsItem(
-                                icon = painterResource(R.drawable.tune),
+                                icon = painterResource(R.drawable.tabler_ic_adjustments_outline),
                                 title = { Text(stringResource(R.string.ai_deepl_formality)) },
                                 description = {
                                     Text(
@@ -558,7 +558,7 @@ fun AiSettings(navController: NavController) {
                     } else {
                         add(
                             Material3SettingsItem(
-                                icon = painterResource(R.drawable.key),
+                                icon = painterResource(R.drawable.tabler_ic_key_outline),
                                 title = { Text(stringResource(R.string.ai_api_key)) },
                                 description = {
                                     Text(
@@ -574,7 +574,7 @@ fun AiSettings(navController: NavController) {
                         )
                         add(
                             Material3SettingsItem(
-                                icon = painterResource(R.drawable.discover_tune),
+                                icon = painterResource(R.drawable.tabler_ic_adjustments_outline),
                                 title = { Text(stringResource(R.string.ai_model)) },
                                 description = { Text(openRouterModel.ifBlank { stringResource(R.string.not_set) }) },
                                 onClick = { showModelDialog = true },
@@ -593,7 +593,7 @@ fun AiSettings(navController: NavController) {
                     if (aiProvider != "DeepL") {
                         add(
                             Material3SettingsItem(
-                                icon = painterResource(R.drawable.translate),
+                                icon = painterResource(R.drawable.tabler_ic_language_outline),
                                 title = { Text(stringResource(R.string.ai_translation_mode)) },
                                 description = {
                                     Text(
@@ -608,7 +608,7 @@ fun AiSettings(navController: NavController) {
                                 trailingContent = {
                                     IconButton(onClick = { showTranslateModeHelpDialog = true }) {
                                         Icon(
-                                            painterResource(R.drawable.info),
+                                            painterResource(R.drawable.tabler_ic_info_circle),
                                             contentDescription = null,
                                             modifier = Modifier.size(20.dp),
                                         )
@@ -618,7 +618,7 @@ fun AiSettings(navController: NavController) {
                         )
                         add(
                             Material3SettingsItem(
-                                icon = painterResource(R.drawable.edit),
+                                icon = painterResource(R.drawable.tabler_ic_edit_outline),
                                 title = { Text(stringResource(R.string.ai_system_prompt)) },
                                 description = {
                                     Text(
@@ -637,7 +637,7 @@ fun AiSettings(navController: NavController) {
                     }
                     add(
                         Material3SettingsItem(
-                            icon = painterResource(R.drawable.language),
+                            icon = painterResource(R.drawable.tabler_ic_language_outline),
                             title = { Text(stringResource(R.string.ai_target_language)) },
                             description = { Text(LanguageCodeToName[translateLanguage] ?: translateLanguage) },
                             onClick = { showLanguageDialog = true },
@@ -654,7 +654,7 @@ fun AiSettings(navController: NavController) {
         navigationIcon = {
             IconButton(onClick = { navController.navigateUp() }) {
                 Icon(
-                    painterResource(R.drawable.arrow_back),
+                    painterResource(R.drawable.tabler_ic_arrow_left_outline),
                     contentDescription = null,
                 )
             }

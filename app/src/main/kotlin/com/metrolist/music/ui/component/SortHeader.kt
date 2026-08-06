@@ -101,7 +101,7 @@ inline fun <reified T : Enum<T>> SortHeader(
 
         if (sortType != PlaylistSongSortType.CUSTOM && showDescending == true) {
             ResizableIconButton(
-                icon = if (sortDescending) R.drawable.arrow_downward else R.drawable.arrow_upward,
+                icon = if (sortDescending) R.drawable.tabler_ic_arrow_down_outline else R.drawable.tabler_ic_arrow_up_outline,
                 color = MaterialTheme.colorScheme.primary,
                 modifier =
                 Modifier

@@ -127,7 +127,7 @@ fun CrashScreen(
                 actions = {
                     IconButton(onClick = onClose) {
                         Icon(
-                            painter = painterResource(R.drawable.close),
+                            painter = painterResource(R.drawable.tabler_ic_x_outline),
                             contentDescription = stringResource(R.string.crash_close)
                         )
                     }
@@ -142,7 +142,7 @@ fun CrashScreen(
                 onClick = onShare,
                 icon = {
                     Icon(
-                        painter = painterResource(R.drawable.share),
+                        painter = painterResource(R.drawable.tabler_ic_share_3),
                         contentDescription = null
                     )
                 },

@@ -326,7 +326,7 @@ fun AccountScreen(
                 onLongClick = navController::backToMain,
             ) {
                 Icon(
-                    painterResource(R.drawable.arrow_back),
+                    painterResource(R.drawable.tabler_ic_arrow_left_outline),
                     contentDescription = null,
                 )
             }
@@ -370,7 +370,7 @@ private fun SePlaylistAccountItem(
                 )
             } else {
                 Icon(
-                    painter = painterResource(R.drawable.queue_music),
+                    painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.size(28.dp),
@@ -397,7 +397,7 @@ private fun SePlaylistAccountItem(
         }
 
         Icon(
-            painter = painterResource(R.drawable.navigate_next),
+            painter = painterResource(R.drawable.tabler_ic_chevron_right_outline),
             contentDescription = null,
         )
     }
@@ -439,7 +439,7 @@ private fun PodcastAccountItem(
                 )
             } else {
                 Icon(
-                    painter = painterResource(R.drawable.queue_music),
+                    painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.size(28.dp),

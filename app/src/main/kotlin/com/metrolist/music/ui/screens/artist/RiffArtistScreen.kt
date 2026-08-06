@@ -407,7 +407,7 @@ private fun ArtistHero(
                 ),
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
             ) {
-                Icon(painterResource(R.drawable.radio), null, Modifier.size(18.dp))
+                Icon(painterResource(R.drawable.tabler_ic_radio), null, Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
                 Text(stringResource(R.string.riff_radio), fontWeight = FontWeight.Medium)
             }

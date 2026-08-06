@@ -184,7 +184,7 @@ fun ArtistItemsScreen(
                             },
                         ) {
                             Icon(
-                                painter = painterResource(R.drawable.more_vert),
+                                painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                                 contentDescription = null,
                             )
                         }
@@ -382,7 +382,7 @@ fun ArtistItemsScreen(
                 onLongClick = navController::backToMain,
             ) {
                 Icon(
-                    painterResource(R.drawable.arrow_back),
+                    painterResource(R.drawable.tabler_ic_arrow_left_outline),
                     contentDescription = null,
                 )
             }

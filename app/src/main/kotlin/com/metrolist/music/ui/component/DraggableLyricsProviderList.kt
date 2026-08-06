@@ -95,7 +95,7 @@ fun DraggableLyricsProviderList(
                             modifier = Modifier.draggableHandle(),
                         ) {
                             Icon(
-                                painter = painterResource(R.drawable.drag_handle),
+                                painter = painterResource(R.drawable.tabler_ic_grip_horizontal_outline),
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )

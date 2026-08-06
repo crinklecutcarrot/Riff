@@ -208,7 +208,7 @@ fun RecognitionScreen(
                         onLongClick = { navController.backToMain() },
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.arrow_back),
+                            painter = painterResource(R.drawable.tabler_ic_arrow_left_outline),
                             contentDescription = null,
                         )
                     }
@@ -216,7 +216,7 @@ fun RecognitionScreen(
                 actions = {
                     IconButton(onClick = { navController.navigate("recognition_history") }) {
                         Icon(
-                            painter = painterResource(R.drawable.history),
+                            painter = painterResource(R.drawable.tabler_ic_history_outline),
                             contentDescription = stringResource(R.string.recognition_history),
                         )
                     }
@@ -329,7 +329,7 @@ private fun ReadyState(onStartRecognition: () -> Unit) {
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.mic),
+                    painter = painterResource(R.drawable.tabler_ic_microphone_outline),
                     contentDescription = null,
                     modifier = Modifier.size(64.dp),
                     tint = MaterialTheme.colorScheme.onPrimary,
@@ -399,7 +399,7 @@ private fun ListeningState(onCancel: () -> Unit) {
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.mic),
+                    painter = painterResource(R.drawable.tabler_ic_microphone_outline),
                     contentDescription = null,
                     modifier = Modifier.size(64.dp),
                     tint = MaterialTheme.colorScheme.onPrimary,
@@ -463,7 +463,7 @@ private fun ProcessingState() {
             )
 
             Icon(
-                painter = painterResource(R.drawable.music_note),
+                painter = painterResource(R.drawable.tabler_ic_music_outline),
                 contentDescription = null,
                 modifier = Modifier.size(48.dp),
                 tint = MaterialTheme.colorScheme.primary,
@@ -557,7 +557,7 @@ private fun SuccessState(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.play),
+                    painter = painterResource(R.drawable.tabler_ic_player_play_filled),
                     contentDescription = null,
                     modifier = Modifier.size(18.dp),
                 )
@@ -570,7 +570,7 @@ private fun SuccessState(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.mic),
+                    painter = painterResource(R.drawable.tabler_ic_microphone_outline),
                     contentDescription = null,
                     modifier = Modifier.size(18.dp),
                 )
@@ -584,7 +584,7 @@ private fun SuccessState(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.close),
+                    painter = painterResource(R.drawable.tabler_ic_x_outline),
                     contentDescription = null,
                     modifier = Modifier.size(18.dp),
                 )
@@ -613,7 +613,7 @@ private fun NoMatchState(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                painter = painterResource(R.drawable.close),
+                painter = painterResource(R.drawable.tabler_ic_x_outline),
                 contentDescription = null,
                 modifier = Modifier.size(48.dp),
                 tint = MaterialTheme.colorScheme.onErrorContainer,
@@ -636,7 +636,7 @@ private fun NoMatchState(
 
         Button(onClick = onTryAgain) {
             Icon(
-                painter = painterResource(R.drawable.refresh),
+                painter = painterResource(R.drawable.tabler_ic_refresh),
                 contentDescription = null,
                 modifier = Modifier.size(18.dp),
             )
@@ -664,7 +664,7 @@ private fun ErrorState(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                painter = painterResource(R.drawable.error),
+                painter = painterResource(R.drawable.tabler_ic_alert_circle_outline),
                 contentDescription = null,
                 modifier = Modifier.size(48.dp),
                 tint = MaterialTheme.colorScheme.onErrorContainer,
@@ -687,7 +687,7 @@ private fun ErrorState(
 
         Button(onClick = onTryAgain) {
             Icon(
-                painter = painterResource(R.drawable.refresh),
+                painter = painterResource(R.drawable.tabler_ic_refresh),
                 contentDescription = null,
                 modifier = Modifier.size(18.dp),
             )

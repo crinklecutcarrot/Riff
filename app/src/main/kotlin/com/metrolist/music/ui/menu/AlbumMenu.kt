@@ -217,7 +217,7 @@ fun AlbumMenu(
                     title = stringResource(R.string.already_in_playlist),
                     thumbnailContent = {
                         Image(
-                            painter = painterResource(R.drawable.close),
+                            painter = painterResource(R.drawable.tabler_ic_x_outline),
                             contentDescription = null,
                             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
                             modifier = Modifier.size(ListThumbnailSize),
@@ -426,7 +426,7 @@ fun AlbumMenu(
                             },
                             icon = {
                                 Icon(
-                                    painter = painterResource(if (isPinned) R.drawable.remove else R.drawable.add),
+                                    painter = painterResource(if (isPinned) R.drawable.tabler_ic_minus_outline else R.drawable.tabler_ic_plus_outline),
                                     contentDescription = null,
                                 )
                             },
@@ -458,7 +458,7 @@ fun AlbumMenu(
                                 description = { Text(text = stringResource(R.string.add_to_queue_desc)) },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.queue_music),
+                                        painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                         contentDescription = null,
                                     )
                                 },
@@ -474,7 +474,7 @@ fun AlbumMenu(
                             title = { Text(text = stringResource(R.string.share)) },
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.share),
+                                    painter = painterResource(R.drawable.tabler_ic_share_3),
                                     contentDescription = null,
                                 )
                             },
@@ -507,7 +507,7 @@ fun AlbumMenu(
                                     },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.offline),
+                                            painter = painterResource(R.drawable.tabler_ic_cloud_off_outline),
                                             contentDescription = null,
                                         )
                                     },
@@ -552,7 +552,7 @@ fun AlbumMenu(
                                     description = { Text(text = stringResource(R.string.download_desc)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.download),
+                                            painter = painterResource(R.drawable.tabler_ic_download),
                                             contentDescription = null,
                                         )
                                     },
@@ -591,7 +591,7 @@ fun AlbumMenu(
                             title = { Text(text = stringResource(R.string.export_playlist)) },
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.share),
+                                    painter = painterResource(R.drawable.tabler_ic_share_3),
                                     contentDescription = null,
                                 )
                             },
@@ -686,7 +686,7 @@ fun AlbumMenu(
                             description = { Text(text = stringResource(R.string.refetch_desc)) },
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.sync),
+                                    painter = painterResource(R.drawable.tabler_ic_refresh),
                                     contentDescription = null,
                                     modifier = Modifier.graphicsLayer(rotationZ = rotationAnimation),
                                 )

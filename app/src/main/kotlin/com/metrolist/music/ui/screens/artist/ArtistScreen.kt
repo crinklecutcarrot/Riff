@@ -399,7 +399,7 @@ fun LegacyArtistScreen(
                                                     modifier = Modifier.height(40.dp),
                                                 ) {
                                                     Icon(
-                                                        painter = painterResource(R.drawable.radio),
+                                                        painter = painterResource(R.drawable.tabler_ic_radio),
                                                         contentDescription = null,
                                                         modifier = Modifier.size(20.dp),
                                                     )
@@ -428,7 +428,7 @@ fun LegacyArtistScreen(
                                                             ),
                                                 ) {
                                                     Icon(
-                                                        painter = painterResource(R.drawable.shuffle),
+                                                        painter = painterResource(R.drawable.tabler_ic_arrows_shuffle_outline),
                                                         contentDescription = "Shuffle",
                                                         tint = MaterialTheme.colorScheme.onPrimary,
                                                         modifier = Modifier.size(20.dp),
@@ -567,7 +567,7 @@ fun LegacyArtistScreen(
                                         },
                                     ) {
                                         Icon(
-                                            painter = painterResource(R.drawable.more_vert),
+                                            painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                                             contentDescription = null,
                                         )
                                     }
@@ -696,7 +696,7 @@ fun LegacyArtistScreen(
                                             },
                                         ) {
                                             Icon(
-                                                painter = painterResource(R.drawable.more_vert),
+                                                painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                                                 contentDescription = null,
                                             )
                                         }
@@ -862,7 +862,7 @@ fun LegacyArtistScreen(
         HideOnScrollFAB(
             visible = showLocalFab,
             lazyListState = lazyListState,
-            icon = if (showLocal) R.drawable.language else R.drawable.library_music,
+            icon = if (showLocal) R.drawable.tabler_ic_language_outline else R.drawable.tabler_ic_library_outline,
             onClick = {
                 showLocal = showLocal.not()
                 if (!showLocal && artistPage == null) viewModel.fetchArtistsFromYTM()
@@ -976,7 +976,7 @@ fun LegacyArtistScreen(
                         onClick = onPlayAllClick,
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.play),
+                            painter = painterResource(R.drawable.tabler_ic_player_play_filled),
                             contentDescription = "Play All",
                         )
                     }
@@ -986,7 +986,7 @@ fun LegacyArtistScreen(
                         onClick = onPlayAllClick,
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.play),
+                            painter = painterResource(R.drawable.tabler_ic_player_play_filled),
                             contentDescription = "Play All",
                             modifier = Modifier.size(32.dp),
                         )
@@ -1012,7 +1012,7 @@ fun LegacyArtistScreen(
                 onLongClick = navController::backToMain,
             ) {
                 Icon(
-                    painterResource(R.drawable.arrow_back),
+                    painterResource(R.drawable.tabler_ic_arrow_left_outline),
                     contentDescription = null,
                 )
             }
@@ -1029,7 +1029,7 @@ fun LegacyArtistScreen(
                 },
             ) {
                 Icon(
-                    painterResource(R.drawable.link),
+                    painterResource(R.drawable.tabler_ic_link_outline),
                     contentDescription = null,
                 )
             }

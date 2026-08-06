@@ -178,18 +178,18 @@ fun AndroidAutoSettings(
                             Material3SettingsItem(
                                 icon = painterResource(
                                     when (section) {
-                                        AndroidAutoSection.LIKED -> R.drawable.favorite
-                                        AndroidAutoSection.SONGS -> R.drawable.music_note
-                                        AndroidAutoSection.ARTISTS -> R.drawable.artist
-                                        AndroidAutoSection.ALBUMS -> R.drawable.album
-                                        AndroidAutoSection.PLAYLISTS -> R.drawable.queue_music
+                                        AndroidAutoSection.LIKED -> R.drawable.tabler_ic_heart_filled
+                                        AndroidAutoSection.SONGS -> R.drawable.tabler_ic_music_outline
+                                        AndroidAutoSection.ARTISTS -> R.drawable.tabler_ic_microphone_2_outline
+                                        AndroidAutoSection.ALBUMS -> R.drawable.tabler_ic_disc
+                                        AndroidAutoSection.PLAYLISTS -> R.drawable.tabler_ic_playlist_outline
                                     }
                                 ),
                                 title = { Text(section.label()) },
                                 trailingContent = {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Icon(
-                                            painter = painterResource(R.drawable.drag_handle),
+                                            painter = painterResource(R.drawable.tabler_ic_grip_horizontal_outline),
                                             contentDescription = null,
                                             modifier = Modifier
                                                 .size(24.dp)
@@ -212,7 +212,7 @@ fun AndroidAutoSettings(
                                     thumbContent = {
                                         Icon(
                                             painter = painterResource(
-                                                if (enabled) R.drawable.check else R.drawable.close
+                                                if (enabled) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                             ),
                                             contentDescription = null,
                                             modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -283,7 +283,7 @@ fun AndroidAutoSettings(
             title = stringResource(R.string.android_auto_target_playlist),
             items = listOf(
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.playlist_add),
+                    icon = painterResource(R.drawable.tabler_ic_playlist_add),
                     title = { Text(stringResource(R.string.android_auto_target_playlist)) },
                     description = { Text(playlistLabels(targetPlaylist)) },
                     onClick = { showTargetPlaylistDialog = true }
@@ -298,7 +298,7 @@ fun AndroidAutoSettings(
             title = stringResource(R.string.mixes),
             items = listOf(
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.queue_music),
+                    icon = painterResource(R.drawable.tabler_ic_playlist_outline),
                     title = { Text(stringResource(R.string.android_auto_youtube_playlists)) },
                     description = { Text(stringResource(R.string.android_auto_youtube_playlists_desc)) },
                     trailingContent = {
@@ -308,7 +308,7 @@ fun AndroidAutoSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        if (youtubePlaylistsEnabled) R.drawable.check else R.drawable.close
+                                        if (youtubePlaylistsEnabled) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -332,7 +332,7 @@ fun AndroidAutoSettings(
                 onLongClick = navController::backToMain,
             ) {
                 Icon(
-                    painterResource(R.drawable.arrow_back),
+                    painterResource(R.drawable.tabler_ic_arrow_left_outline),
                     contentDescription = null,
                 )
             }

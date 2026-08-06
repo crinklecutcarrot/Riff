@@ -389,7 +389,7 @@ fun ContentSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (enableLrclib) R.drawable.check else R.drawable.close
+                                        id = if (enableLrclib) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -418,7 +418,7 @@ fun ContentSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (enableKugou) R.drawable.check else R.drawable.close
+                                        id = if (enableKugou) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -447,7 +447,7 @@ fun ContentSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (enableBetterLyrics) R.drawable.check else R.drawable.close
+                                        id = if (enableBetterLyrics) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -476,7 +476,7 @@ fun ContentSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (enablePaxsenix) R.drawable.check else R.drawable.close
+                                        id = if (enablePaxsenix) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -505,7 +505,7 @@ fun ContentSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (enableLyricsPlus) R.drawable.check else R.drawable.close
+                                        id = if (enableLyricsPlus) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -610,7 +610,7 @@ fun ContentSettings(
             "Paxsenix".takeIf { enablePaxsenix },
             "LyricsPlus".takeIf { enableLyricsPlus },
         ).filterNotNull().toSet()
-        val lyricsIcon = painterResource(R.drawable.lyrics)
+        val lyricsIcon = painterResource(R.drawable.tabler_ic_align_left_outline)
         val draggableItems = remember { mutableStateListOf<DraggableLyricsProviderItem>() }
 
         LaunchedEffect(normalizedOrder, enableLrclib, enableKugou, enableBetterLyrics, enablePaxsenix, enableLyricsPlus) {
@@ -678,7 +678,7 @@ fun ContentSettings(
             title = stringResource(R.string.general),
             items = listOf(
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.language),
+                    icon = painterResource(R.drawable.tabler_ic_language_outline),
                     title = { Text(stringResource(R.string.content_language)) },
                     description = {
                         Text(
@@ -698,7 +698,7 @@ fun ContentSettings(
                     onClick = { showContentCountryDialog = true }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.explicit),
+                    icon = painterResource(R.drawable.tabler_ic_explicit_outline),
                     title = { Text(stringResource(R.string.hide_explicit)) },
                     trailingContent = {
                         Switch(
@@ -707,7 +707,7 @@ fun ContentSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (hideExplicit) R.drawable.check else R.drawable.close
+                                        id = if (hideExplicit) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -727,7 +727,7 @@ fun ContentSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (hideVideoSongs) R.drawable.check else R.drawable.close
+                                        id = if (hideVideoSongs) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -738,7 +738,7 @@ fun ContentSettings(
                     onClick = { onHideVideoSongsChange(!hideVideoSongs) }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.hide_image),
+                    icon = painterResource(R.drawable.tabler_ic_photo_off_outline),
                     title = { Text(stringResource(R.string.hide_youtube_shorts)) },
                     trailingContent = {
                         Switch(
@@ -747,7 +747,7 @@ fun ContentSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (hideYoutubeShorts) R.drawable.check else R.drawable.close
+                                        id = if (hideYoutubeShorts) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -766,7 +766,7 @@ fun ContentSettings(
             title = stringResource(R.string.artist_page_settings),
             items = listOf(
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.info),
+                    icon = painterResource(R.drawable.tabler_ic_info_circle),
                     title = { Text(stringResource(R.string.show_artist_description)) },
                     trailingContent = {
                         Switch(
@@ -775,7 +775,7 @@ fun ContentSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (showArtistDescription) R.drawable.check else R.drawable.close
+                                        id = if (showArtistDescription) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -786,7 +786,7 @@ fun ContentSettings(
                     onClick = { onShowArtistDescriptionChange(!showArtistDescription) }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.person),
+                    icon = painterResource(R.drawable.tabler_ic_user),
                     title = { Text(stringResource(R.string.show_artist_subscriber_count)) },
                     trailingContent = {
                         Switch(
@@ -795,7 +795,7 @@ fun ContentSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (showArtistSubscriberCount) R.drawable.check else R.drawable.close
+                                        id = if (showArtistSubscriberCount) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -806,7 +806,7 @@ fun ContentSettings(
                     onClick = { onShowArtistSubscriberCountChange(!showArtistSubscriberCount) }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.person),
+                    icon = painterResource(R.drawable.tabler_ic_user),
                     title = { Text(stringResource(R.string.show_artist_monthly_listeners)) },
                     trailingContent = {
                         Switch(
@@ -815,7 +815,7 @@ fun ContentSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (showMonthlyListeners) R.drawable.check else R.drawable.close
+                                        id = if (showMonthlyListeners) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -835,7 +835,7 @@ fun ContentSettings(
             items = listOf(
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.language),
+                        icon = painterResource(R.drawable.tabler_ic_language_outline),
                         title = { Text(stringResource(R.string.app_language)) },
                         onClick = {
                             context.startActivity(
@@ -848,7 +848,7 @@ fun ContentSettings(
                     )
                 } else {
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.language),
+                        icon = painterResource(R.drawable.tabler_ic_language_outline),
                         title = { Text(stringResource(R.string.app_language)) },
                         description = {
                             Text(
@@ -877,7 +877,7 @@ fun ContentSettings(
                                 thumbContent = {
                                     Icon(
                                         painter = painterResource(
-                                            id = if (proxyEnabled) R.drawable.check else R.drawable.close
+                                            id = if (proxyEnabled) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                         ),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -891,7 +891,7 @@ fun ContentSettings(
                 if (proxyEnabled) {
                     add(
                         Material3SettingsItem(
-                            icon = painterResource(R.drawable.settings),
+                            icon = painterResource(R.drawable.tabler_ic_settings_outline),
                             title = { Text(stringResource(R.string.config_proxy)) },
                             onClick = { showProxyConfigurationDialog = true }
                         )
@@ -906,13 +906,13 @@ fun ContentSettings(
             title = stringResource(R.string.lyrics),
             items = listOf(
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.lyrics),
+                    icon = painterResource(R.drawable.tabler_ic_align_left_outline),
                     title = { Text(stringResource(R.string.lyrics_provider_selection)) },
                     description = { Text(stringResource(R.string.lyrics_provider_selection_desc)) },
                     onClick = { showProviderSelectionDialog = true }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.lyrics),
+                    icon = painterResource(R.drawable.tabler_ic_align_left_outline),
                     title = { Text(stringResource(R.string.lyrics_provider_priority)) },
                     description = { Text(stringResource(R.string.lyrics_provider_priority_desc)) },
                     onClick = { showProviderPriorityDialog = true }
@@ -931,7 +931,7 @@ fun ContentSettings(
             title = "Wrapped",
             items = listOf(
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.stats),
+                    icon = painterResource(R.drawable.tabler_ic_chart_bar),
                     title = { Text(stringResource(R.string.show_most_stats_playlists)) },
                     description = { Text(stringResource(R.string.show_most_stats_playlists_desc)) },
                     trailingContent = {
@@ -941,7 +941,7 @@ fun ContentSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (showMostStatsPlaylists) R.drawable.check else R.drawable.close
+                                        id = if (showMostStatsPlaylists) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -952,7 +952,7 @@ fun ContentSettings(
                     onClick = { onShowMostStatsPlaylistsChange(!showMostStatsPlaylists) }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.trending_up),
+                    icon = painterResource(R.drawable.tabler_ic_trending_up_outline),
                     title = { Text(stringResource(R.string.show_wrapped_card)) },
                     trailingContent = {
                         Switch(
@@ -961,7 +961,7 @@ fun ContentSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (showWrappedCard) R.drawable.check else R.drawable.close
+                                        id = if (showWrappedCard) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -980,7 +980,7 @@ fun ContentSettings(
             title = stringResource(R.string.misc),
             items = listOf(
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.shuffle),
+                    icon = painterResource(R.drawable.tabler_ic_arrows_shuffle_outline),
                     title = { Text(stringResource(R.string.randomize_home_order)) },
                     description = { Text(stringResource(R.string.randomize_home_order_desc)) },
                     trailingContent = {
@@ -990,7 +990,7 @@ fun ContentSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (randomizeHomeOrder) R.drawable.check else R.drawable.close
+                                        id = if (randomizeHomeOrder) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -1001,13 +1001,13 @@ fun ContentSettings(
                     onClick = { onRandomizeHomeOrderChange(!randomizeHomeOrder) }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.trending_up),
+                    icon = painterResource(R.drawable.tabler_ic_trending_up_outline),
                     title = { Text(stringResource(R.string.top_length)) },
                     description = { Text(lengthTop) },
                     onClick = { showTopLengthDialog = true }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.home_outlined),
+                    icon = painterResource(R.drawable.tabler_ic_home_outline),
                     title = { Text(stringResource(R.string.set_quick_picks)) },
                     description = {
                         Text(
@@ -1032,7 +1032,7 @@ fun ContentSettings(
                 onLongClick = navController::backToMain,
             ) {
                 Icon(
-                    painterResource(R.drawable.arrow_back),
+                    painterResource(R.drawable.tabler_ic_arrow_left_outline),
                     contentDescription = null,
                 )
             }

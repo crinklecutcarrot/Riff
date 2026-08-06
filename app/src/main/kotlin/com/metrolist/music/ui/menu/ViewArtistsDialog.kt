@@ -101,8 +101,8 @@ private fun ArtistDestinationCard(
             AsyncImage(
                 model = artistPage?.artist?.thumbnail,
                 contentDescription = null,
-                placeholder = painterResource(R.drawable.artist),
-                error = painterResource(R.drawable.artist),
+                placeholder = painterResource(R.drawable.tabler_ic_microphone_2_outline),
+                error = painterResource(R.drawable.tabler_ic_microphone_2_outline),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.size(52.dp).clip(CircleShape),
             )

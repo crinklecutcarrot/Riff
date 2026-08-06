@@ -41,7 +41,7 @@ fun ImportPlaylistDialog(
 
     if (isVisible) {
         TextFieldDialog(
-            icon = { Icon(painter = painterResource(R.drawable.add), contentDescription = null) },
+            icon = { Icon(painter = painterResource(R.drawable.tabler_ic_plus_outline), contentDescription = null) },
             title = { Text(text = stringResource(R.string.import_playlist)) },
             initialTextFieldValue = textFieldValue,
             autoFocus = false,

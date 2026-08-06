@@ -76,7 +76,7 @@ fun LocalPlaylistMenu(
                     description = { Text(stringResource(R.string.remove_download_playlist_desc)) },
                     icon = {
                         Icon(
-                            painter = painterResource(R.drawable.offline),
+                            painter = painterResource(R.drawable.tabler_ic_cloud_off_outline),
                             contentDescription = null,
                         )
                     },
@@ -110,7 +110,7 @@ fun LocalPlaylistMenu(
                     description = { Text(stringResource(R.string.download_playlist_desc)) },
                     icon = {
                         Icon(
-                            painter = painterResource(R.drawable.download),
+                            painter = painterResource(R.drawable.tabler_ic_download),
                             contentDescription = null,
                         )
                     },
@@ -132,7 +132,7 @@ fun LocalPlaylistMenu(
                     description = { Text(stringResource(R.string.edit_playlist)) },
                     icon = {
                         Icon(
-                            painter = painterResource(R.drawable.edit),
+                            painter = painterResource(R.drawable.tabler_ic_edit_outline),
                             contentDescription = null,
                         )
                     },
@@ -151,7 +151,7 @@ fun LocalPlaylistMenu(
                         description = { Text(stringResource(R.string.sync_playlist_desc)) },
                         icon = {
                             Icon(
-                                painter = painterResource(R.drawable.sync),
+                                painter = painterResource(R.drawable.tabler_ic_refresh),
                                 contentDescription = null,
                             )
                         },
@@ -170,7 +170,7 @@ fun LocalPlaylistMenu(
                         description = { Text(stringResource(R.string.add_to_queue_desc)) },
                         icon = {
                             Icon(
-                                painter = painterResource(R.drawable.queue_music),
+                                painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                 contentDescription = null,
                             )
                         },
@@ -190,7 +190,7 @@ fun LocalPlaylistMenu(
                     description = { Text(stringResource(R.string.share_playlist_desc)) },
                     icon = {
                         Icon(
-                            painter = painterResource(R.drawable.share),
+                            painter = painterResource(R.drawable.tabler_ic_share_3),
                             contentDescription = null,
                         )
                     },
@@ -220,7 +220,7 @@ fun LocalPlaylistMenu(
                     title = { Text(stringResource(R.string.export_playlist)) },
                     icon = {
                         Icon(
-                            painter = painterResource(R.drawable.share),
+                            painter = painterResource(R.drawable.tabler_ic_share_3),
                             contentDescription = null,
                         )
                     },
@@ -234,7 +234,7 @@ fun LocalPlaylistMenu(
                     description = { Text(stringResource(R.string.delete_playlist_desc)) },
                     icon = {
                         Icon(
-                            painter = painterResource(R.drawable.delete),
+                            painter = painterResource(R.drawable.tabler_ic_trash),
                             contentDescription = null,
                         )
                     },
@@ -335,7 +335,7 @@ fun AutoPlaylistMenu(
                     description = { Text(stringResource(R.string.remove_download_playlist_desc)) },
                     icon = {
                         Icon(
-                            painter = painterResource(R.drawable.offline),
+                            painter = painterResource(R.drawable.tabler_ic_cloud_off_outline),
                             contentDescription = null,
                         )
                     },
@@ -369,7 +369,7 @@ fun AutoPlaylistMenu(
                     description = { Text(stringResource(R.string.download_playlist_desc)) },
                     icon = {
                         Icon(
-                            painter = painterResource(R.drawable.download),
+                            painter = painterResource(R.drawable.tabler_ic_download),
                             contentDescription = null,
                         )
                     },
@@ -390,7 +390,7 @@ fun AutoPlaylistMenu(
                         description = { Text(stringResource(R.string.add_to_queue_desc)) },
                         icon = {
                             Icon(
-                                painter = painterResource(R.drawable.queue_music),
+                                painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                 contentDescription = null,
                             )
                         },
@@ -407,7 +407,7 @@ fun AutoPlaylistMenu(
                         title = { Text(stringResource(R.string.export_playlist)) },
                         icon = {
                             Icon(
-                                painter = painterResource(R.drawable.share),
+                                painter = painterResource(R.drawable.tabler_ic_share_3),
                                 contentDescription = null,
                             )
                         },
@@ -515,7 +515,7 @@ fun TopPlaylistMenu(
                     description = { Text(stringResource(R.string.remove_download_playlist_desc)) },
                     icon = {
                         Icon(
-                            painter = painterResource(R.drawable.offline),
+                            painter = painterResource(R.drawable.tabler_ic_cloud_off_outline),
                             contentDescription = null,
                         )
                     },
@@ -549,7 +549,7 @@ fun TopPlaylistMenu(
                     description = { Text(stringResource(R.string.download_playlist_desc)) },
                     icon = {
                         Icon(
-                            painter = painterResource(R.drawable.download),
+                            painter = painterResource(R.drawable.tabler_ic_download),
                             contentDescription = null,
                         )
                     },
@@ -570,7 +570,7 @@ fun TopPlaylistMenu(
                         description = { Text(stringResource(R.string.add_to_queue_desc)) },
                         icon = {
                             Icon(
-                                painter = painterResource(R.drawable.queue_music),
+                                painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                 contentDescription = null,
                             )
                         },
@@ -679,7 +679,7 @@ fun CachePlaylistMenu(
                     description = { Text(stringResource(R.string.remove_download_playlist_desc)) },
                     icon = {
                         Icon(
-                            painter = painterResource(R.drawable.offline),
+                            painter = painterResource(R.drawable.tabler_ic_cloud_off_outline),
                             contentDescription = null,
                         )
                     },
@@ -713,7 +713,7 @@ fun CachePlaylistMenu(
                     description = { Text(stringResource(R.string.download_playlist_desc)) },
                     icon = {
                         Icon(
-                            painter = painterResource(R.drawable.download),
+                            painter = painterResource(R.drawable.tabler_ic_download),
                             contentDescription = null,
                         )
                     },
@@ -734,7 +734,7 @@ fun CachePlaylistMenu(
                         description = { Text(stringResource(R.string.add_to_queue_desc)) },
                         icon = {
                             Icon(
-                                painter = painterResource(R.drawable.queue_music),
+                                painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                 contentDescription = null,
                             )
                         },

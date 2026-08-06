@@ -115,7 +115,7 @@ fun ChartsScreen(
                         onLongClick = { navController.backToMain() },
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.arrow_back),
+                            painter = painterResource(R.drawable.tabler_ic_arrow_left_outline),
                             contentDescription = null,
                         )
                     }
@@ -279,7 +279,7 @@ fun ChartsScreen(
                                                     },
                                                 ) {
                                                     Icon(
-                                                        painter = painterResource(R.drawable.more_vert),
+                                                        painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                                                         contentDescription = null,
                                                     )
                                                 }

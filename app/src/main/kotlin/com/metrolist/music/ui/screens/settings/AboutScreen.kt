@@ -120,7 +120,7 @@ private val communityLinks = listOf(
     CommunityLink(R.string.credits_discord, R.drawable.discord, "https://discord.com/invite/zrdbeRG2Mt"),
     CommunityLink(R.string.credits_telegram, R.drawable.telegram, "https://t.me/metrolistapp"),
     CommunityLink(R.string.credits_view_repo, R.drawable.github, "https://github.com/MetrolistGroup/Metrolist"),
-    CommunityLink(R.string.credits_license_name, R.drawable.info, "https://github.com/MetrolistGroup/Metrolist/blob/main/LICENSE")
+    CommunityLink(R.string.credits_license_name, R.drawable.tabler_ic_info_circle, "https://github.com/MetrolistGroup/Metrolist/blob/main/LICENSE")
 )
 
 private fun handleEasterEggClick(
@@ -194,7 +194,7 @@ private fun DeveloperSocials(
             onClick = { uriHandler.openUri("https://metrolist.cc") },
             modifier = Modifier.weight(1f).height(48.dp)
         ) {
-            Icon(painterResource(R.drawable.language), contentDescription = null)
+            Icon(painterResource(R.drawable.tabler_ic_language_outline), contentDescription = null)
         }
         FilledTonalButton(
             onClick = { uriHandler.openUri("https://github.com/mostafaalagamy") },
@@ -510,7 +510,7 @@ fun AboutScreen(
                 onLongClick = navController::backToMain,
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.arrow_back),
+                    painter = painterResource(R.drawable.tabler_ic_arrow_left_outline),
                     contentDescription = stringResource(R.string.cd_back),
                 )
             }

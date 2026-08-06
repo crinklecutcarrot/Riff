@@ -297,7 +297,7 @@ fun Queue(
                         )
 
                     PlayerQueueButton(
-                        icon = R.drawable.queue_music,
+                        icon = R.drawable.tabler_ic_playlist_outline,
                         onClick = { state.expandSoft() },
                         isActive = false,
                         shape = queueShape,
@@ -310,7 +310,7 @@ fun Queue(
                     )
 
                     PlayerQueueButton(
-                        icon = R.drawable.bedtime,
+                        icon = R.drawable.tabler_ic_moon_outline,
                         onClick = {
                             if (sleepTimerEnabled) {
                                 playerConnection.service.sleepTimer?.clear()
@@ -332,7 +332,7 @@ fun Queue(
 
                     val shuffleModeEnabled by playerConnection.shuffleModeEnabled.collectAsStateWithLifecycle()
                     PlayerQueueButton(
-                        icon = R.drawable.shuffle,
+                        icon = R.drawable.tabler_ic_arrows_shuffle_outline,
                         onClick = {
                             playerConnection.player.shuffleModeEnabled = !shuffleModeEnabled
                         },
@@ -348,7 +348,7 @@ fun Queue(
                     )
 
                     PlayerQueueButton(
-                        icon = R.drawable.lyrics,
+                        icon = R.drawable.tabler_ic_align_left_outline,
                         onClick = { onToggleLyrics() },
                         isActive = showInlineLyrics,
                         shape = middleShape,
@@ -363,9 +363,9 @@ fun Queue(
                     PlayerQueueButton(
                         icon =
                             when (repeatMode) {
-                                Player.REPEAT_MODE_ALL -> R.drawable.repeat
-                                Player.REPEAT_MODE_ONE -> R.drawable.repeat_one
-                                else -> R.drawable.repeat
+                                Player.REPEAT_MODE_ALL -> R.drawable.tabler_ic_repeat_outline
+                                Player.REPEAT_MODE_ONE -> R.drawable.tabler_ic_repeat_once_outline
+                                else -> R.drawable.tabler_ic_repeat_outline
                             },
                         onClick = {
                             playerConnection.player.toggleRepeatMode()
@@ -408,7 +408,7 @@ fun Queue(
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.more_vert),
+                            painter = painterResource(id = R.drawable.tabler_ic_dots_vertical_outline),
                             contentDescription = null,
                             modifier = Modifier.size(iconSize),
                             tint = iconButtonColor,
@@ -439,7 +439,7 @@ fun Queue(
                             modifier = Modifier.fillMaxWidth(),
                         ) {
                             Icon(
-                                painter = painterResource(id = R.drawable.queue_music),
+                                painter = painterResource(id = R.drawable.tabler_ic_playlist_outline),
                                 contentDescription = null,
                                 modifier = Modifier.size(20.dp),
                                 tint = TextBackgroundColor,
@@ -475,7 +475,7 @@ fun Queue(
                             modifier = Modifier.fillMaxWidth(),
                         ) {
                             Icon(
-                                painter = painterResource(id = R.drawable.bedtime),
+                                painter = painterResource(id = R.drawable.tabler_ic_moon_outline),
                                 contentDescription = null,
                                 modifier = Modifier.size(20.dp),
                                 tint = TextBackgroundColor,
@@ -520,7 +520,7 @@ fun Queue(
                             modifier = Modifier.fillMaxWidth(),
                         ) {
                             Icon(
-                                painter = painterResource(id = R.drawable.lyrics),
+                                painter = painterResource(id = R.drawable.tabler_ic_align_left_outline),
                                 contentDescription = null,
                                 modifier = Modifier.size(20.dp),
                                 tint = TextBackgroundColor,
@@ -865,7 +865,7 @@ fun Queue(
                                                     },
                                                 ) {
                                                     Icon(
-                                                        painter = painterResource(R.drawable.more_vert),
+                                                        painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                                                         contentDescription = null,
                                                     )
                                                 }
@@ -876,7 +876,7 @@ fun Queue(
                                                     modifier = Modifier.draggableHandle(),
                                                 ) {
                                                     Icon(
-                                                        painter = painterResource(R.drawable.drag_handle),
+                                                        painter = painterResource(R.drawable.tabler_ic_grip_horizontal_outline),
                                                         contentDescription = null,
                                                     )
                                                 }
@@ -978,7 +978,7 @@ fun Queue(
                                             },
                                         ) {
                                             Icon(
-                                                painter = painterResource(R.drawable.playlist_play),
+                                                painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                                 contentDescription = null,
                                             )
                                         }
@@ -991,7 +991,7 @@ fun Queue(
                                             },
                                         ) {
                                             Icon(
-                                                painter = painterResource(R.drawable.queue_music),
+                                                painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                                 contentDescription = null,
                                             )
                                         }
@@ -1073,7 +1073,7 @@ fun Queue(
                             modifier = Modifier.padding(horizontal = 6.dp),
                         ) {
                             Icon(
-                                painter = painterResource(if (locked) R.drawable.lock else R.drawable.lock_open),
+                                painter = painterResource(if (locked) R.drawable.tabler_ic_lock_outline else R.drawable.tabler_ic_lock_open_outline),
                                 contentDescription = null,
                             )
                         }
@@ -1127,7 +1127,7 @@ fun Queue(
                         onClick = onExitSelectionMode,
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.close),
+                            painter = painterResource(R.drawable.tabler_ic_x_outline),
                             contentDescription = null,
                         )
                     }
@@ -1162,7 +1162,7 @@ fun Queue(
                         },
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.more_vert),
+                            painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                             contentDescription = null,
                             tint = LocalContentColor.current,
                         )
@@ -1219,14 +1219,14 @@ fun Queue(
                 val baseAlpha = if (shuffleModeEnabled) 1f else 0.5f
                 val finalAlpha = if (!isListenTogetherGuest) baseAlpha else 0.3f
                 Icon(
-                    painter = painterResource(R.drawable.shuffle),
+                    painter = painterResource(R.drawable.tabler_ic_arrows_shuffle_outline),
                     contentDescription = null,
                     modifier = Modifier.alpha(finalAlpha),
                 )
             }
 
             Icon(
-                painter = painterResource(R.drawable.expand_more),
+                painter = painterResource(R.drawable.tabler_ic_chevron_down_outline),
                 contentDescription = null,
                 modifier = Modifier.align(Alignment.Center),
             )
@@ -1242,8 +1242,8 @@ fun Queue(
                     painter =
                         painterResource(
                             when (repeatMode) {
-                                Player.REPEAT_MODE_OFF, Player.REPEAT_MODE_ALL -> R.drawable.repeat
-                                Player.REPEAT_MODE_ONE -> R.drawable.repeat_one
+                                Player.REPEAT_MODE_OFF, Player.REPEAT_MODE_ALL -> R.drawable.tabler_ic_repeat_outline
+                                Player.REPEAT_MODE_ONE -> R.drawable.tabler_ic_repeat_once_outline
                                 else -> throw IllegalStateException()
                             },
                         ),

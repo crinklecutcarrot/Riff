@@ -126,7 +126,7 @@ fun LyricsMenu(
     if (showEditDialog) {
         TextFieldDialog(
             onDismiss = { showEditDialog = false },
-            icon = { Icon(painter = painterResource(R.drawable.edit), contentDescription = null) },
+            icon = { Icon(painter = painterResource(R.drawable.tabler_ic_edit_outline), contentDescription = null) },
             title = { Text(text = mediaMetadataProvider().title) },
             initialTextFieldValue = TextFieldValue(lyricsProvider()?.lyrics.orEmpty()),
             singleLine = false,
@@ -180,7 +180,7 @@ fun LyricsMenu(
             onDismiss = { showSearchDialog = false },
             icon = {
                 Icon(
-                    painter = painterResource(R.drawable.search),
+                    painter = painterResource(R.drawable.tabler_ic_search_outline),
                     contentDescription = null
                 )
             },
@@ -311,7 +311,7 @@ fun LyricsMenu(
                             )
                             if (result.lyrics.startsWith("[")) {
                                 Icon(
-                                    painter = painterResource(R.drawable.sync),
+                                    painter = painterResource(R.drawable.tabler_ic_refresh),
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.secondary,
                                     modifier =
@@ -329,7 +329,7 @@ fun LyricsMenu(
                         },
                     ) {
                         Icon(
-                            painter = painterResource(if (index == expandedItemIndex) R.drawable.expand_less else R.drawable.expand_more),
+                            painter = painterResource(if (index == expandedItemIndex) R.drawable.tabler_ic_chevron_up_outline else R.drawable.tabler_ic_chevron_down_outline),
                             contentDescription = null,
                         )
                     }
@@ -393,7 +393,7 @@ fun LyricsMenu(
                         NewAction(
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.edit),
+                                    painter = painterResource(R.drawable.tabler_ic_edit_outline),
                                     contentDescription = null,
                                     modifier = Modifier.size(28.dp),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -407,7 +407,7 @@ fun LyricsMenu(
                         NewAction(
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.cached),
+                                    painter = painterResource(R.drawable.tabler_ic_database_outline),
                                     contentDescription = null,
                                     modifier = Modifier.size(28.dp),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -422,7 +422,7 @@ fun LyricsMenu(
                         NewAction(
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.search),
+                                    painter = painterResource(R.drawable.tabler_ic_search_outline),
                                     contentDescription = null,
                                     modifier = Modifier.size(28.dp),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -436,7 +436,7 @@ fun LyricsMenu(
                         NewAction(
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.content_copy),
+                                    painter = painterResource(R.drawable.tabler_ic_copy_outline),
                                     contentDescription = null,
                                     modifier = Modifier.size(28.dp),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -474,7 +474,7 @@ fun LyricsMenu(
                                 title = { Text(stringResource(R.string.ai_lyrics_translation)) },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.translate),
+                                        painter = painterResource(R.drawable.tabler_ic_language_outline),
                                         contentDescription = null,
                                     )
                                 },
@@ -515,7 +515,7 @@ fun LyricsMenu(
                                         thumbContent = {
                                             Icon(
                                                 painter = painterResource(
-                                                    id = if (hasTranslations) R.drawable.check else R.drawable.close
+                                                    id = if (hasTranslations) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                                 ),
                                                 contentDescription = null,
                                                 modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -538,7 +538,7 @@ fun LyricsMenu(
                             description = { Text(stringResource(R.string.respect_agent_positioning_desc)) },
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.lyrics),
+                                    painter = painterResource(R.drawable.tabler_ic_align_left_outline),
                                     contentDescription = null,
                                 )
                             },
@@ -554,7 +554,7 @@ fun LyricsMenu(
                                     thumbContent = {
                                         Icon(
                                             painter = painterResource(
-                                                id = if (respectAgentPositioning) R.drawable.check else R.drawable.close
+                                                id = if (respectAgentPositioning) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                             ),
                                             contentDescription = null,
                                             modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -576,7 +576,7 @@ fun LyricsMenu(
                             description = { Text(stringResource(R.string.show_interval_indicator_desc)) },
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.lyrics),
+                                    painter = painterResource(R.drawable.tabler_ic_align_left_outline),
                                     contentDescription = null,
                                 )
                             },
@@ -592,7 +592,7 @@ fun LyricsMenu(
                                     thumbContent = {
                                         Icon(
                                             painter = painterResource(
-                                                id = if (showIntervalIndicator) R.drawable.check else R.drawable.close
+                                                id = if (showIntervalIndicator) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                             ),
                                             contentDescription = null,
                                             modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -613,7 +613,7 @@ fun LyricsMenu(
                             title = { Text(stringResource(R.string.lyrics_offset)) },
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.fast_forward),
+                                    painter = painterResource(R.drawable.tabler_ic_player_skip_forward),
                                     contentDescription = null,
                                 )
                             },
@@ -662,7 +662,7 @@ fun LyricsMenu(
                                     thumbContent = {
                                         Icon(
                                             painter = painterResource(
-                                                id = if (isChecked) R.drawable.check else R.drawable.close
+                                                id = if (isChecked) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                             ),
                                             contentDescription = null,
                                             modifier = Modifier.size(SwitchDefaults.IconSize)

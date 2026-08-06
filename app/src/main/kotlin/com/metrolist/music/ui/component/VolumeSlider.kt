@@ -61,10 +61,10 @@ fun VolumeSlider(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
-    val volumeOffIcon = painterResource(R.drawable.volume_off)
-    val volumeMuteIcon = painterResource(R.drawable.volume_mute)
-    val volumeDownIcon = painterResource(R.drawable.volume_down)
-    val volumeUpIcon = painterResource(R.drawable.volume_up)
+    val volumeOffIcon = painterResource(R.drawable.tabler_ic_volume_off_outline)
+    val volumeMuteIcon = painterResource(R.drawable.tabler_ic_volume_3_outline)
+    val volumeDownIcon = painterResource(R.drawable.tabler_ic_volume_3_outline)
+    val volumeUpIcon = painterResource(R.drawable.tabler_ic_volume_outline)
 
     val currentIcon = when {
         value <= 0f -> volumeOffIcon

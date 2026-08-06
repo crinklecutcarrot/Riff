@@ -173,7 +173,7 @@ fun ThemeScreen(
         navigationIcon = {
             IconButton(onClick = { navController.navigateUp() }) {
                 Icon(
-                    painter = painterResource(R.drawable.arrow_back),
+                    painter = painterResource(R.drawable.tabler_ic_arrow_left_outline),
                     contentDescription = stringResource(R.string.cd_back)
                 )
             }
@@ -470,7 +470,7 @@ fun ModeCircle(
         when {
             showIcon -> {
                 Icon(
-                    painter = painterResource(R.drawable.sync),
+                    painter = painterResource(R.drawable.tabler_ic_refresh),
                     contentDescription = null,
                     tint = previewContentColor,
                     modifier = Modifier.size(20.dp)
@@ -492,7 +492,7 @@ fun ModeCircle(
                     )
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.check),
+                        painter = painterResource(R.drawable.tabler_ic_check_outline),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.inversePrimary,
                         modifier = Modifier.size(20.dp)
@@ -587,7 +587,7 @@ fun PaletteItem(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.palette),
+                    painter = painterResource(R.drawable.tabler_ic_palette_outline),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(24.dp)

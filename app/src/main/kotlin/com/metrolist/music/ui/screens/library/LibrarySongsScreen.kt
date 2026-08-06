@@ -340,7 +340,7 @@ fun LibrarySongsScreen(
             },
             icon = {
                 Icon(
-                    painter = painterResource(R.drawable.upload),
+                    painter = painterResource(R.drawable.tabler_ic_upload_outline),
                     contentDescription = null,
                 )
             },
@@ -454,7 +454,7 @@ fun LibrarySongsScreen(
                         modifier = Modifier.padding(start = 8.dp, end = 8.dp).size(40.dp),
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.search),
+                            painter = painterResource(R.drawable.tabler_ic_search_outline),
                             contentDescription = stringResource(R.string.search),
                         )
                     }
@@ -502,7 +502,7 @@ fun LibrarySongsScreen(
                             },
                         ) {
                             Icon(
-                                painter = painterResource(R.drawable.more_vert),
+                                painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                                 contentDescription = null,
                             )
                         }
@@ -531,7 +531,7 @@ fun LibrarySongsScreen(
         HideOnScrollFAB(
             visible = if (filter == SongFilter.UPLOADED) true else filteredSongs.isNotEmpty(),
             lazyListState = lazyListState,
-            icon = if (filter == SongFilter.UPLOADED) R.drawable.upload else R.drawable.shuffle,
+            icon = if (filter == SongFilter.UPLOADED) R.drawable.tabler_ic_upload_outline else R.drawable.tabler_ic_arrows_shuffle_outline,
             containerColor = MaterialTheme.colorScheme.onBackground,
             contentColor = MaterialTheme.colorScheme.background,
             bottomPadding = 0.dp,

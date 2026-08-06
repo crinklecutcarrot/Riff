@@ -119,7 +119,7 @@ internal fun LyricsTranslationHeader(
                     contentColor = MaterialTheme.colorScheme.onErrorContainer
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.error),
+                        painter = painterResource(R.drawable.tabler_ic_alert_circle_outline),
                         contentDescription = null,
                         modifier = Modifier.size(16.dp)
                     )
@@ -135,7 +135,7 @@ internal fun LyricsTranslationHeader(
                     contentColor = MaterialTheme.colorScheme.onTertiaryContainer
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.check),
+                        painter = painterResource(R.drawable.tabler_ic_check_outline),
                         contentDescription = null,
                         modifier = Modifier.size(16.dp)
                     )
@@ -191,7 +191,7 @@ internal fun LyricsActionOverlay(
             exit = slideOutVertically { it } + fadeOut()
         ) {
             FilledTonalButton(onClick = onSyncClick) {
-                Icon(painterResource(R.drawable.sync), stringResource(R.string.auto_scroll), Modifier.size(20.dp))
+                Icon(painterResource(R.drawable.tabler_ic_refresh), stringResource(R.string.auto_scroll), Modifier.size(20.dp))
                 Spacer(Modifier.width(8.dp))
                 Text(stringResource(R.string.auto_scroll), fontWeight = FontWeight.SemiBold)
             }
@@ -207,13 +207,13 @@ internal fun LyricsActionOverlay(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 FilledTonalButton(onClick = onCancelSelection) {
-                    Icon(painterResource(R.drawable.close), stringResource(R.string.cancel), Modifier.size(20.dp))
+                    Icon(painterResource(R.drawable.tabler_ic_x_outline), stringResource(R.string.cancel), Modifier.size(20.dp))
                 }
                 FilledTonalButton(
                     onClick = onShareSelection,
                     enabled = anySelected
                 ) {
-                    Icon(painterResource(R.drawable.share), stringResource(R.string.share_selected), Modifier.size(20.dp))
+                    Icon(painterResource(R.drawable.tabler_ic_share_3), stringResource(R.string.share_selected), Modifier.size(20.dp))
                     Spacer(Modifier.width(8.dp))
                     Text(stringResource(R.string.share))
                 }
@@ -256,7 +256,7 @@ internal fun LyricsShareDialog(
                     }.padding(vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(painterResource(R.drawable.share), null, tint = MaterialTheme.colorScheme.primary)
+                    Icon(painterResource(R.drawable.tabler_ic_share_3), null, tint = MaterialTheme.colorScheme.primary)
                     Spacer(Modifier.width(12.dp))
                     Text(stringResource(R.string.share_as_text), fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
                 }
@@ -267,7 +267,7 @@ internal fun LyricsShareDialog(
                     }.padding(vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(painterResource(R.drawable.share), null, tint = MaterialTheme.colorScheme.primary)
+                    Icon(painterResource(R.drawable.tabler_ic_share_3), null, tint = MaterialTheme.colorScheme.primary)
                     Spacer(Modifier.width(12.dp))
                     Text(stringResource(R.string.share_as_image), fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
                 }

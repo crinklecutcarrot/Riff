@@ -338,7 +338,7 @@ inline fun ListItem(
                         )
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.offline),
+                        painter = painterResource(R.drawable.tabler_ic_cloud_off_outline),
                         contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier
@@ -697,7 +697,7 @@ fun ArtistListItem(
     badges: @Composable RowScope.() -> Unit = {
         if (artist.artist.bookmarkedAt != null) {
             Icon(
-                painter = painterResource(R.drawable.favorite),
+                painter = painterResource(R.drawable.tabler_ic_heart_filled),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.error,
                 modifier = Modifier
@@ -989,12 +989,12 @@ fun PlaylistListItem(
             size = ListThumbnailSize,
             placeHolder = {
                 val painter = when (playlist.playlist.name) {
-                    stringResource(R.string.liked) -> R.drawable.favorite_border
-                    stringResource(R.string.offline) -> R.drawable.offline
-                    stringResource(R.string.cached_playlist) -> R.drawable.cached
-                    // R.drawable.backup as placeholder
-                    stringResource(R.string.uploaded_playlist) -> R.drawable.backup
-                    else -> if (autoPlaylist) R.drawable.trending_up else R.drawable.queue_music
+                    stringResource(R.string.liked) -> R.drawable.tabler_ic_heart_outline
+                    stringResource(R.string.offline) -> R.drawable.tabler_ic_cloud_off_outline
+                    stringResource(R.string.cached_playlist) -> R.drawable.tabler_ic_database_outline
+                    // R.drawable.tabler_ic_cloud_upload_outline as placeholder
+                    stringResource(R.string.uploaded_playlist) -> R.drawable.tabler_ic_cloud_upload_outline
+                    else -> if (autoPlaylist) R.drawable.tabler_ic_trending_up_outline else R.drawable.tabler_ic_playlist_outline
                 }
                 Icon(
                     painter = painterResource(painter),
@@ -1090,12 +1090,12 @@ fun PlaylistGridItem(
             size = width,
             placeHolder = {
                 val painter = when (playlist.playlist.name) {
-                    stringResource(R.string.liked) -> R.drawable.favorite_border
-                    stringResource(R.string.offline) -> R.drawable.offline
-                    stringResource(R.string.cached_playlist) -> R.drawable.cached
-                    // R.drawable.backup as placeholder
-                    stringResource(R.string.uploaded_playlist) -> R.drawable.backup
-                    else -> if (autoPlaylist) R.drawable.trending_up else R.drawable.queue_music
+                    stringResource(R.string.liked) -> R.drawable.tabler_ic_heart_outline
+                    stringResource(R.string.offline) -> R.drawable.tabler_ic_cloud_off_outline
+                    stringResource(R.string.cached_playlist) -> R.drawable.tabler_ic_database_outline
+                    // R.drawable.tabler_ic_cloud_upload_outline as placeholder
+                    stringResource(R.string.uploaded_playlist) -> R.drawable.tabler_ic_cloud_upload_outline
+                    else -> if (autoPlaylist) R.drawable.tabler_ic_trending_up_outline else R.drawable.tabler_ic_playlist_outline
                 }
                 Box(
                     contentAlignment = Alignment.Center,
@@ -1541,7 +1541,7 @@ fun ItemThumbnail(
                     .background(Color.Black.copy(alpha = 0.5f))
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.done),
+                    painter = painterResource(R.drawable.tabler_ic_check_outline),
                     contentDescription = null
                 )
             }
@@ -1613,7 +1613,7 @@ fun LocalThumbnail(
                     )
                 } else {
                     Icon(
-                        painter = painterResource(R.drawable.play),
+                        painter = painterResource(R.drawable.tabler_ic_player_play_filled),
                         contentDescription = null,
                         tint = Color.White
                     )
@@ -1638,7 +1638,7 @@ fun LocalThumbnail(
                         .background(Color.Black.copy(alpha = 0.6f))
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.play),
+                        painter = painterResource(R.drawable.tabler_ic_player_play_filled),
                         contentDescription = null,
                         tint = Color.White
                     )
@@ -1663,7 +1663,7 @@ fun LocalThumbnail(
                         .background(Color.Black.copy(alpha = ActiveBoxAlpha))
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.play),
+                        painter = painterResource(R.drawable.tabler_ic_player_play_filled),
                         contentDescription = null,
                         tint = Color.White
                     )
@@ -1703,8 +1703,8 @@ fun PlaylistThumbnail(
                 .build(),
             contentDescription = null,
             contentScale = if (cropAlbumArt) ContentScale.Crop else ContentScale.Fit,
-            placeholder = painterResource(R.drawable.queue_music),
-            error = painterResource(R.drawable.queue_music),
+            placeholder = painterResource(R.drawable.tabler_ic_playlist_outline),
+            error = painterResource(R.drawable.tabler_ic_playlist_outline),
             modifier = Modifier
                 .size(size)
                 .clip(shape)
@@ -1730,8 +1730,8 @@ fun PlaylistThumbnail(
                         .build(),
                     contentDescription = null,
                     contentScale = if (cropAlbumArt) ContentScale.Crop else ContentScale.Fit,
-                    placeholder = painterResource(R.drawable.queue_music),
-                    error = painterResource(R.drawable.queue_music),
+                    placeholder = painterResource(R.drawable.tabler_ic_playlist_outline),
+                    error = painterResource(R.drawable.tabler_ic_playlist_outline),
                     modifier = Modifier
                         .align(alignment)
                         .size(size / 2)
@@ -1760,7 +1760,7 @@ fun BoxScope.OverlayPlayButton(
                 .background(Color.Black.copy(alpha = ActiveBoxAlpha))
         ) {
             Icon(
-                painter = painterResource(R.drawable.play),
+                painter = painterResource(R.drawable.tabler_ic_player_play_filled),
                 contentDescription = null,
                 tint = Color.White,
                 modifier = Modifier.size(20.dp)
@@ -1793,7 +1793,7 @@ fun BoxScope.OverlayEditButton(
                 .clickable(onClick = onClick)
         ) {
             Icon(
-                painter = painterResource(R.drawable.edit),
+                painter = painterResource(R.drawable.tabler_ic_edit_outline),
                 contentDescription = null,
                 tint = Color.White,
                 modifier = Modifier.size(20.dp)
@@ -1824,7 +1824,7 @@ fun BoxScope.AlbumPlayButton(
                 .clickable(onClick = onClick)
         ) {
             Icon(
-                painter = painterResource(R.drawable.play),
+                painter = painterResource(R.drawable.tabler_ic_player_play_filled),
                 contentDescription = null,
                 tint = Color.White
             )
@@ -1876,13 +1876,13 @@ fun SwipeToSongBox(
         if (offset.floatValue != 0f) {
             val (iconRes, bg, tint, align) = if (offset.floatValue > 0)
                 Quadruple(
-                    R.drawable.playlist_play,
+                    R.drawable.tabler_ic_playlist_outline,
                     MaterialTheme.colorScheme.secondary,
                     MaterialTheme.colorScheme.onSecondary,
                     Alignment.CenterStart
                 ) else
                 Quadruple(
-                    R.drawable.queue_music,
+                    R.drawable.tabler_ic_playlist_outline,
                     MaterialTheme.colorScheme.primary,
                     MaterialTheme.colorScheme.onPrimary,
                     Alignment.CenterEnd
@@ -1941,7 +1941,7 @@ object Icon {
     @Composable
     fun Favorite() {
         Icon(
-            painter = painterResource(R.drawable.favorite),
+            painter = painterResource(R.drawable.tabler_ic_heart_filled),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.error,
             modifier = Modifier
@@ -1953,7 +1953,7 @@ object Icon {
     @Composable
     fun Library() {
         Icon(
-            painter = painterResource(R.drawable.library_add_check),
+            painter = painterResource(R.drawable.tabler_ic_circle_check_filled),
             contentDescription = null,
             modifier = Modifier
                 .size(18.dp)
@@ -1965,7 +1965,7 @@ object Icon {
     fun Download(state: Int?) {
         when (state) {
             STATE_COMPLETED -> Icon(
-                painter = painterResource(R.drawable.offline),
+                painter = painterResource(R.drawable.tabler_ic_cloud_off_outline),
                 contentDescription = null,
                 modifier = Modifier
                     .size(18.dp)
@@ -1984,7 +1984,7 @@ object Icon {
     @Composable
     fun Explicit() {
         Icon(
-            painter = painterResource(R.drawable.explicit),
+            painter = painterResource(R.drawable.tabler_ic_explicit_outline),
             contentDescription = null,
             modifier = Modifier
                 .size(18.dp)

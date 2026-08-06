@@ -71,7 +71,7 @@ fun BoxScope.HideOnScrollFAB(
                     modifier = Modifier.size(40.dp)
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.mic),
+                        painter = painterResource(R.drawable.tabler_ic_microphone_outline),
                         contentDescription = stringResource(R.string.recognize_music),
                         modifier = Modifier.size(20.dp)
                     )
@@ -127,7 +127,7 @@ fun BoxScope.HideOnScrollFAB(
                     modifier = Modifier.size(40.dp)
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.mic),
+                        painter = painterResource(R.drawable.tabler_ic_microphone_outline),
                         contentDescription = stringResource(R.string.recognize_music),
                         modifier = Modifier.size(20.dp)
                     )
@@ -183,7 +183,7 @@ fun BoxScope.HideOnScrollFAB(
                     modifier = Modifier.size(40.dp)
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.mic),
+                        painter = painterResource(R.drawable.tabler_ic_microphone_outline),
                         contentDescription = stringResource(R.string.recognize_music),
                         modifier = Modifier.size(20.dp)
                     )

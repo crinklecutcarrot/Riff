@@ -231,7 +231,7 @@ fun SearchScreen(
                             if (query.text.isNotEmpty()) {
                                 IconButton(onClick = { query = TextFieldValue("") }) {
                                     Icon(
-                                        painter = painterResource(R.drawable.close),
+                                        painter = painterResource(R.drawable.tabler_ic_x_outline),
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onSurface,
                                     )
@@ -251,8 +251,8 @@ fun SearchScreen(
                                     painter =
                                         painterResource(
                                             when (searchSource) {
-                                                SearchSource.LOCAL -> R.drawable.library_music
-                                                SearchSource.ONLINE -> R.drawable.language
+                                                SearchSource.LOCAL -> R.drawable.tabler_ic_library_outline
+                                                SearchSource.ONLINE -> R.drawable.tabler_ic_language_outline
                                             },
                                         ),
                                     contentDescription = null,
@@ -265,7 +265,7 @@ fun SearchScreen(
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
-                            painter = painterResource(R.drawable.arrow_back),
+                            painter = painterResource(R.drawable.tabler_ic_arrow_left_outline),
                             contentDescription = stringResource(R.string.dismiss),
                             tint = MaterialTheme.colorScheme.onSurface,
                         )
@@ -307,7 +307,7 @@ fun SearchScreen(
 
             HideOnScrollFAB(
                 lazyListState = lazyListState,
-                icon = R.drawable.mic,
+                icon = R.drawable.tabler_ic_microphone_outline,
                 onClick = { navController.navigate("recognition") },
             )
         }

@@ -181,35 +181,35 @@ constructor(
                                         "${MusicService.PLAYLIST}/${PlaylistEntity.LIKED_PLAYLIST_ID}",
                                         context.getString(R.string.liked_songs),
                                         null,
-                                        drawableUri(R.drawable.favorite),
+                                        drawableUri(R.drawable.tabler_ic_heart_filled),
                                         MediaMetadata.MEDIA_TYPE_PLAYLIST,
                                     )
                                    AndroidAutoSection.SONGS -> browsableMediaItem(
                                         MusicService.SONG,
                                         context.getString(R.string.songs),
                                         null,
-                                        drawableUri(R.drawable.music_note),
+                                        drawableUri(R.drawable.tabler_ic_music_outline),
                                         MediaMetadata.MEDIA_TYPE_PLAYLIST,
                                     )
                                     AndroidAutoSection.ARTISTS -> browsableMediaItem(
                                         MusicService.ARTIST,
                                         context.getString(R.string.artists),
                                         null,
-                                        drawableUri(R.drawable.artist),
+                                        drawableUri(R.drawable.tabler_ic_microphone_2_outline),
                                         MediaMetadata.MEDIA_TYPE_FOLDER_ARTISTS,
                                     )
                                     AndroidAutoSection.ALBUMS -> browsableMediaItem(
                                         MusicService.ALBUM,
                                         context.getString(R.string.albums),
                                         null,
-                                        drawableUri(R.drawable.album),
+                                        drawableUri(R.drawable.tabler_ic_disc),
                                         MediaMetadata.MEDIA_TYPE_FOLDER_ALBUMS,
                                     )
                                     AndroidAutoSection.PLAYLISTS -> browsableMediaItem(
                                         MusicService.PLAYLIST,
                                         context.getString(R.string.playlists),
                                         null,
-                                        drawableUri(R.drawable.queue_music),
+                                        drawableUri(R.drawable.tabler_ic_playlist_outline),
                                         MediaMetadata.MEDIA_TYPE_FOLDER_PLAYLISTS,
                                     )
                                 }
@@ -219,7 +219,7 @@ constructor(
                                 MusicService.YOUTUBE_PLAYLIST,
                                 context.getString(R.string.mixes),
                                 null,
-                                drawableUri(R.drawable.explore_outlined),
+                                drawableUri(R.drawable.tabler_ic_search_outline),
                                 MediaMetadata.MEDIA_TYPE_FOLDER_PLAYLISTS,
                             )
                         } else {
@@ -268,14 +268,14 @@ constructor(
                                 "${MusicService.PLAYLIST}/${PlaylistEntity.LIKED_PLAYLIST_ID}",
                                 context.getString(R.string.liked_songs),
                                 context.resources.getQuantityString(R.plurals.n_song, likedSongCount, likedSongCount),
-                                drawableUri(R.drawable.favorite),
+                                drawableUri(R.drawable.tabler_ic_heart_filled),
                                 MediaMetadata.MEDIA_TYPE_PLAYLIST,
                             ),
                             browsableMediaItem(
                                 "${MusicService.PLAYLIST}/${PlaylistEntity.DOWNLOADED_PLAYLIST_ID}",
                                 context.getString(R.string.downloaded_songs),
                                 context.resources.getQuantityString(R.plurals.n_song, downloadedSongCount, downloadedSongCount),
-                                drawableUri(R.drawable.download),
+                                drawableUri(R.drawable.tabler_ic_download),
                                 MediaMetadata.MEDIA_TYPE_PLAYLIST,
                             ),
                         ) + database.playlistsByCreateDateAsc().first().map { playlist ->
@@ -387,7 +387,7 @@ constructor(
                                         .setMediaMetadata(
                                             MediaMetadata.Builder()
                                                 .setTitle(context.getString(R.string.shuffle))
-                                                .setArtworkUri(drawableUri(R.drawable.shuffle))
+                                                .setArtworkUri(drawableUri(R.drawable.tabler_ic_arrows_shuffle_outline))
                                                 .setIsPlayable(true)
                                                 .setIsBrowsable(false)
                                                 .setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
@@ -412,7 +412,7 @@ constructor(
                                             .setMediaMetadata(
                                                 MediaMetadata.Builder()
                                                     .setTitle(context.getString(R.string.shuffle))
-                                                    .setArtworkUri(drawableUri(R.drawable.shuffle))
+                                                    .setArtworkUri(drawableUri(R.drawable.tabler_ic_arrows_shuffle_outline))
                                                     .setIsPlayable(true)
                                                     .setIsBrowsable(false)
                                                     .setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)

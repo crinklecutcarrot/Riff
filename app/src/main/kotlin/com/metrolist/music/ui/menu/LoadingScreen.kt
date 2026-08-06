@@ -62,7 +62,7 @@ fun LoadingScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Icon(
-                painter = painterResource(R.drawable.playlist_add),
+                painter = painterResource(R.drawable.tabler_ic_playlist_add),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.size(32.dp)

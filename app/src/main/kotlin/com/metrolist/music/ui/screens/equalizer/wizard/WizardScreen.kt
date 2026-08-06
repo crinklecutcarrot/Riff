@@ -75,7 +75,7 @@ private fun WizardScreenContent(
                 },
                 navigationIcon = {
                     IconButton(onClick = if (state.canGoBack) onBackClicked else onNavigateBack) {
-                        Icon(painterResource(R.drawable.arrow_back), contentDescription = null)
+                        Icon(painterResource(R.drawable.tabler_ic_arrow_left_outline), contentDescription = null)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -176,7 +176,7 @@ private fun ModelSelectionStep(
             } else {
                 Button(onClick = onDownloadDatabase) {
                     Icon(
-                        painter = painterResource(R.drawable.download),
+                        painter = painterResource(R.drawable.tabler_ic_download),
                         contentDescription = null,
                         modifier = Modifier.size(20.dp)
                     )
@@ -205,7 +205,7 @@ private fun ModelSelectionStep(
             label = { Text(stringResource(R.string.wizard_model_name)) },
             placeholder = { Text(stringResource(R.string.wizard_model_placeholder)) },
             leadingIcon = {
-                Icon(painterResource(R.drawable.search), contentDescription = null)
+                Icon(painterResource(R.drawable.tabler_ic_search_outline), contentDescription = null)
             },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
@@ -267,7 +267,7 @@ private fun ModelItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                painter = painterResource(R.drawable.graphic_eq),
+                painter = painterResource(R.drawable.tabler_ic_wave_sine),
                 contentDescription = null,
                 modifier = Modifier.size(32.dp),
                 tint = MaterialTheme.colorScheme.primary
@@ -287,7 +287,7 @@ private fun ModelItem(
                 }
             }
             Icon(
-                painter = painterResource(R.drawable.navigate_next),
+                painter = painterResource(R.drawable.tabler_ic_chevron_right_outline),
                 contentDescription = null
             )
         }

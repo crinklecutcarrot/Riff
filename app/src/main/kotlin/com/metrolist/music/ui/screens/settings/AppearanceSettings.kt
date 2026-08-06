@@ -1016,7 +1016,7 @@ fun AppearanceSettings(
                 buildList {
                     add(
                         Material3SettingsItem(
-                            icon = painterResource(R.drawable.speed),
+                            icon = painterResource(R.drawable.tabler_ic_gauge_outline),
                             title = { Text(stringResource(R.string.enable_high_refresh_rate)) },
                             description = { Text(stringResource(R.string.enable_high_refresh_rate_desc)) },
                             trailingContent = {
@@ -1027,7 +1027,7 @@ fun AppearanceSettings(
                                         Icon(
                                             painter =
                                                 painterResource(
-                                                    id = if (enableHighRefreshRate) R.drawable.check else R.drawable.close,
+                                                    id = if (enableHighRefreshRate) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                                 ),
                                             contentDescription = null,
                                             modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1040,7 +1040,7 @@ fun AppearanceSettings(
                     )
                     add(
                         Material3SettingsItem(
-                            icon = painterResource(R.drawable.fullscreen),
+                            icon = painterResource(R.drawable.tabler_ic_arrows_maximize_outline),
                             title = { Text(stringResource(R.string.enable_landscape_scaling)) },
                             description = { Text(stringResource(R.string.enable_landscape_scaling_desc)) },
                             trailingContent = {
@@ -1051,7 +1051,7 @@ fun AppearanceSettings(
                                         Icon(
                                             painter =
                                                 painterResource(
-                                                    id = if (enableLandscapeScaling) R.drawable.check else R.drawable.close,
+                                                    id = if (enableLandscapeScaling) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                                 ),
                                             contentDescription = null,
                                             modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1064,7 +1064,7 @@ fun AppearanceSettings(
                     )
                     add(
                         Material3SettingsItem(
-                            icon = painterResource(R.drawable.palette),
+                            icon = painterResource(R.drawable.tabler_ic_palette_outline),
                             title = { Text(stringResource(R.string.enable_dynamic_icon)) },
                             description = { Text(stringResource(R.string.enable_dynamic_icon_desc)) },
                             trailingContent = {
@@ -1075,7 +1075,7 @@ fun AppearanceSettings(
                                         Icon(
                                             painter =
                                                 painterResource(
-                                                    id = if (enableDynamicIcon) R.drawable.check else R.drawable.close,
+                                                    id = if (enableDynamicIcon) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                                 ),
                                             contentDescription = null,
                                             modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1088,7 +1088,7 @@ fun AppearanceSettings(
                     )
                     add(
                         Material3SettingsItem(
-                            icon = painterResource(R.drawable.palette),
+                            icon = painterResource(R.drawable.tabler_ic_palette_outline),
                             title = { Text(stringResource(R.string.theme)) },
                             description = { Text(stringResource(R.string.theme_desc)) },
                             onClick = { navController.navigate("settings/appearance/theme") },
@@ -1121,7 +1121,7 @@ fun AppearanceSettings(
                                     thumbContent = {
                                         Icon(
                                             painter = painterResource(
-                                                id = if (floatingPlayerDock) R.drawable.check else R.drawable.close,
+                                                id = if (floatingPlayerDock) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                             ),
                                             contentDescription = null,
                                             modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1144,7 +1144,7 @@ fun AppearanceSettings(
                                         Icon(
                                             painter =
                                                 painterResource(
-                                                    id = if (useNewMiniPlayerDesign) R.drawable.check else R.drawable.close,
+                                                    id = if (useNewMiniPlayerDesign) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                                 ),
                                             contentDescription = null,
                                             modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1206,7 +1206,7 @@ fun AppearanceSettings(
             items =
                 listOf(
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.palette),
+                        icon = painterResource(R.drawable.tabler_ic_palette_outline),
                         title = { Text(stringResource(R.string.new_player_design)) },
                         trailingContent = {
                             Switch(
@@ -1216,7 +1216,7 @@ fun AppearanceSettings(
                                     Icon(
                                         painter =
                                             painterResource(
-                                                id = if (useNewPlayerDesign) R.drawable.check else R.drawable.close,
+                                                id = if (useNewPlayerDesign) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                             ),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1241,7 +1241,7 @@ fun AppearanceSettings(
                         onClick = { showPlayerBackgroundDialog = true },
                     ),
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.hide_image),
+                        icon = painterResource(R.drawable.tabler_ic_photo_off_outline),
                         title = { Text(stringResource(R.string.hide_player_thumbnail)) },
                         description = { Text(stringResource(R.string.hide_player_thumbnail_desc)) },
                         trailingContent = {
@@ -1252,7 +1252,7 @@ fun AppearanceSettings(
                                     Icon(
                                         painter =
                                             painterResource(
-                                                id = if (hidePlayerThumbnail) R.drawable.check else R.drawable.close,
+                                                id = if (hidePlayerThumbnail) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                             ),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1274,7 +1274,7 @@ fun AppearanceSettings(
                                     Icon(
                                         painter =
                                             painterResource(
-                                                id = if (cropAlbumArt) R.drawable.check else R.drawable.close,
+                                                id = if (cropAlbumArt) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                             ),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1285,7 +1285,7 @@ fun AppearanceSettings(
                         onClick = { onCropAlbumArtChange(!cropAlbumArt) },
                     ),
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.palette),
+                        icon = painterResource(R.drawable.tabler_ic_palette_outline),
                         title = { Text(stringResource(R.string.player_buttons_style)) },
                         description = {
                             Text(
@@ -1299,7 +1299,7 @@ fun AppearanceSettings(
                         onClick = { showPlayerButtonsStyleDialog = true },
                     ),
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.sliders),
+                        icon = painterResource(R.drawable.tabler_ic_adjustments_outline),
                         title = { Text(stringResource(R.string.player_slider_style)) },
                         description = {
                             Text(
@@ -1341,7 +1341,7 @@ fun AppearanceSettings(
                                     Icon(
                                         painter =
                                             painterResource(
-                                                id = if (swipeThumbnail) R.drawable.check else R.drawable.close,
+                                                id = if (swipeThumbnail) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                             ),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1355,7 +1355,7 @@ fun AppearanceSettings(
                     if (swipeThumbnail) {
                         listOf(
                             Material3SettingsItem(
-                                icon = painterResource(R.drawable.tune),
+                                icon = painterResource(R.drawable.tabler_ic_adjustments_outline),
                                 title = { Text(stringResource(R.string.swipe_sensitivity)) },
                                 description = {
                                     Text(
@@ -1448,7 +1448,7 @@ fun AppearanceSettings(
                 buildList {
                     add(
                         Material3SettingsItem(
-                            icon = painterResource(R.drawable.lyrics),
+                            icon = painterResource(R.drawable.tabler_ic_align_left_outline),
                             title = { Text(stringResource(R.string.experimental_lyrics)) },
                             description = { Text(stringResource(R.string.experimental_lyrics_desc)) },
                             showBadge = true,
@@ -1466,7 +1466,7 @@ fun AppearanceSettings(
                                         Icon(
                                             painter =
                                                 painterResource(
-                                                    id = if (experimentalLyrics) R.drawable.check else R.drawable.close,
+                                                    id = if (experimentalLyrics) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                                 ),
                                             contentDescription = null,
                                             modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1487,7 +1487,7 @@ fun AppearanceSettings(
                     if (!experimentalLyrics) {
                         add(
                             Material3SettingsItem(
-                                icon = painterResource(R.drawable.lyrics),
+                                icon = painterResource(R.drawable.tabler_ic_align_left_outline),
                                 title = { Text(stringResource(R.string.lyrics_glow_effect)) },
                                 description = { Text(stringResource(R.string.lyrics_glow_effect_desc)) },
                                 trailingContent = {
@@ -1498,7 +1498,7 @@ fun AppearanceSettings(
                                             Icon(
                                                 painter =
                                                     painterResource(
-                                                        id = if (lyricsGlowEffect) R.drawable.check else R.drawable.close,
+                                                        id = if (lyricsGlowEffect) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                                     ),
                                                 contentDescription = null,
                                                 modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1511,7 +1511,7 @@ fun AppearanceSettings(
                         )
                         add(
                             Material3SettingsItem(
-                                icon = painterResource(R.drawable.lyrics),
+                                icon = painterResource(R.drawable.tabler_ic_align_left_outline),
                                 title = { Text(stringResource(R.string.lyrics_animation_style_title)) },
                                 description = {
                                     Text(
@@ -1530,7 +1530,7 @@ fun AppearanceSettings(
                         )
                         add(
                             Material3SettingsItem(
-                                icon = painterResource(R.drawable.lyrics),
+                                icon = painterResource(R.drawable.tabler_ic_align_left_outline),
                                 title = { Text(stringResource(R.string.lyrics_text_size)) },
                                 description = { Text("${lyricsTextSize.roundToInt()} sp") },
                                 onClick = { showLyricsTextSizeDialog = true },
@@ -1538,7 +1538,7 @@ fun AppearanceSettings(
                         )
                         add(
                             Material3SettingsItem(
-                                icon = painterResource(R.drawable.lyrics),
+                                icon = painterResource(R.drawable.tabler_ic_align_left_outline),
                                 title = { Text(stringResource(R.string.lyrics_line_spacing)) },
                                 description = { Text(String.format(Locale.US, "%.1f", lyricsLineSpacing)) },
                                 onClick = { showLyricsLineSpacingDialog = true },
@@ -1548,7 +1548,7 @@ fun AppearanceSettings(
 
                     add(
                         Material3SettingsItem(
-                            icon = painterResource(R.drawable.lyrics),
+                            icon = painterResource(R.drawable.tabler_ic_align_left_outline),
                             title = { Text(stringResource(R.string.lyrics_text_position)) },
                             description = {
                                 Text(
@@ -1564,7 +1564,7 @@ fun AppearanceSettings(
                     )
                     add(
                         Material3SettingsItem(
-                            icon = painterResource(R.drawable.lyrics),
+                            icon = painterResource(R.drawable.tabler_ic_align_left_outline),
                             title = { Text(stringResource(R.string.respect_agent_positioning)) },
                             description = { Text(stringResource(R.string.respect_agent_positioning_desc)) },
                             trailingContent = {
@@ -1575,7 +1575,7 @@ fun AppearanceSettings(
                                         Icon(
                                             painter =
                                                 painterResource(
-                                                    id = if (respectAgentPositioning) R.drawable.check else R.drawable.close,
+                                                    id = if (respectAgentPositioning) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                                 ),
                                             contentDescription = null,
                                             modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1588,7 +1588,7 @@ fun AppearanceSettings(
                     )
                     add(
                         Material3SettingsItem(
-                            icon = painterResource(R.drawable.lyrics),
+                            icon = painterResource(R.drawable.tabler_ic_align_left_outline),
                             title = { Text(stringResource(R.string.lyrics_click_change)) },
                             trailingContent = {
                                 Switch(
@@ -1598,7 +1598,7 @@ fun AppearanceSettings(
                                         Icon(
                                             painter =
                                                 painterResource(
-                                                    id = if (lyricsClick) R.drawable.check else R.drawable.close,
+                                                    id = if (lyricsClick) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                                 ),
                                             contentDescription = null,
                                             modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1611,7 +1611,7 @@ fun AppearanceSettings(
                     )
                     add(
                         Material3SettingsItem(
-                            icon = painterResource(R.drawable.lyrics),
+                            icon = painterResource(R.drawable.tabler_ic_align_left_outline),
                             title = { Text(stringResource(R.string.lyrics_auto_scroll)) },
                             trailingContent = {
                                 Switch(
@@ -1621,7 +1621,7 @@ fun AppearanceSettings(
                                         Icon(
                                             painter =
                                                 painterResource(
-                                                    id = if (lyricsScroll) R.drawable.check else R.drawable.close,
+                                                    id = if (lyricsScroll) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                                 ),
                                             contentDescription = null,
                                             modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1634,7 +1634,7 @@ fun AppearanceSettings(
                     )
                     add(
                         Material3SettingsItem(
-                            icon = painterResource(R.drawable.lyrics),
+                            icon = painterResource(R.drawable.tabler_ic_align_left_outline),
                             title = { Text(stringResource(R.string.hide_status_bar_fullscreen)) },
                             description = { Text(stringResource(R.string.hide_status_bar_fullscreen_desc)) },
                             trailingContent = {
@@ -1645,7 +1645,7 @@ fun AppearanceSettings(
                                         Icon(
                                             painter =
                                                 painterResource(
-                                                    id = if (hideStatusBarOnFullscreen) R.drawable.check else R.drawable.close,
+                                                    id = if (hideStatusBarOnFullscreen) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                                 ),
                                             contentDescription = null,
                                             modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1707,7 +1707,7 @@ fun AppearanceSettings(
                                     Icon(
                                         painter =
                                             painterResource(
-                                                id = if (swipeToSong) R.drawable.check else R.drawable.close,
+                                                id = if (swipeToSong) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                             ),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1728,7 +1728,7 @@ fun AppearanceSettings(
                                     Icon(
                                         painter =
                                             painterResource(
-                                                id = if (swipeToRemoveSong) R.drawable.check else R.drawable.close,
+                                                id = if (swipeToRemoveSong) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                             ),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1749,7 +1749,7 @@ fun AppearanceSettings(
                                     Icon(
                                         painter =
                                             painterResource(
-                                                id = if (slimNav) R.drawable.check else R.drawable.close,
+                                                id = if (slimNav) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                             ),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1760,7 +1760,7 @@ fun AppearanceSettings(
                         onClick = { onSlimNavChange(!slimNav) },
                     ),
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.group_outlined),
+                        icon = painterResource(R.drawable.tabler_ic_users_outline),
                         title = { Text(stringResource(R.string.listen_together_in_top_bar)) },
                         description = { Text(stringResource(R.string.listen_together_in_top_bar_desc)) },
                         trailingContent = {
@@ -1771,7 +1771,7 @@ fun AppearanceSettings(
                                     Icon(
                                         painter =
                                             painterResource(
-                                                id = if (listenTogetherInTopBar) R.drawable.check else R.drawable.close,
+                                                id = if (listenTogetherInTopBar) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                             ),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1782,7 +1782,7 @@ fun AppearanceSettings(
                         onClick = { onListenTogetherInTopBarChange(!listenTogetherInTopBar) },
                     ),
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.grid_view),
+                        icon = painterResource(R.drawable.tabler_ic_layout_grid_outline),
                         title = { Text(stringResource(R.string.grid_cell_size)) },
                         description = {
                             Text(
@@ -1795,7 +1795,7 @@ fun AppearanceSettings(
                         onClick = { showGridSizeDialog = true },
                     ),
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.grid_view),
+                        icon = painterResource(R.drawable.tabler_ic_layout_grid_outline),
                         title = { Text(stringResource(R.string.display_density)) },
                         description = {
                             Text(DensityScale.fromValue(densityScale).label)
@@ -1812,7 +1812,7 @@ fun AppearanceSettings(
             items =
                 listOf(
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.favorite),
+                        icon = painterResource(R.drawable.tabler_ic_heart_filled),
                         title = { Text(stringResource(R.string.show_liked_playlist)) },
                         trailingContent = {
                             Switch(
@@ -1822,7 +1822,7 @@ fun AppearanceSettings(
                                     Icon(
                                         painter =
                                             painterResource(
-                                                id = if (showLikedPlaylist) R.drawable.check else R.drawable.close,
+                                                id = if (showLikedPlaylist) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                             ),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1833,7 +1833,7 @@ fun AppearanceSettings(
                         onClick = { onShowLikedPlaylistChange(!showLikedPlaylist) },
                     ),
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.offline),
+                        icon = painterResource(R.drawable.tabler_ic_cloud_off_outline),
                         title = { Text(stringResource(R.string.show_downloaded_playlist)) },
                         trailingContent = {
                             Switch(
@@ -1843,7 +1843,7 @@ fun AppearanceSettings(
                                     Icon(
                                         painter =
                                             painterResource(
-                                                id = if (showDownloadedPlaylist) R.drawable.check else R.drawable.close,
+                                                id = if (showDownloadedPlaylist) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                             ),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1854,7 +1854,7 @@ fun AppearanceSettings(
                         onClick = { onShowDownloadedPlaylistChange(!showDownloadedPlaylist) },
                     ),
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.trending_up),
+                        icon = painterResource(R.drawable.tabler_ic_trending_up_outline),
                         title = { Text(stringResource(R.string.show_top_playlist)) },
                         trailingContent = {
                             Switch(
@@ -1864,7 +1864,7 @@ fun AppearanceSettings(
                                     Icon(
                                         painter =
                                             painterResource(
-                                                id = if (showTopPlaylist) R.drawable.check else R.drawable.close,
+                                                id = if (showTopPlaylist) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                             ),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1875,7 +1875,7 @@ fun AppearanceSettings(
                         onClick = { onShowTopPlaylistChange(!showTopPlaylist) },
                     ),
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.cached),
+                        icon = painterResource(R.drawable.tabler_ic_database_outline),
                         title = { Text(stringResource(R.string.show_cached_playlist)) },
                         trailingContent = {
                             Switch(
@@ -1885,7 +1885,7 @@ fun AppearanceSettings(
                                     Icon(
                                         painter =
                                             painterResource(
-                                                id = if (showCachedPlaylist) R.drawable.check else R.drawable.close,
+                                                id = if (showCachedPlaylist) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                             ),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1896,7 +1896,7 @@ fun AppearanceSettings(
                         onClick = { onShowCachedPlaylistChange(!showCachedPlaylist) },
                     ),
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.backup),
+                        icon = painterResource(R.drawable.tabler_ic_cloud_upload_outline),
                         title = { Text(stringResource(R.string.show_uploaded_playlist)) },
                         trailingContent = {
                             Switch(
@@ -1906,7 +1906,7 @@ fun AppearanceSettings(
                                     Icon(
                                         painter =
                                             painterResource(
-                                                id = if (showUploadedPlaylist) R.drawable.check else R.drawable.close,
+                                                id = if (showUploadedPlaylist) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                             ),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -1949,7 +1949,7 @@ fun AppearanceSettings(
                 onLongClick = navController::backToMain,
             ) {
                 Icon(
-                    painterResource(R.drawable.arrow_back),
+                    painterResource(R.drawable.tabler_ic_arrow_left_outline),
                     contentDescription = null,
                 )
             }

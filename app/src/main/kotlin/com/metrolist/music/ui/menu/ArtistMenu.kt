@@ -81,7 +81,7 @@ fun ArtistMenu(
                                 NewAction(
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.play),
+                                            painter = painterResource(R.drawable.tabler_ic_player_play_filled),
                                             contentDescription = null,
                                             modifier = Modifier.size(28.dp),
                                             tint = MaterialTheme.colorScheme.onSurface
@@ -112,7 +112,7 @@ fun ArtistMenu(
                                 NewAction(
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.shuffle),
+                                            painter = painterResource(R.drawable.tabler_ic_arrows_shuffle_outline),
                                             contentDescription = null,
                                             modifier = Modifier.size(28.dp),
                                             tint = MaterialTheme.colorScheme.onSurface
@@ -146,7 +146,7 @@ fun ArtistMenu(
                         NewAction(
                             icon = {
                                 Icon(
-                                    painter = painterResource(if (isPinned) R.drawable.remove else R.drawable.add),
+                                    painter = painterResource(if (isPinned) R.drawable.tabler_ic_minus_outline else R.drawable.tabler_ic_plus_outline),
                                     contentDescription = null,
                                     modifier = Modifier.size(28.dp),
                                     tint = MaterialTheme.colorScheme.onSurface
@@ -179,7 +179,7 @@ fun ArtistMenu(
                             NewAction(
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.share),
+                                        painter = painterResource(R.drawable.tabler_ic_share_3),
                                         contentDescription = null,
                                         modifier = Modifier.size(28.dp),
                                         tint = MaterialTheme.colorScheme.onSurface
@@ -207,7 +207,7 @@ fun ArtistMenu(
                             NewAction(
                                 icon = {
                                     Icon(
-                                        painter = painterResource(if (artist.artist.bookmarkedAt != null) R.drawable.subscribed else R.drawable.subscribe),
+                                        painter = painterResource(if (artist.artist.bookmarkedAt != null) R.drawable.tabler_ic_bell_filled else R.drawable.tabler_ic_bell_outline),
                                         contentDescription = null,
                                         modifier = Modifier.size(28.dp),
                                         tint = MaterialTheme.colorScheme.onSurface
@@ -228,7 +228,7 @@ fun ArtistMenu(
                             NewAction(
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.radio),
+                                        painter = painterResource(R.drawable.tabler_ic_radio),
                                         contentDescription = null,
                                         modifier = Modifier.size(28.dp),
                                         tint = MaterialTheme.colorScheme.onSurface

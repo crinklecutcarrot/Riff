@@ -1616,7 +1616,7 @@ class MusicService :
                         ),
                     ).setIconResId(
                         when (player.repeatMode) {
-                            REPEAT_MODE_OFF -> R.drawable.repeat
+                            REPEAT_MODE_OFF -> R.drawable.tabler_ic_repeat_outline
                             REPEAT_MODE_ONE -> R.drawable.repeat_one_on
                             REPEAT_MODE_ALL -> R.drawable.repeat_on
                             else -> throw IllegalStateException()
@@ -1626,20 +1626,20 @@ class MusicService :
                 CommandButton
                     .Builder()
                     .setDisplayName(getString(if (player.shuffleModeEnabled) R.string.action_shuffle_off else R.string.action_shuffle_on))
-                    .setIconResId(if (player.shuffleModeEnabled) R.drawable.shuffle_on else R.drawable.shuffle)
+                    .setIconResId(if (player.shuffleModeEnabled) R.drawable.shuffle_on else R.drawable.tabler_ic_arrows_shuffle_outline)
                     .setSessionCommand(CommandToggleShuffle)
                     .build(),
                 CommandButton
                     .Builder()
                     .setDisplayName(getString(R.string.start_radio))
-                    .setIconResId(R.drawable.radio)
+                    .setIconResId(R.drawable.tabler_ic_radio)
                     .setSessionCommand(CommandToggleStartRadio)
                     .setEnabled(currentSong.value != null)
                     .build(),
                 CommandButton
                     .Builder()
                     .setDisplayName(getString(R.string.android_auto_target_playlist))
-                    .setIconResId(R.drawable.playlist_add)
+                    .setIconResId(R.drawable.tabler_ic_playlist_add)
                     .setSessionCommand(CommandAddToTargetPlaylist)
                     .setEnabled(currentSong.value != null)
                     .build(),

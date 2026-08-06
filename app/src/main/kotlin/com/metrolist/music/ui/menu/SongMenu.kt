@@ -210,7 +210,7 @@ fun SongMenu(
         TextFieldDialog(
             icon = {
                 Icon(
-                    painter = painterResource(R.drawable.edit),
+                    painter = painterResource(R.drawable.tabler_ic_edit_outline),
                     contentDescription = null,
                 )
             },
@@ -286,7 +286,7 @@ fun SongMenu(
                     headlineContent = { Text(text = stringResource(R.string.already_in_playlist)) },
                     leadingContent = {
                         Image(
-                            painter = painterResource(R.drawable.close),
+                            painter = painterResource(R.drawable.tabler_ic_x_outline),
                             contentDescription = null,
                             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
                             modifier = Modifier.size(ListThumbnailSize),
@@ -316,7 +316,7 @@ fun SongMenu(
             onDismiss = { if (!isDeleting) showDeleteUploadedDialog = false },
             icon = {
                 Icon(
-                    painter = painterResource(R.drawable.delete),
+                    painter = painterResource(R.drawable.tabler_ic_trash),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error,
                 )
@@ -506,7 +506,7 @@ fun SongMenu(
                 },
             ) {
                 Icon(
-                    painter = painterResource(if (isFavorite) R.drawable.favorite else R.drawable.favorite_border),
+                    painter = painterResource(if (isFavorite) R.drawable.tabler_ic_heart_filled else R.drawable.tabler_ic_heart_outline),
                     tint = if (isFavorite) MaterialTheme.colorScheme.error else LocalContentColor.current,
                     contentDescription = null,
                 )
@@ -537,7 +537,7 @@ fun SongMenu(
                         NewAction(
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.edit),
+                                    painter = painterResource(R.drawable.tabler_ic_edit_outline),
                                     contentDescription = null,
                                     modifier = Modifier.size(28.dp),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -549,7 +549,7 @@ fun SongMenu(
                         NewAction(
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.playlist_add),
+                                    painter = painterResource(R.drawable.tabler_ic_playlist_add),
                                     contentDescription = null,
                                     modifier = Modifier.size(28.dp),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -561,7 +561,7 @@ fun SongMenu(
                         NewAction(
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.share),
+                                    painter = painterResource(R.drawable.tabler_ic_share_3),
                                     contentDescription = null,
                                     modifier = Modifier.size(28.dp),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -593,7 +593,7 @@ fun SongMenu(
                                 title = { Text(text = stringResource(R.string.suggest_to_host)) },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.queue_music),
+                                        painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                         contentDescription = null,
                                     )
                                 },
@@ -621,7 +621,7 @@ fun SongMenu(
                                 description = { Text(text = stringResource(R.string.start_radio_desc)) },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.radio),
+                                        painter = painterResource(R.drawable.tabler_ic_radio),
                                         contentDescription = null,
                                     )
                                 },
@@ -639,7 +639,7 @@ fun SongMenu(
                                 description = { Text(text = stringResource(R.string.play_next_desc)) },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.playlist_play),
+                                        painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                         contentDescription = null,
                                     )
                                 },
@@ -657,7 +657,7 @@ fun SongMenu(
                                 description = { Text(text = stringResource(R.string.add_to_queue_desc)) },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.queue_music),
+                                        painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                         contentDescription = null,
                                     )
                                 },
@@ -688,7 +688,7 @@ fun SongMenu(
                                 },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(if (isPinned) R.drawable.remove else R.drawable.add),
+                                        painter = painterResource(if (isPinned) R.drawable.tabler_ic_minus_outline else R.drawable.tabler_ic_plus_outline),
                                         contentDescription = null,
                                     )
                                 },
@@ -740,9 +740,9 @@ fun SongMenu(
                                             painter =
                                                 painterResource(
                                                     if (isEpisodeSaved) {
-                                                        R.drawable.library_add_check
+                                                        R.drawable.tabler_ic_circle_check_filled
                                                     } else {
-                                                        R.drawable.library_add
+                                                        R.drawable.tabler_ic_library_plus
                                                     },
                                                 ),
                                             contentDescription = null,
@@ -791,9 +791,9 @@ fun SongMenu(
                                             painter =
                                                 painterResource(
                                                     if (song.song.inLibrary == null) {
-                                                        R.drawable.library_add
+                                                        R.drawable.tabler_ic_library_plus
                                                     } else {
-                                                        R.drawable.library_add_check
+                                                        R.drawable.tabler_ic_circle_check_filled
                                                     },
                                                 ),
                                             contentDescription = null,
@@ -824,7 +824,7 @@ fun SongMenu(
                                     title = { Text(text = stringResource(R.string.remove_from_history)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.delete),
+                                            painter = painterResource(R.drawable.tabler_ic_trash),
                                             contentDescription = null,
                                         )
                                     },
@@ -843,7 +843,7 @@ fun SongMenu(
                                     title = { Text(text = stringResource(R.string.remove_from_playlist)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.delete),
+                                            painter = painterResource(R.drawable.tabler_ic_trash),
                                             contentDescription = null,
                                         )
                                     },
@@ -879,7 +879,7 @@ fun SongMenu(
                                     title = { Text(text = stringResource(R.string.remove_from_cache)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.delete),
+                                            painter = painterResource(R.drawable.tabler_ic_trash),
                                             contentDescription = null,
                                         )
                                     },
@@ -897,7 +897,7 @@ fun SongMenu(
                                     title = { Text(text = stringResource(R.string.delete_uploaded_song)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.delete),
+                                            painter = painterResource(R.drawable.tabler_ic_trash),
                                             contentDescription = null,
                                         )
                                     },
@@ -927,7 +927,7 @@ fun SongMenu(
                                     },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.offline),
+                                            painter = painterResource(R.drawable.tabler_ic_cloud_off_outline),
                                             contentDescription = null,
                                         )
                                     },
@@ -968,7 +968,7 @@ fun SongMenu(
                                     description = { Text(text = stringResource(R.string.download_desc)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.download),
+                                            painter = painterResource(R.drawable.tabler_ic_download),
                                             contentDescription = null,
                                         )
                                     },
@@ -1007,7 +1007,7 @@ fun SongMenu(
                                     description = { Text(text = song.artists.joinToString { it.name }) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.artist),
+                                            painter = painterResource(R.drawable.tabler_ic_microphone_2_outline),
                                             contentDescription = null,
                                         )
                                     },
@@ -1035,7 +1035,7 @@ fun SongMenu(
                                     },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(if (isPodcast) R.drawable.mic else R.drawable.album),
+                                            painter = painterResource(if (isPodcast) R.drawable.tabler_ic_microphone_outline else R.drawable.tabler_ic_disc),
                                             contentDescription = null,
                                         )
                                     },
@@ -1076,9 +1076,9 @@ fun SongMenu(
                                             painter =
                                                 painterResource(
                                                     if (isPodcastSubscribed) {
-                                                        R.drawable.library_add_check
+                                                        R.drawable.tabler_ic_circle_check_filled
                                                     } else {
-                                                        R.drawable.library_add
+                                                        R.drawable.tabler_ic_library_plus
                                                     },
                                                 ),
                                             contentDescription = null,
@@ -1130,7 +1130,7 @@ fun SongMenu(
                                 description = { Text(text = stringResource(R.string.refetch_desc)) },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.sync),
+                                        painter = painterResource(R.drawable.tabler_ic_refresh),
                                         contentDescription = null,
                                         modifier = Modifier.graphicsLayer(rotationZ = rotationAnimation),
                                     )
@@ -1156,7 +1156,7 @@ fun SongMenu(
                                 description = { Text(text = stringResource(R.string.details_desc)) },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.info),
+                                        painter = painterResource(R.drawable.tabler_ic_info_circle),
                                         contentDescription = null,
                                     )
                                 },

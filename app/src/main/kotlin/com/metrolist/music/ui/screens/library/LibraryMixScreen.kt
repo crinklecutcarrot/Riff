@@ -411,7 +411,7 @@ fun LibraryMixScreen(
                 modifier = Modifier.padding(start = 8.dp).size(40.dp),
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.search),
+                    painter = painterResource(R.drawable.tabler_ic_search_outline),
                     contentDescription = stringResource(R.string.search),
                 )
             }
@@ -426,8 +426,8 @@ fun LibraryMixScreen(
                     painter =
                     painterResource(
                         when (viewType) {
-                            LibraryViewType.LIST -> R.drawable.list
-                            LibraryViewType.GRID -> R.drawable.grid_view
+                            LibraryViewType.LIST -> R.drawable.tabler_ic_list_outline
+                            LibraryViewType.GRID -> R.drawable.tabler_ic_layout_grid_outline
                         },
                     ),
                     contentDescription = stringResource(
@@ -588,7 +588,7 @@ fun LibraryMixScreen(
                                             },
                                         ) {
                                             Icon(
-                                                painter = painterResource(R.drawable.more_vert),
+                                                painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                                                 contentDescription = null,
                                             )
                                         }
@@ -638,7 +638,7 @@ fun LibraryMixScreen(
                                             },
                                         ) {
                                             Icon(
-                                                painter = painterResource(R.drawable.more_vert),
+                                                painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                                                 contentDescription = null,
                                             )
                                         }
@@ -691,7 +691,7 @@ fun LibraryMixScreen(
                                             },
                                         ) {
                                             Icon(
-                                                painter = painterResource(R.drawable.more_vert),
+                                                painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                                                 contentDescription = null,
                                             )
                                         }
@@ -735,7 +735,7 @@ fun LibraryMixScreen(
                                             },
                                         ) {
                                             Icon(
-                                                painter = painterResource(R.drawable.more_vert),
+                                                painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                                                 contentDescription = null,
                                             )
                                         }
@@ -1077,7 +1077,7 @@ fun LibraryMixScreen(
                 .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 0.dp)
         ) {
             Icon(
-                painter = painterResource(R.drawable.add),
+                painter = painterResource(R.drawable.tabler_ic_plus_outline),
                 contentDescription = stringResource(R.string.create_playlist),
             )
         }

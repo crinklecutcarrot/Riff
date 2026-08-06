@@ -171,7 +171,7 @@ fun LocalSearchScreen(
                             )
 
                             Icon(
-                                painter = painterResource(R.drawable.navigate_next),
+                                painter = painterResource(R.drawable.tabler_ic_chevron_right_outline),
                                 contentDescription = null,
                             )
                         }
@@ -206,7 +206,7 @@ fun LocalSearchScreen(
                                         },
                                     ) {
                                         Icon(
-                                            painter = painterResource(R.drawable.more_vert),
+                                            painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                                             contentDescription = null,
                                         )
                                     }
@@ -292,7 +292,7 @@ fun LocalSearchScreen(
             if (result.query.isNotEmpty() && result.map.isEmpty()) {
                 item(key = "no_result") {
                     EmptyPlaceholder(
-                        icon = R.drawable.search,
+                        icon = R.drawable.tabler_ic_search_outline,
                         text = stringResource(R.string.no_results_found),
                     )
                 }

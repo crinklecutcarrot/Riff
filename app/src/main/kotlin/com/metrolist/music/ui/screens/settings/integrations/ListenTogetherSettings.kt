@@ -189,7 +189,7 @@ fun ListenTogetherSettings(
 
         DefaultDialog(
             onDismiss = { showUsernameDialog = false },
-            icon = { Icon(painterResource(R.drawable.person), contentDescription = null) },
+            icon = { Icon(painterResource(R.drawable.tabler_ic_user), contentDescription = null) },
             title = { Text(stringResource(R.string.listen_together_username)) },
             buttons = {
                 TextButton(onClick = {
@@ -212,12 +212,12 @@ fun ListenTogetherSettings(
                 onValueChange = { tempUsername = it },
                 label = { Text(stringResource(R.string.listen_together_username)) },
                 leadingIcon = {
-                    Icon(painterResource(R.drawable.person), contentDescription = null)
+                    Icon(painterResource(R.drawable.tabler_ic_user), contentDescription = null)
                 },
                 trailingIcon = {
                     if (tempUsername.isNotBlank()) {
                         IconButton(onClick = { tempUsername = "" }, onLongClick = {}) {
-                            Icon(painterResource(R.drawable.close), contentDescription = null)
+                            Icon(painterResource(R.drawable.tabler_ic_x_outline), contentDescription = null)
                         }
                     }
                 },
@@ -232,7 +232,7 @@ fun ListenTogetherSettings(
 
         DefaultDialog(
             onDismiss = { showCreateRoomDialog = false },
-            icon = { Icon(painterResource(R.drawable.add), contentDescription = null) },
+            icon = { Icon(painterResource(R.drawable.tabler_ic_plus_outline), contentDescription = null) },
             title = { Text(stringResource(R.string.listen_together_create_room)) },
             buttons = {
                 TextButton(onClick = { showCreateRoomDialog = false }) {
@@ -269,7 +269,7 @@ fun ListenTogetherSettings(
                     onValueChange = { createUsername = it },
                     label = { Text(stringResource(R.string.listen_together_username)) },
                     leadingIcon = {
-                        Icon(painterResource(R.drawable.person), contentDescription = null)
+                        Icon(painterResource(R.drawable.tabler_ic_user), contentDescription = null)
                     },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
@@ -283,7 +283,7 @@ fun ListenTogetherSettings(
 
         DefaultDialog(
             onDismiss = { showJoinRoomDialog = false },
-            icon = { Icon(painterResource(R.drawable.group_add), contentDescription = null) },
+            icon = { Icon(painterResource(R.drawable.tabler_ic_users_outline), contentDescription = null) },
             title = { Text(stringResource(R.string.listen_together_join_room)) },
             buttons = {
                 TextButton(onClick = { showJoinRoomDialog = false }) {
@@ -316,7 +316,7 @@ fun ListenTogetherSettings(
                     onValueChange = { joinUsername = it },
                     label = { Text(stringResource(R.string.listen_together_username)) },
                     leadingIcon = {
-                        Icon(painterResource(R.drawable.person), contentDescription = null)
+                        Icon(painterResource(R.drawable.tabler_ic_user), contentDescription = null)
                     },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
@@ -326,7 +326,7 @@ fun ListenTogetherSettings(
                     onValueChange = { roomCodeInput = it.uppercase().filter { c -> c.isLetterOrDigit() }.take(8) },
                     label = { Text(stringResource(R.string.listen_together_room_code)) },
                     leadingIcon = {
-                        Icon(painterResource(R.drawable.key), contentDescription = null)
+                        Icon(painterResource(R.drawable.tabler_ic_key_outline), contentDescription = null)
                     },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
@@ -371,7 +371,7 @@ fun ListenTogetherSettings(
                 items =
                     listOf(
                         IntegrationCardItem(
-                            icon = painterResource(R.drawable.person),
+                            icon = painterResource(R.drawable.tabler_ic_user),
                             title = { Text(stringResource(R.string.listen_together_blocked_users)) },
                             description = {
                                 Text(
@@ -390,7 +390,7 @@ fun ListenTogetherSettings(
                                 },
                         ),
                         IntegrationCardItem(
-                            icon = painterResource(R.drawable.cloud),
+                            icon = painterResource(R.drawable.tabler_ic_cloud_outline),
                             title = { Text(stringResource(R.string.listen_together_server_url)) },
                             description = {
                                 Text(
@@ -404,7 +404,7 @@ fun ListenTogetherSettings(
                             onClick = { showServerUrlDialog = true },
                         ),
                         IntegrationCardItem(
-                            icon = painterResource(R.drawable.person),
+                            icon = painterResource(R.drawable.tabler_ic_user),
                             title = { Text(stringResource(R.string.listen_together_username)) },
                             description = {
                                 Text(username.ifEmpty { stringResource(R.string.not_set) })
@@ -424,7 +424,7 @@ fun ListenTogetherSettings(
                                 },
                         ),
                         IntegrationCardItem(
-                            icon = painterResource(R.drawable.done),
+                            icon = painterResource(R.drawable.tabler_ic_check_outline),
                             title = { Text(stringResource(R.string.listen_together_auto_approval_joins)) },
                             description = {
                                 Text(stringResource(R.string.listen_together_auto_approval_joins_desc))
@@ -439,7 +439,7 @@ fun ListenTogetherSettings(
                                         Icon(
                                             painter =
                                                 painterResource(
-                                                    id = if (autoApprovalJoins) R.drawable.check else R.drawable.close,
+                                                    id = if (autoApprovalJoins) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                                 ),
                                             contentDescription = null,
                                             modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -451,7 +451,7 @@ fun ListenTogetherSettings(
                             onClick = { if (roomState == null || role != RoomRole.GUEST) autoApprovalJoins = !autoApprovalJoins },
                         ),
                         IntegrationCardItem(
-                            icon = painterResource(R.drawable.done),
+                            icon = painterResource(R.drawable.tabler_ic_check_outline),
                             title = { Text(stringResource(R.string.listen_together_auto_approval_suggestions)) },
                             description = {
                                 Text(stringResource(R.string.listen_together_auto_approval_suggestions_desc))
@@ -466,7 +466,7 @@ fun ListenTogetherSettings(
                                         Icon(
                                             painter =
                                                 painterResource(
-                                                    id = if (autoApproveSuggestions) R.drawable.check else R.drawable.close,
+                                                    id = if (autoApproveSuggestions) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                                 ),
                                             contentDescription = null,
                                             modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -478,7 +478,7 @@ fun ListenTogetherSettings(
                             onClick = { if (roomState == null || role != RoomRole.GUEST) autoApproveSuggestions = !autoApproveSuggestions },
                         ),
                         IntegrationCardItem(
-                            icon = painterResource(R.drawable.volume_up),
+                            icon = painterResource(R.drawable.tabler_ic_volume_outline),
                             title = { Text(stringResource(R.string.listen_together_sync_volume)) },
                             description = {
                                 Text(stringResource(R.string.listen_together_sync_volume_desc))
@@ -491,7 +491,7 @@ fun ListenTogetherSettings(
                                         Icon(
                                             painter =
                                                 painterResource(
-                                                    id = if (syncHostVolume) R.drawable.check else R.drawable.close,
+                                                    id = if (syncHostVolume) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline,
                                                 ),
                                             contentDescription = null,
                                             modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -502,7 +502,7 @@ fun ListenTogetherSettings(
                             onClick = { syncHostVolume = !syncHostVolume },
                         ),
                         IntegrationCardItem(
-                            icon = painterResource(R.drawable.bug_report),
+                            icon = painterResource(R.drawable.tabler_ic_bug_outline),
                             title = { Text(stringResource(R.string.listen_together_view_logs)) },
                             description = {
                                 Text(stringResource(R.string.listen_together_view_logs_desc))
@@ -524,7 +524,7 @@ fun ListenTogetherSettings(
                 onLongClick = navController::backToMain,
             ) {
                 Icon(
-                    painterResource(R.drawable.arrow_back),
+                    painterResource(R.drawable.tabler_ic_arrow_left_outline),
                     contentDescription = null,
                 )
             }
@@ -550,7 +550,7 @@ fun LogsDialog(
 
     DefaultDialog(
         onDismiss = onDismiss,
-        icon = { Icon(painterResource(R.drawable.bug_report), contentDescription = null) },
+        icon = { Icon(painterResource(R.drawable.tabler_ic_bug_outline), contentDescription = null) },
         title = { Text(stringResource(R.string.listen_together_logs)) },
         buttons = {
             TextButton(
@@ -627,7 +627,7 @@ private fun ServerChooserDialog(
 
     DefaultDialog(
         onDismiss = onDismiss,
-        icon = { Icon(painterResource(R.drawable.cloud), contentDescription = null) },
+        icon = { Icon(painterResource(R.drawable.tabler_ic_cloud_outline), contentDescription = null) },
         title = { Text(stringResource(R.string.listen_together_choose_server)) },
         buttons = {
             TextButton(onClick = onDismiss) {
@@ -688,7 +688,7 @@ private fun ServerChooserDialog(
                         }
                         if (isSelected) {
                             Icon(
-                                painter = painterResource(R.drawable.done),
+                                painter = painterResource(R.drawable.tabler_ic_check_outline),
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary,
                             )
@@ -709,7 +709,7 @@ private fun ServerChooserDialog(
                 onValueChange = { customUrl = it },
                 label = { Text(stringResource(R.string.listen_together_server_url)) },
                 leadingIcon = {
-                    Icon(painterResource(R.drawable.link), contentDescription = null)
+                    Icon(painterResource(R.drawable.tabler_ic_link_outline), contentDescription = null)
                 },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
@@ -800,7 +800,7 @@ fun BlockedUsersDialog(
 
     DefaultDialog(
         onDismiss = onDismiss,
-        icon = { Icon(painterResource(R.drawable.person), contentDescription = null) },
+        icon = { Icon(painterResource(R.drawable.tabler_ic_user), contentDescription = null) },
         title = { Text(stringResource(R.string.listen_together_blocked_users)) },
         buttons = {
             Button(onClick = onDismiss) {
@@ -846,7 +846,7 @@ fun BlockedUsersDialog(
                                 modifier = Modifier.weight(1f),
                             ) {
                                 Icon(
-                                    painter = painterResource(R.drawable.person),
+                                    painter = painterResource(R.drawable.tabler_ic_user),
                                     contentDescription = null,
                                     modifier = Modifier.size(20.dp),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,

@@ -278,7 +278,7 @@ fun HistoryScreen(
                                     },
                                 ) {
                                     Icon(
-                                        painter = painterResource(R.drawable.more_vert),
+                                        painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                                         contentDescription = null,
                                     )
                                 }
@@ -360,7 +360,7 @@ fun HistoryScreen(
                                         },
                                     ) {
                                         Icon(
-                                            painter = painterResource(R.drawable.more_vert),
+                                            painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                                             contentDescription = null,
                                         )
                                     }
@@ -409,7 +409,7 @@ fun HistoryScreen(
                     allEvents.isNotEmpty()
                 },
             lazyListState = lazyListState,
-            icon = R.drawable.shuffle,
+            icon = R.drawable.tabler_ic_arrows_shuffle_outline,
             onClick = {
                 if (historySource == HistorySource.REMOTE && historyPage != null) {
                     val songs = filteredRemoteContent?.flatMap { it.songs } ?: emptyList()
@@ -471,7 +471,7 @@ fun HistoryScreen(
             if (inSelectMode) {
                 IconButton(onClick = onExitSelectionMode) {
                     Icon(
-                        painter = painterResource(R.drawable.close),
+                        painter = painterResource(R.drawable.tabler_ic_x_outline),
                         contentDescription = null,
                     )
                 }
@@ -492,7 +492,7 @@ fun HistoryScreen(
                     },
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.arrow_back),
+                        painter = painterResource(R.drawable.tabler_ic_arrow_left_outline),
                         contentDescription = null,
                     )
                 }
@@ -532,7 +532,7 @@ fun HistoryScreen(
                     },
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.more_vert),
+                        painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                         contentDescription = null,
                     )
                 }
@@ -541,7 +541,7 @@ fun HistoryScreen(
                     onClick = { isSearching = true },
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.search),
+                        painter = painterResource(R.drawable.tabler_ic_search_outline),
                         contentDescription = null,
                     )
                 }

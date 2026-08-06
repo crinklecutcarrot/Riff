@@ -180,7 +180,7 @@ fun AddToPlaylistDialog(
                         .graphicsLayer { scaleX = scale; scaleY = scale }
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.add),
+                        painter = painterResource(R.drawable.tabler_ic_plus_outline),
                         contentDescription = null,
                         modifier = Modifier
                             .padding(end = 8.dp)
@@ -263,7 +263,7 @@ fun AddToPlaylistDialog(
                         ) {
                             Icon(
                                 painter = painterResource(
-                                    if (sortDescending) R.drawable.arrow_downward else R.drawable.arrow_upward
+                                    if (sortDescending) R.drawable.tabler_ic_arrow_down_outline else R.drawable.tabler_ic_arrow_up_outline
                                 ),
                                 contentDescription = stringResource(
                                     if (sortDescending) R.string.sort_descending else R.string.sort_ascending

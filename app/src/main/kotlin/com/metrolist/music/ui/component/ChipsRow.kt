@@ -141,7 +141,7 @@ fun <Int> ChoiceChipsRow(
                 },
                 trailingIcon = {
                     Icon(
-                        painter = painterResource(R.drawable.expand_more),
+                        painter = painterResource(R.drawable.tabler_ic_chevron_down_outline),
                         contentDescription = null,
                         modifier = Modifier.graphicsLayer(rotationZ = rotationAnimation),
                     )

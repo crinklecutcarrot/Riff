@@ -59,7 +59,7 @@ fun CreatePlaylistDialog(
     val syncDisabledStr = stringResource(R.string.sync_disabled)
 
     TextFieldDialog(
-        icon = { Icon(painter = painterResource(R.drawable.add), contentDescription = null) },
+        icon = { Icon(painter = painterResource(R.drawable.tabler_ic_plus_outline), contentDescription = null) },
         title = { Text(text = stringResource(R.string.create_playlist)) },
         initialTextFieldValue = TextFieldValue(initialTextFieldValue ?: ""),
         onDismiss = onDismiss,

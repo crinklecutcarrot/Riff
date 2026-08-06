@@ -126,7 +126,7 @@ fun LazyGridScope.DownloadGridMenu(
     when (state) {
         Download.STATE_COMPLETED -> {
             GridMenuItem(
-                icon = R.drawable.offline,
+                icon = R.drawable.tabler_ic_cloud_off_outline,
                 title = R.string.remove_download,
                 onClick = onRemoveDownload
             )
@@ -147,7 +147,7 @@ fun LazyGridScope.DownloadGridMenu(
 
         else -> {
             GridMenuItem(
-                icon = R.drawable.download,
+                icon = R.drawable.tabler_ic_download,
                 title = R.string.action_download,
                 onClick = onDownload
             )
@@ -178,7 +178,7 @@ fun LazyGridScope.SleepTimerGridMenu(
                 contentAlignment = Alignment.Center,
                 content = {
                     Icon(
-                        painterResource(R.drawable.bedtime),
+                        painterResource(R.drawable.tabler_ic_moon_outline),
                         contentDescription = null,
                         modifier = Modifier.alpha(if (enabled) 1f else 0.5f)
                     )

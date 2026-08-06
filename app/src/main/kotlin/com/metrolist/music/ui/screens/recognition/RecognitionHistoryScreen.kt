@@ -81,7 +81,7 @@ fun RecognitionHistoryScreen(navController: NavController) {
             onDismiss = { showClearDialog = false },
             icon = {
                 Icon(
-                    painter = painterResource(R.drawable.delete),
+                    painter = painterResource(R.drawable.tabler_ic_trash),
                     contentDescription = null,
                 )
             },
@@ -116,7 +116,7 @@ fun RecognitionHistoryScreen(navController: NavController) {
             onDismiss = { itemToDelete = null },
             icon = {
                 Icon(
-                    painter = painterResource(R.drawable.delete),
+                    painter = painterResource(R.drawable.tabler_ic_trash),
                     contentDescription = null,
                 )
             },
@@ -156,7 +156,7 @@ fun RecognitionHistoryScreen(navController: NavController) {
                         onLongClick = { navController.backToMain() },
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.arrow_back),
+                            painter = painterResource(R.drawable.tabler_ic_arrow_left_outline),
                             contentDescription = null,
                         )
                     }
@@ -165,7 +165,7 @@ fun RecognitionHistoryScreen(navController: NavController) {
                     if (historyItems.isNotEmpty()) {
                         IconButton(onClick = { showClearDialog = true }) {
                             Icon(
-                                painter = painterResource(R.drawable.clear_all),
+                                painter = painterResource(R.drawable.tabler_ic_clear_all_outline),
                                 contentDescription = stringResource(R.string.clear_recognition_history),
                             )
                         }
@@ -186,7 +186,7 @@ fun RecognitionHistoryScreen(navController: NavController) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.history),
+                        painter = painterResource(R.drawable.tabler_ic_history_outline),
                         contentDescription = null,
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
@@ -299,7 +299,7 @@ private fun RecognitionHistoryItem(
             // Delete action
             IconButton(onClick = onDelete) {
                 Icon(
-                    painter = painterResource(R.drawable.delete),
+                    painter = painterResource(R.drawable.tabler_ic_trash),
                     contentDescription = stringResource(R.string.delete_from_history),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

@@ -156,7 +156,7 @@ fun PrivacySettings(
             title = stringResource(R.string.listen_history),
             items = listOf(
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.history),
+                    icon = painterResource(R.drawable.tabler_ic_history_outline),
                     title = { Text(stringResource(R.string.pause_listen_history)) },
                     trailingContent = {
                         Switch(
@@ -165,7 +165,7 @@ fun PrivacySettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (pauseListenHistory) R.drawable.check else R.drawable.close
+                                        id = if (pauseListenHistory) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(androidx.compose.material3.SwitchDefaults.IconSize)
@@ -198,7 +198,7 @@ fun PrivacySettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (pauseSearchHistory) R.drawable.check else R.drawable.close
+                                        id = if (pauseSearchHistory) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(androidx.compose.material3.SwitchDefaults.IconSize)
@@ -209,7 +209,7 @@ fun PrivacySettings(
                     onClick = { onPauseSearchHistoryChange(!pauseSearchHistory) }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.clear_all),
+                    icon = painterResource(R.drawable.tabler_ic_clear_all_outline),
                     title = { Text(stringResource(R.string.clear_search_history)) },
                     onClick = { showClearSearchHistoryDialog = true }
                 )
@@ -232,7 +232,7 @@ fun PrivacySettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (disableScreenshot) R.drawable.check else R.drawable.close
+                                        id = if (disableScreenshot) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(androidx.compose.material3.SwitchDefaults.IconSize)
@@ -255,7 +255,7 @@ fun PrivacySettings(
                 onLongClick = navController::backToMain,
             ) {
                 Icon(
-                    painterResource(R.drawable.arrow_back),
+                    painterResource(R.drawable.tabler_ic_arrow_left_outline),
                     contentDescription = null,
                 )
             }

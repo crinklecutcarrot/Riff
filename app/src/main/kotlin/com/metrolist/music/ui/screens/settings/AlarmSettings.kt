@@ -101,7 +101,7 @@ fun AlarmSettingsSection(showTitle: Boolean = true) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !canScheduleExact) {
             add(
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.warning),
+                    icon = painterResource(R.drawable.tabler_ic_alert_triangle_outline),
                     title = { Text(stringResource(R.string.alarm_exact_permission_title)) },
                     description = { Text(stringResource(R.string.alarm_exact_permission_desc)) },
                     onClick = {
@@ -118,7 +118,7 @@ fun AlarmSettingsSection(showTitle: Boolean = true) {
         if (!ignoringBatteryOptimization) {
             add(
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.warning),
+                    icon = painterResource(R.drawable.tabler_ic_alert_triangle_outline),
                     title = { Text(stringResource(R.string.alarm_battery_optimization_title)) },
                     description = { Text(stringResource(R.string.alarm_battery_optimization_desc)) },
                     onClick = {
@@ -179,7 +179,7 @@ fun AlarmSettingsSection(showTitle: Boolean = true) {
         items = buildList {
             add(
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.add_circle),
+                    icon = painterResource(R.drawable.tabler_ic_circle_plus_outline),
                     title = { Text(stringResource(R.string.alarm_add)) },
                     onClick = {
                         editorTarget = null
@@ -191,7 +191,7 @@ fun AlarmSettingsSection(showTitle: Boolean = true) {
             if (alarms.isEmpty()) {
                 add(
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.bedtime),
+                        icon = painterResource(R.drawable.tabler_ic_moon_outline),
                         title = { Text(stringResource(R.string.alarm_empty)) }
                     )
                 )
@@ -220,7 +220,7 @@ fun AlarmSettingsSection(showTitle: Boolean = true) {
                         }
 
                         Material3SettingsItem(
-                            icon = painterResource(R.drawable.bedtime),
+                            icon = painterResource(R.drawable.tabler_ic_moon_outline),
                             title = {
                                 Text(
                                     String.format(locale, "%02d:%02d", alarm.hour, alarm.minute) +
@@ -252,7 +252,7 @@ fun AlarmSettingsSection(showTitle: Boolean = true) {
                                         }
                                     ) {
                                         Icon(
-                                            painter = painterResource(R.drawable.delete),
+                                            painter = painterResource(R.drawable.tabler_ic_trash),
                                             contentDescription = stringResource(R.string.alarm_delete)
                                         )
                                     }
@@ -315,7 +315,7 @@ private fun AlarmSwitch(
         enabled = enabled,
         thumbContent = {
             Icon(
-                painter = painterResource(if (checked) R.drawable.check else R.drawable.close),
+                painter = painterResource(if (checked) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline),
                 contentDescription = null,
                 modifier = Modifier.size(SwitchDefaults.IconSize)
             )
@@ -424,7 +424,7 @@ private fun AlarmEditorDialog(
                                 }
                                 if (selected) {
                                     Icon(
-                                        painter = painterResource(R.drawable.check),
+                                        painter = painterResource(R.drawable.tabler_ic_check_outline),
                                         contentDescription = stringResource(R.string.alarm_selected),
                                         modifier = Modifier.size(18.dp)
                                     )

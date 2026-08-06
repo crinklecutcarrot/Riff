@@ -489,7 +489,7 @@ class MainActivity : ComponentActivity() {
                                         val notif =
                                             NotificationCompat
                                                 .Builder(this@MainActivity, "updates")
-                                                .setSmallIcon(R.drawable.update)
+                                                .setSmallIcon(R.drawable.tabler_ic_refresh)
                                                 .setContentTitle(getString(R.string.update_available_title))
                                                 .setContentText(releaseInfo.versionName)
                                                 .setContentIntent(pending)
@@ -986,21 +986,21 @@ class MainActivity : ComponentActivity() {
                                             if (showHistoryButton) {
                                                 IconButton(onClick = { navController.navigate("history") }) {
                                                     Icon(
-                                                        painter = painterResource(R.drawable.history),
+                                                        painter = painterResource(R.drawable.tabler_ic_history_outline),
                                                         contentDescription = stringResource(R.string.history),
                                                     )
                                                 }
                                             }
                                             IconButton(onClick = { navController.navigate("stats") }) {
                                                 Icon(
-                                                    painter = painterResource(R.drawable.stats),
+                                                    painter = painterResource(R.drawable.tabler_ic_chart_bar),
                                                     contentDescription = stringResource(R.string.stats),
                                                 )
                                             }
                                             if (listenTogetherInTopBar) {
                                                 IconButton(onClick = { navController.navigate("listen_together_from_topbar") }) {
                                                     Icon(
-                                                        painter = painterResource(R.drawable.group_outlined),
+                                                        painter = painterResource(R.drawable.tabler_ic_users_outline),
                                                         contentDescription = stringResource(R.string.together),
                                                     )
                                                 }
@@ -1022,7 +1022,7 @@ class MainActivity : ComponentActivity() {
                                                         )
                                                     } else {
                                                         Icon(
-                                                            painter = painterResource(R.drawable.account),
+                                                            painter = painterResource(R.drawable.tabler_ic_user),
                                                             contentDescription = stringResource(R.string.account),
                                                             modifier = Modifier.size(24.dp),
                                                         )

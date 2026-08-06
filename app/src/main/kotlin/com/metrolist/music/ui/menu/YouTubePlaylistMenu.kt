@@ -320,7 +320,7 @@ fun YouTubePlaylistMenu(
                     headlineContent = { Text(text = stringResource(R.string.already_in_playlist)) },
                     leadingContent = {
                         Image(
-                            painter = painterResource(R.drawable.close),
+                            painter = painterResource(R.drawable.tabler_ic_x_outline),
                             contentDescription = null,
                             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
                             modifier = Modifier.size(ListThumbnailSize),
@@ -377,7 +377,7 @@ fun YouTubePlaylistMenu(
                                     NewAction(
                                         icon = {
                                             Icon(
-                                                painter = painterResource(R.drawable.play),
+                                                painter = painterResource(R.drawable.tabler_ic_player_play_filled),
                                                 contentDescription = null,
                                                 modifier = Modifier.size(28.dp),
                                                 tint = MaterialTheme.colorScheme.onSurface,
@@ -397,7 +397,7 @@ fun YouTubePlaylistMenu(
                                     NewAction(
                                         icon = {
                                             Icon(
-                                                painter = painterResource(R.drawable.shuffle),
+                                                painter = painterResource(R.drawable.tabler_ic_arrows_shuffle_outline),
                                                 contentDescription = null,
                                                 modifier = Modifier.size(28.dp),
                                                 tint = MaterialTheme.colorScheme.onSurface,
@@ -417,7 +417,7 @@ fun YouTubePlaylistMenu(
                                     NewAction(
                                         icon = {
                                             Icon(
-                                                painter = painterResource(R.drawable.radio),
+                                                painter = painterResource(R.drawable.tabler_ic_radio),
                                                 contentDescription = null,
                                                 modifier = Modifier.size(28.dp),
                                                 tint = MaterialTheme.colorScheme.onSurface,
@@ -459,8 +459,8 @@ fun YouTubePlaylistMenu(
                                         painter =
                                             painterResource(
                                                 when {
-                                                    playlist.isPodcast && isSaved -> R.drawable.subscribed
-                                                    playlist.isPodcast -> R.drawable.subscribe
+                                                    playlist.isPodcast && isSaved -> R.drawable.tabler_ic_bell_filled
+                                                    playlist.isPodcast -> R.drawable.tabler_ic_bell_outline
                                                     isSaved -> R.drawable.tabler_ic_circle_check_filled
                                                     else -> R.drawable.tabler_ic_library_plus
                                                 },
@@ -482,7 +482,7 @@ fun YouTubePlaylistMenu(
                                 description = { Text(text = stringResource(R.string.play_next_desc)) },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.playlist_play),
+                                        painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                         contentDescription = null,
                                     )
                                 },
@@ -520,7 +520,7 @@ fun YouTubePlaylistMenu(
                                 description = { Text(text = stringResource(R.string.add_to_queue_desc)) },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.queue_music),
+                                        painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                         contentDescription = null,
                                     )
                                 },
@@ -551,7 +551,7 @@ fun YouTubePlaylistMenu(
                             description = { Text(text = stringResource(R.string.add_to_playlist_desc)) },
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.playlist_add),
+                                    painter = painterResource(R.drawable.tabler_ic_playlist_add),
                                     contentDescription = null,
                                 )
                             },
@@ -567,7 +567,7 @@ fun YouTubePlaylistMenu(
                             },
                             icon = {
                                 Icon(
-                                    painter = painterResource(if (isPinned) R.drawable.remove else R.drawable.add),
+                                    painter = painterResource(if (isPinned) R.drawable.tabler_ic_minus_outline else R.drawable.tabler_ic_plus_outline),
                                     contentDescription = null,
                                 )
                             },
@@ -602,7 +602,7 @@ fun YouTubePlaylistMenu(
                                             },
                                             icon = {
                                                 Icon(
-                                                    painter = painterResource(R.drawable.offline),
+                                                    painter = painterResource(R.drawable.tabler_ic_cloud_off_outline),
                                                     contentDescription = null,
                                                 )
                                             },
@@ -633,7 +633,7 @@ fun YouTubePlaylistMenu(
                                             description = { Text(text = stringResource(R.string.download_desc)) },
                                             icon = {
                                                 Icon(
-                                                    painter = painterResource(R.drawable.download),
+                                                    painter = painterResource(R.drawable.tabler_ic_download),
                                                     contentDescription = null,
                                                 )
                                             },
@@ -663,7 +663,7 @@ fun YouTubePlaylistMenu(
                                 title = { Text(text = stringResource(R.string.export_playlist)) },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.share),
+                                        painter = painterResource(R.drawable.tabler_ic_share_3),
                                         contentDescription = null,
                                     )
                                 },
@@ -676,7 +676,7 @@ fun YouTubePlaylistMenu(
                                 description = { Text(text = stringResource(R.string.share_desc)) },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(R.drawable.share),
+                                        painter = painterResource(R.drawable.tabler_ic_share_3),
                                         contentDescription = null,
                                     )
                                 },
@@ -698,7 +698,7 @@ fun YouTubePlaylistMenu(
                                     title = { Text(text = stringResource(R.string.select)) },
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.select_all),
+                                            painter = painterResource(R.drawable.tabler_ic_select_all_outline),
                                             contentDescription = null,
                                         )
                                     },

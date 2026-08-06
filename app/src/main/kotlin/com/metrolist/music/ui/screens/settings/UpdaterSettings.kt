@@ -139,7 +139,7 @@ fun UpdaterScreen(
                     add(
                         Material3SettingsItem(
                             title = { Text(stringResource(R.string.check_for_updates)) },
-                            icon = painterResource(R.drawable.update),
+                            icon = painterResource(R.drawable.tabler_ic_refresh),
                             trailingContent = {
                                 Switch(
                                     checked = checkForUpdates,
@@ -154,7 +154,7 @@ fun UpdaterScreen(
                         add(
                             Material3SettingsItem(
                                 title = { Text(stringResource(R.string.update_notifications)) },
-                                icon = painterResource(R.drawable.notification),
+                                icon = painterResource(R.drawable.tabler_ic_bell_outline),
                                 trailingContent = {
                                     Switch(
                                         checked = updateNotifications,
@@ -175,7 +175,7 @@ fun UpdaterScreen(
             items =
                 listOf(
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.refresh),
+                        icon = painterResource(R.drawable.tabler_ic_refresh),
                         title = {
                             if (isChecking) {
                                 Text(stringResource(R.string.checking_for_updates))
@@ -193,7 +193,7 @@ fun UpdaterScreen(
                                 )
                             } else if (updateAvailable) {
                                 Icon(
-                                    painter = painterResource(R.drawable.download),
+                                    painter = painterResource(R.drawable.tabler_ic_download),
                                     contentDescription = stringResource(R.string.update_available_title),
                                     tint = MaterialTheme.colorScheme.primary,
                                 )
@@ -250,7 +250,7 @@ fun UpdaterScreen(
                 onLongClick = navController::backToMain,
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.arrow_back),
+                    painter = painterResource(R.drawable.tabler_ic_arrow_left_outline),
                     contentDescription = null,
                 )
             }

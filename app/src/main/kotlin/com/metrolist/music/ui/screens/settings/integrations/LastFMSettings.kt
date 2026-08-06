@@ -314,7 +314,7 @@ fun LastFMSettings(
                             }
                         }
                     },
-                    icon = painterResource(R.drawable.music_note)
+                    icon = painterResource(R.drawable.tabler_ic_music_outline)
                 ),
             )
         )
@@ -334,7 +334,7 @@ fun LastFMSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (lastfmScrobbling) R.drawable.check else R.drawable.close
+                                        id = if (lastfmScrobbling) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -343,7 +343,7 @@ fun LastFMSettings(
                         )
                     },
                     enabled = isLoggedIn,
-                    icon = painterResource(R.drawable.queue_music)
+                    icon = painterResource(R.drawable.tabler_ic_playlist_outline)
                 ),
                 Material3SettingsItem(
                     title = { Text(stringResource(R.string.lastfm_now_playing)) },
@@ -355,7 +355,7 @@ fun LastFMSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (useNowPlaying) R.drawable.check else R.drawable.close
+                                        id = if (useNowPlaying) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -364,7 +364,7 @@ fun LastFMSettings(
                         )
                     },
                     enabled = isLoggedIn && lastfmScrobbling,
-                    icon = painterResource(R.drawable.play)
+                    icon = painterResource(R.drawable.tabler_ic_player_play_filled)
                 ),
                 Material3SettingsItem(
                     title = { Text(stringResource(R.string.last_fm_send_likes)) },
@@ -377,7 +377,7 @@ fun LastFMSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (useSendLikes) R.drawable.check else R.drawable.close
+                                        id = if (useSendLikes) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize),
@@ -595,19 +595,19 @@ fun LastFMSettings(
                     title = { Text(stringResource(R.string.scrobble_min_track_duration)) },
                     description = { Text(makeTimeString((minTrackDuration * 1000).toLong())) },
                     onClick = { showMinTrackDurationDialog = true },
-                    icon = painterResource(R.drawable.timer)
+                    icon = painterResource(R.drawable.tabler_ic_clock_outline)
                 ),
                 Material3SettingsItem(
                     title = { Text(stringResource(R.string.scrobble_delay_percent)) },
                     description = { Text(stringResource(R.string.sensitivity_percentage, (scrobbleDelayPercent * 100).roundToInt())) },
                     onClick = { showScrobbleDelayPercentDialog = true },
-                    icon = painterResource(R.drawable.timer)
+                    icon = painterResource(R.drawable.tabler_ic_clock_outline)
                 ),
                 Material3SettingsItem(
                     title = { Text(stringResource(R.string.scrobble_delay_minutes)) },
                     description = { Text(makeTimeString((scrobbleDelaySeconds * 1000).toLong())) },
                     onClick = { showScrobbleDelaySecondsDialog = true },
-                    icon = painterResource(R.drawable.timer)
+                    icon = painterResource(R.drawable.tabler_ic_clock_outline)
                 ),
             )
         )
@@ -621,7 +621,7 @@ fun LastFMSettings(
                 onLongClick = navController::backToMain,
             ) {
                 Icon(
-                    painterResource(R.drawable.arrow_back),
+                    painterResource(R.drawable.tabler_ic_arrow_left_outline),
                     contentDescription = null,
                 )
             }

@@ -77,7 +77,7 @@ fun PlaybackError(
     ) {
         // Error icon
         Icon(
-            painter = painterResource(R.drawable.error),
+            painter = painterResource(R.drawable.tabler_ic_alert_circle_outline),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.error,
             modifier = Modifier.size(48.dp)
@@ -129,7 +129,7 @@ fun PlaybackError(
             )
         ) {
             Icon(
-                painter = painterResource(R.drawable.replay),
+                painter = painterResource(R.drawable.tabler_ic_rotate_clockwise_outline),
                 contentDescription = null,
                 modifier = Modifier.size(18.dp)
             )

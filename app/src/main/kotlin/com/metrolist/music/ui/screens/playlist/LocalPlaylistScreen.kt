@@ -297,7 +297,7 @@ fun LocalPlaylistScreen(
             TextFieldDialog(
                 icon = {
                     Icon(
-                        painter = painterResource(R.drawable.edit),
+                        painter = painterResource(R.drawable.tabler_ic_edit_outline),
                         contentDescription = null,
                     )
                 },
@@ -487,7 +487,7 @@ fun LocalPlaylistScreen(
                 if (playlist.songCount == 0 && playlist.playlist.remoteSongCount == 0) {
                     item(key = "empty_placeholder") {
                         EmptyPlaceholder(
-                            icon = R.drawable.music_note,
+                            icon = R.drawable.tabler_ic_music_outline,
                             text = stringResource(R.string.playlist_is_empty),
                             modifier = Modifier.animateItem(),
                         )
@@ -539,7 +539,7 @@ fun LocalPlaylistScreen(
                                     modifier = Modifier.padding(horizontal = 6.dp),
                                 ) {
                                     Icon(
-                                        painter = painterResource(if (locked) R.drawable.lock else R.drawable.lock_open),
+                                        painter = painterResource(if (locked) R.drawable.tabler_ic_lock_outline else R.drawable.tabler_ic_lock_open_outline),
                                         contentDescription = null,
                                     )
                                 }
@@ -639,7 +639,7 @@ fun LocalPlaylistScreen(
                                         },
                                     ) {
                                         Icon(
-                                            painter = painterResource(R.drawable.more_vert),
+                                            painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                                             contentDescription = null,
                                         )
                                     }
@@ -650,7 +650,7 @@ fun LocalPlaylistScreen(
                                             modifier = Modifier.draggableHandle(),
                                         ) {
                                             Icon(
-                                                painter = painterResource(R.drawable.drag_handle),
+                                                painter = painterResource(R.drawable.tabler_ic_grip_horizontal_outline),
                                                 contentDescription = null,
                                             )
                                         }
@@ -773,7 +773,7 @@ fun LocalPlaylistScreen(
                 if (inSelectMode) {
                     IconButton(onClick = onExitSelectionMode) {
                         Icon(
-                            painter = painterResource(R.drawable.close),
+                            painter = painterResource(R.drawable.tabler_ic_x_outline),
                             contentDescription = null,
                         )
                     }
@@ -794,7 +794,7 @@ fun LocalPlaylistScreen(
                         },
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.arrow_back),
+                            painter = painterResource(R.drawable.tabler_ic_arrow_left_outline),
                             contentDescription = null,
                         )
                     }
@@ -833,7 +833,7 @@ fun LocalPlaylistScreen(
                         },
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.more_vert),
+                            painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                             contentDescription = null,
                         )
                     }
@@ -843,7 +843,7 @@ fun LocalPlaylistScreen(
                         onClick = { isSearching = true },
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.search),
+                            painter = painterResource(R.drawable.tabler_ic_search_outline),
                             contentDescription = null,
                         )
                     }
@@ -1072,7 +1072,7 @@ fun LocalPlaylistHeader(
                             contentAlignment = Alignment.Center,
                         ) {
                             Icon(
-                                painter = painterResource(R.drawable.queue_music),
+                                painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                                 contentDescription = null,
                                 modifier = Modifier.size(80.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -1344,7 +1344,7 @@ fun LocalPlaylistHeader(
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.shuffle),
+                        painter = painterResource(R.drawable.tabler_ic_arrows_shuffle_outline),
                         contentDescription = stringResource(R.string.shuffle),
                         modifier = Modifier.size(24.dp),
                     )
@@ -1370,7 +1370,7 @@ fun LocalPlaylistHeader(
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.play),
+                        painter = painterResource(R.drawable.tabler_ic_player_play_filled),
                         contentDescription = stringResource(R.string.play),
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(32.dp),
@@ -1464,7 +1464,7 @@ fun LocalPlaylistHeader(
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.more_vert),
+                        painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                         contentDescription = null,
                         modifier = Modifier.size(24.dp),
                     )

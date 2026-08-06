@@ -200,12 +200,12 @@ fun WrappedScreenContent() {
                 title = { },
                 navigationIcon = {
                     IconButton(onClick = onClose) {
-                        Icon(painterResource(R.drawable.arrow_back), stringResource(R.string.back_button_desc), tint = Color.White)
+                        Icon(painterResource(R.drawable.tabler_ic_arrow_left_outline), stringResource(R.string.back_button_desc), tint = Color.White)
                     }
                 },
                 actions = {
                     IconButton(onClick = { audioService.toggleMute() }) {
-                        val icon = if (isMuted) R.drawable.volume_off else R.drawable.volume_up
+                        val icon = if (isMuted) R.drawable.tabler_ic_volume_off_outline else R.drawable.tabler_ic_volume_outline
                         Icon(painterResource(icon), "Mute", tint = Color.White)
                     }
                 },

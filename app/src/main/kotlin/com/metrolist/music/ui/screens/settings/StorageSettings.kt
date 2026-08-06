@@ -301,14 +301,14 @@ fun StorageSettings(
             items =
                 listOf(
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.storage),
+                        icon = painterResource(R.drawable.tabler_ic_database_outline),
                         title = { Text(stringResource(R.string.downloaded_songs)) },
                         description = {
                             Text(text = Formatter.formatShortFileSize(context, downloadCacheSize))
                         },
                     ),
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.clear_all),
+                        icon = painterResource(R.drawable.tabler_ic_clear_all_outline),
                         title = { Text(stringResource(R.string.clear_all_downloads)) },
                         onClick = {
                             clearDownloads = true
@@ -321,7 +321,7 @@ fun StorageSettings(
             title = stringResource(R.string.song_cache),
             items = listOf(
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.cached),
+                    icon = painterResource(R.drawable.tabler_ic_database_outline),
                     title = { Text(stringResource(R.string.enable_song_cache)) },
                     description = { Text(stringResource(R.string.enable_song_cache_desc)) },
                     trailingContent = {
@@ -331,7 +331,7 @@ fun StorageSettings(
                             thumbContent = {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (enableSongCache) R.drawable.check else R.drawable.close
+                                        id = if (enableSongCache) R.drawable.tabler_ic_check_outline else R.drawable.tabler_ic_x_outline
                                     ),
                                     contentDescription = null,
                                     modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -342,7 +342,7 @@ fun StorageSettings(
                     onClick = { onEnableSongCacheChange(!enableSongCache) }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.cached),
+                    icon = painterResource(R.drawable.tabler_ic_database_outline),
                     title = { Text(stringResource(R.string.max_song_cache_size)) },
                     enabled = enableSongCache,
                     description = {
@@ -402,7 +402,7 @@ fun StorageSettings(
                         },
                     ),
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.clear_all),
+                        icon = painterResource(R.drawable.tabler_ic_clear_all_outline),
                         title = { Text(stringResource(R.string.clear_song_cache)) },
                         onClick = {
                             clearCacheDialog = true
@@ -416,7 +416,7 @@ fun StorageSettings(
             items =
                 listOf(
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.manage_search),
+                        icon = painterResource(R.drawable.tabler_ic_list_search_outline),
                         title = { Text(stringResource(R.string.max_image_cache_size)) },
                         description = {
                             val imageCacheValues =
@@ -465,7 +465,7 @@ fun StorageSettings(
                         },
                     ),
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.clear_all),
+                        icon = painterResource(R.drawable.tabler_ic_clear_all_outline),
                         title = { Text(stringResource(R.string.clear_image_cache)) },
                         onClick = {
                             clearImageCacheDialog = true
@@ -483,7 +483,7 @@ fun StorageSettings(
                 onLongClick = navController::backToMain,
             ) {
                 Icon(
-                    painterResource(R.drawable.arrow_back),
+                    painterResource(R.drawable.tabler_ic_arrow_left_outline),
                     contentDescription = null,
                 )
             }

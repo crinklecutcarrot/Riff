@@ -180,7 +180,7 @@ fun BackupAndRestore(
                 listOf(
                     Material3SettingsItem(
                         title = { Text(stringResource(R.string.action_backup)) },
-                        icon = painterResource(R.drawable.backup),
+                        icon = painterResource(R.drawable.tabler_ic_cloud_upload_outline),
                         onClick = {
                             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
                             backupLauncher.launch(
@@ -192,21 +192,21 @@ fun BackupAndRestore(
                     ),
                     Material3SettingsItem(
                         title = { Text(stringResource(R.string.action_restore)) },
-                        icon = painterResource(R.drawable.restore),
+                        icon = painterResource(R.drawable.tabler_ic_history_outline),
                         onClick = {
                             restoreLauncher.launch(arrayOf("application/octet-stream"))
                         },
                     ),
                     Material3SettingsItem(
                         title = { Text(stringResource(R.string.import_online)) },
-                        icon = painterResource(R.drawable.playlist_add),
+                        icon = painterResource(R.drawable.tabler_ic_playlist_add),
                         onClick = {
                             importM3uLauncherOnline.launch(arrayOf("audio/*"))
                         },
                     ),
                     Material3SettingsItem(
                         title = { Text(stringResource(R.string.import_csv)) },
-                        icon = painterResource(R.drawable.playlist_add),
+                        icon = painterResource(R.drawable.tabler_ic_playlist_add),
                         onClick = {
                             importPlaylistFromCsv.launch(
                                 arrayOf("text/csv", "text/comma-separated-values", "application/csv", "text/plain"),
@@ -225,7 +225,7 @@ fun BackupAndRestore(
                 onLongClick = navController::backToMain,
             ) {
                 Icon(
-                    painterResource(R.drawable.arrow_back),
+                    painterResource(R.drawable.tabler_ic_arrow_left_outline),
                     contentDescription = null,
                 )
             }
@@ -312,7 +312,7 @@ fun BackupAndRestore(
             },
             icon = {
                 Icon(
-                    painter = painterResource(R.drawable.restore),
+                    painter = painterResource(R.drawable.tabler_ic_history_outline),
                     contentDescription = null,
                 )
             },
@@ -441,7 +441,7 @@ fun BackupAndRestore(
                                 contentAlignment = Alignment.Center,
                             ) {
                                 Icon(
-                                    painter = painterResource(R.drawable.person),
+                                    painter = painterResource(R.drawable.tabler_ic_user),
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                     modifier = Modifier.size(24.dp),

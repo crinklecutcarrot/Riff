@@ -108,7 +108,7 @@ fun NavigationTitle(
             )
         } else if (onClick != null) {
             Icon(
-                painter = painterResource(R.drawable.arrow_forward),
+                painter = painterResource(R.drawable.tabler_ic_arrow_right_outline),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )

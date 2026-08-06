@@ -79,7 +79,7 @@ fun SettingsScreen(
             title = stringResource(R.string.settings_section_ui),
             items = listOf(
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.palette),
+                    icon = painterResource(R.drawable.tabler_ic_palette_outline),
                     title = { Text(stringResource(R.string.appearance)) },
                     onClick = { navController.navigate("settings/appearance") }
                 )
@@ -93,22 +93,22 @@ fun SettingsScreen(
             title = stringResource(R.string.settings_section_player_content),
             items = listOf(
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.play),
+                    icon = painterResource(R.drawable.tabler_ic_player_play_filled),
                     title = { Text(stringResource(R.string.player_and_audio)) },
                     onClick = { navController.navigate("settings/player") }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.radio),
+                    icon = painterResource(R.drawable.tabler_ic_radio),
                     title = { Text(stringResource(R.string.stream_sources)) },
                     onClick = { navController.navigate("settings/stream_sources") }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.language),
+                    icon = painterResource(R.drawable.tabler_ic_language_outline),
                     title = { Text(stringResource(R.string.content)) },
                     onClick = { navController.navigate("settings/content") }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.translate),
+                    icon = painterResource(R.drawable.tabler_ic_language_outline),
                     title = { Text(stringResource(R.string.ai_lyrics_translation)) },
                     onClick = { navController.navigate("settings/ai") }
                 )
@@ -138,7 +138,7 @@ fun SettingsScreen(
             title = stringResource(R.string.settings_section_privacy),
             items = listOf(
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.security),
+                    icon = painterResource(R.drawable.tabler_ic_shield_outline),
                     title = { Text(stringResource(R.string.privacy)) },
                     onClick = { navController.navigate("settings/privacy") }
                 )
@@ -152,12 +152,12 @@ fun SettingsScreen(
             title = stringResource(R.string.settings_section_storage),
             items = listOf(
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.storage),
+                    icon = painterResource(R.drawable.tabler_ic_database_outline),
                     title = { Text(stringResource(R.string.storage)) },
                     onClick = { navController.navigate("settings/storage") }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.restore),
+                    icon = painterResource(R.drawable.tabler_ic_history_outline),
                     title = { Text(stringResource(R.string.backup_restore)) },
                     onClick = { navController.navigate("settings/backup_restore") }
                 )
@@ -173,7 +173,7 @@ fun SettingsScreen(
                 if (isAndroid12OrLater) {
                     add(
                         Material3SettingsItem(
-                            icon = painterResource(R.drawable.link),
+                            icon = painterResource(R.drawable.tabler_ic_link_outline),
                             title = { Text(stringResource(R.string.default_links)) },
                             onClick = {
                                 try {
@@ -217,7 +217,7 @@ fun SettingsScreen(
                 if (BuildConfig.UPDATER_AVAILABLE) {
                     add(
                         Material3SettingsItem(
-                            icon = painterResource(R.drawable.update),
+                            icon = painterResource(R.drawable.tabler_ic_refresh),
                             title = { Text(stringResource(R.string.updater)) },
                             onClick = { navController.navigate("settings/updater") }
                         )
@@ -233,7 +233,7 @@ fun SettingsScreen(
                 )
                 add(
                     Material3SettingsItem(
-                        icon = painterResource(R.drawable.info),
+                        icon = painterResource(R.drawable.tabler_ic_info_circle),
                         title = { Text(stringResource(R.string.about)) },
                         onClick = { navController.navigate("settings/about") }
                     )
@@ -245,7 +245,7 @@ fun SettingsScreen(
                     if (downloadUrl != null) {
                         add(
                             Material3SettingsItem(
-                                icon = painterResource(R.drawable.update),
+                                icon = painterResource(R.drawable.tabler_ic_refresh),
                                 title = { 
                                     Text(
                                         text = stringResource(R.string.new_version_available),
@@ -282,7 +282,7 @@ fun SettingsScreen(
                 onLongClick = navController::backToMain
             ) {
                 Icon(
-                    painterResource(R.drawable.arrow_back),
+                    painterResource(R.drawable.tabler_ic_arrow_left_outline),
                     contentDescription = null
                 )
             }

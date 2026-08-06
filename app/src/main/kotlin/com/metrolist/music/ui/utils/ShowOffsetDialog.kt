@@ -74,7 +74,7 @@ fun ShowOffsetDialog(songProvider: () -> SongEntity?) {
             .padding(horizontal = 24.dp, vertical = 20.dp)
     ) {
         Icon(
-            painter = painterResource(R.drawable.fast_forward),
+            painter = painterResource(R.drawable.tabler_ic_player_skip_forward),
             contentDescription = null,
             modifier = Modifier.size(40.dp),
             tint = MaterialTheme.colorScheme.primary
@@ -175,7 +175,7 @@ fun ShowOffsetDialog(songProvider: () -> SongEntity?) {
                     }
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.replay),
+                        painter = painterResource(R.drawable.tabler_ic_rotate_clockwise_outline),
                         tint = MaterialTheme.colorScheme.primary,
                         contentDescription = "Reset"
                     )
@@ -196,7 +196,7 @@ fun ShowOffsetDialog(songProvider: () -> SongEntity?) {
                 }
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.remove),
+                    painter = painterResource(R.drawable.tabler_ic_minus_outline),
                     contentDescription = "Decrease"
                 )
             }
@@ -220,7 +220,7 @@ fun ShowOffsetDialog(songProvider: () -> SongEntity?) {
                 }
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.add),
+                    painter = painterResource(R.drawable.tabler_ic_plus_outline),
                     contentDescription = "Increase"
                 )
             }

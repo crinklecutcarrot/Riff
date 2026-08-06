@@ -77,7 +77,7 @@ fun YouTubeArtistMenu(
                                 NewAction(
                                     icon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.radio),
+                                            painter = painterResource(R.drawable.tabler_ic_radio),
                                             contentDescription = null,
                                             modifier = Modifier.size(28.dp),
                                             tint = MaterialTheme.colorScheme.onSurface
@@ -97,7 +97,7 @@ fun YouTubeArtistMenu(
                         NewAction(
                             icon = {
                                 Icon(
-                                    painter = painterResource(if (isPinned) R.drawable.remove else R.drawable.add),
+                                    painter = painterResource(if (isPinned) R.drawable.tabler_ic_minus_outline else R.drawable.tabler_ic_plus_outline),
                                     contentDescription = null,
                                     modifier = Modifier.size(28.dp),
                                     tint = MaterialTheme.colorScheme.onSurface
@@ -121,7 +121,7 @@ fun YouTubeArtistMenu(
                         NewAction(
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.share),
+                                    painter = painterResource(R.drawable.tabler_ic_share_3),
                                     contentDescription = null,
                                     modifier = Modifier.size(28.dp),
                                     tint = MaterialTheme.colorScheme.onSurface
@@ -144,7 +144,7 @@ fun YouTubeArtistMenu(
                         NewAction(
                             icon = {
                                 Icon(
-                                    painter = painterResource(if (libraryArtist?.artist?.bookmarkedAt != null) R.drawable.subscribed else R.drawable.subscribe),
+                                    painter = painterResource(if (libraryArtist?.artist?.bookmarkedAt != null) R.drawable.tabler_ic_bell_filled else R.drawable.tabler_ic_bell_outline),
                                     contentDescription = null,
                                     modifier = Modifier.size(28.dp),
                                     tint = MaterialTheme.colorScheme.onSurface

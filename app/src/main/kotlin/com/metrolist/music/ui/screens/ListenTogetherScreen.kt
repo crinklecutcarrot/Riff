@@ -339,7 +339,7 @@ fun ListenTogetherScreen(
                         shape = RoundedCornerShape(16.dp),
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.logout),
+                            painter = painterResource(R.drawable.tabler_ic_logout_outline),
                             contentDescription = null,
                             modifier = Modifier.size(20.dp),
                         )
@@ -425,7 +425,7 @@ fun ListenTogetherScreen(
                     onLongClick = navController::backToMain,
                 ) {
                     Icon(
-                        painterResource(R.drawable.arrow_back),
+                        painterResource(R.drawable.tabler_ic_arrow_left_outline),
                         contentDescription = null,
                     )
                 }
@@ -445,7 +445,7 @@ private fun NotConfiguredContent() {
             modifier = Modifier.padding(24.dp),
         ) {
             Icon(
-                painter = painterResource(R.drawable.group),
+                painter = painterResource(R.drawable.tabler_ic_users_outline),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(64.dp),
@@ -485,7 +485,7 @@ private fun HeaderSection(isInRoom: Boolean = false) {
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                painter = painterResource(R.drawable.group_outlined),
+                painter = painterResource(R.drawable.tabler_ic_users_outline),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                 modifier = Modifier.size(48.dp),
@@ -612,7 +612,7 @@ private fun ConnectionStatusCard(
                             ),
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.link),
+                            painter = painterResource(R.drawable.tabler_ic_link_outline),
                             contentDescription = null,
                             modifier = Modifier.size(18.dp),
                         )
@@ -714,7 +714,7 @@ private fun RoomStatusCard(
                         shape = RoundedCornerShape(12.dp),
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.link),
+                            painter = painterResource(R.drawable.tabler_ic_link_outline),
                             contentDescription = stringResource(R.string.copy_link),
                             modifier = Modifier.size(18.dp),
                         )
@@ -732,7 +732,7 @@ private fun RoomStatusCard(
                         shape = RoundedCornerShape(12.dp),
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.content_copy),
+                            painter = painterResource(R.drawable.tabler_ic_copy_outline),
                             contentDescription = stringResource(R.string.copy_code),
                             modifier = Modifier.size(18.dp),
                         )
@@ -853,7 +853,7 @@ private fun UserAvatar(
                         Icon(
                             painter =
                                 painterResource(
-                                    if (user.isHost) R.drawable.crown else R.drawable.person,
+                                    if (user.isHost) R.drawable.tabler_ic_crown_outline else R.drawable.tabler_ic_user,
                                 ),
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onPrimary,
@@ -951,7 +951,7 @@ private fun PendingJoinRequestsSection(
                     )
                     MaterialIconButton(onClick = { onApprove(request.userId) }) {
                         Icon(
-                            painter = painterResource(R.drawable.check),
+                            painter = painterResource(R.drawable.tabler_ic_check_outline),
                             contentDescription = stringResource(R.string.approve),
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(24.dp),
@@ -959,7 +959,7 @@ private fun PendingJoinRequestsSection(
                     }
                     MaterialIconButton(onClick = { onReject(request.userId) }) {
                         Icon(
-                            painter = painterResource(R.drawable.close),
+                            painter = painterResource(R.drawable.tabler_ic_x_outline),
                             contentDescription = stringResource(R.string.reject),
                             tint = MaterialTheme.colorScheme.error,
                             modifier = Modifier.size(24.dp),
@@ -1005,7 +1005,7 @@ private fun PendingSuggestionsSection(
                             .padding(vertical = 8.dp),
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.queue_music),
+                        painter = painterResource(R.drawable.tabler_ic_playlist_outline),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(24.dp),
@@ -1029,7 +1029,7 @@ private fun PendingSuggestionsSection(
                     }
                     MaterialIconButton(onClick = { onApprove(suggestion.suggestionId) }) {
                         Icon(
-                            painter = painterResource(R.drawable.check),
+                            painter = painterResource(R.drawable.tabler_ic_check_outline),
                             contentDescription = stringResource(R.string.approve),
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(24.dp),
@@ -1037,7 +1037,7 @@ private fun PendingSuggestionsSection(
                     }
                     MaterialIconButton(onClick = { onReject(suggestion.suggestionId) }) {
                         Icon(
-                            painter = painterResource(R.drawable.close),
+                            painter = painterResource(R.drawable.tabler_ic_x_outline),
                             contentDescription = stringResource(R.string.reject),
                             tint = MaterialTheme.colorScheme.error,
                             modifier = Modifier.size(24.dp),
@@ -1088,7 +1088,7 @@ private fun JoinCreateRoomSection(
                 placeholder = { Text(stringResource(R.string.enter_username)) },
                 leadingIcon = {
                     Icon(
-                        painterResource(R.drawable.person),
+                        painterResource(R.drawable.tabler_ic_user),
                         null,
                         tint = MaterialTheme.colorScheme.primary,
                     )
@@ -1096,7 +1096,7 @@ private fun JoinCreateRoomSection(
                 trailingIcon = {
                     if (usernameInput.isNotBlank()) {
                         MaterialIconButton(onClick = { onUsernameChange("") }) {
-                            Icon(painterResource(R.drawable.close), null)
+                            Icon(painterResource(R.drawable.tabler_ic_x_outline), null)
                         }
                     }
                 },
@@ -1123,7 +1123,7 @@ private fun JoinCreateRoomSection(
                 placeholder = { Text(stringResource(R.string.enter_room_code)) },
                 leadingIcon = {
                     Icon(
-                        painterResource(R.drawable.group),
+                        painterResource(R.drawable.tabler_ic_users_outline),
                         null,
                         tint = MaterialTheme.colorScheme.primary,
                     )
@@ -1131,7 +1131,7 @@ private fun JoinCreateRoomSection(
                 trailingIcon = {
                     if (roomCodeInput.isNotBlank()) {
                         MaterialIconButton(onClick = { onRoomCodeChange("") }) {
-                            Icon(painterResource(R.drawable.close), null)
+                            Icon(painterResource(R.drawable.tabler_ic_x_outline), null)
                         }
                     }
                 },
@@ -1207,7 +1207,7 @@ private fun JoinCreateRoomSection(
                                 .padding(16.dp),
                     ) {
                         Icon(
-                            painterResource(R.drawable.error),
+                            painterResource(R.drawable.tabler_ic_alert_circle_outline),
                             contentDescription = null,
                             modifier = Modifier.size(20.dp),
                             tint = MaterialTheme.colorScheme.onErrorContainer,
@@ -1241,7 +1241,7 @@ private fun JoinCreateRoomSection(
                         ),
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.add),
+                        painter = painterResource(R.drawable.tabler_ic_plus_outline),
                         contentDescription = null,
                         modifier = Modifier.size(20.dp),
                     )
@@ -1263,7 +1263,7 @@ private fun JoinCreateRoomSection(
                         ),
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.login),
+                        painter = painterResource(R.drawable.tabler_ic_login_outline),
                         contentDescription = null,
                         modifier = Modifier.size(20.dp),
                     )
@@ -1293,7 +1293,7 @@ private fun SettingsLinkCard(onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
-                painter = painterResource(R.drawable.settings),
+                painter = painterResource(R.drawable.tabler_ic_settings_outline),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(24.dp),
@@ -1312,7 +1312,7 @@ private fun SettingsLinkCard(onClick: () -> Unit) {
                 )
             }
             Icon(
-                painter = painterResource(R.drawable.arrow_forward),
+                painter = painterResource(R.drawable.tabler_ic_arrow_right_outline),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(20.dp),
@@ -1333,7 +1333,7 @@ private fun UserActionDialog(
         onDismiss = onDismiss,
         icon = {
             Icon(
-                painter = painterResource(R.drawable.group),
+                painter = painterResource(R.drawable.tabler_ic_users_outline),
                 contentDescription = null,
                 modifier = Modifier.size(28.dp),
             )
@@ -1374,7 +1374,7 @@ private fun UserActionDialog(
                     modifier = Modifier.padding(16.dp),
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.close),
+                        painter = painterResource(R.drawable.tabler_ic_x_outline),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(24.dp),
@@ -1410,7 +1410,7 @@ private fun UserActionDialog(
                     modifier = Modifier.padding(16.dp),
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.close),
+                        painter = painterResource(R.drawable.tabler_ic_x_outline),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(24.dp),
@@ -1445,7 +1445,7 @@ private fun UserActionDialog(
                     modifier = Modifier.padding(16.dp),
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.crown),
+                        painter = painterResource(R.drawable.tabler_ic_crown_outline),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(24.dp),

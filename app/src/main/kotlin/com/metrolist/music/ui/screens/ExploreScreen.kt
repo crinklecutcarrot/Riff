@@ -381,12 +381,12 @@ internal fun ChartRankBadge(position: Int, rawChange: String?) {
         ) {
             when (movement) {
                 ChartMovement.UP -> Icon(
-                    painterResource(R.drawable.arrow_upward),
+                    painterResource(R.drawable.tabler_ic_arrow_up_outline),
                     contentDescription = "Moved up",
                     modifier = Modifier.size(12.dp),
                 )
                 ChartMovement.DOWN -> Icon(
-                    painterResource(R.drawable.arrow_downward),
+                    painterResource(R.drawable.tabler_ic_arrow_down_outline),
                     contentDescription = "Moved down",
                     modifier = Modifier.size(12.dp),
                 )

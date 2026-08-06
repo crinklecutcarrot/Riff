@@ -647,7 +647,7 @@ fun StatsScreen(
             if (query.text.isNotEmpty() && filteredArtists.isEmpty()) {
                 item(key = "no_result") {
                     EmptyPlaceholder(
-                        icon = R.drawable.search,
+                        icon = R.drawable.tabler_ic_search_outline,
                         text = stringResource(R.string.no_results_found),
                     )
                 }
@@ -658,7 +658,7 @@ fun StatsScreen(
             HideOnScrollFAB(
                 visible = true,
                 lazyListState = lazyListState,
-                icon = R.drawable.shuffle,
+                icon = R.drawable.tabler_ic_arrows_shuffle_outline,
                 onClick = {
                     playerConnection.playQueue(
                         ListQueue(
@@ -706,7 +706,7 @@ fun StatsScreen(
                     if (sArtists.isNotEmpty()) {
                         androidx.compose.material3.IconButton(onClick = clearArtistSelection) {
                             Icon(
-                                painter = painterResource(R.drawable.close),
+                                painter = painterResource(R.drawable.tabler_ic_x_outline),
                                 contentDescription = "Clear Artists",
                                 tint = MaterialTheme.colorScheme.onSurface,
                             )
@@ -721,7 +721,7 @@ fun StatsScreen(
             if (inSelectMode) {
                 androidx.compose.material3.IconButton(onClick = onExitSelectionMode) {
                     Icon(
-                        painter = painterResource(R.drawable.close),
+                        painter = painterResource(R.drawable.tabler_ic_x_outline),
                         contentDescription = "Select Button",
                     )
                 }
@@ -742,7 +742,7 @@ fun StatsScreen(
                     },
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.arrow_back),
+                        painter = painterResource(R.drawable.tabler_ic_arrow_left_outline),
                         contentDescription = "Back Button",
                     )
                 }
@@ -761,7 +761,7 @@ fun StatsScreen(
                     },
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.more_vert),
+                        painter = painterResource(R.drawable.tabler_ic_dots_vertical_outline),
                         contentDescription = "More Button",
                     )
                 }
@@ -770,7 +770,7 @@ fun StatsScreen(
                     onClick = { isSearching = true },
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.search),
+                        painter = painterResource(R.drawable.tabler_ic_search_outline),
                         contentDescription = "Search Button",
                     )
                 }
@@ -779,7 +779,7 @@ fun StatsScreen(
                     onLongClick = { showTimeTransfer = true },
                 ) {
                     Icon(
-                        painterResource(R.drawable.sync),
+                        painterResource(R.drawable.tabler_ic_refresh),
                         contentDescription = "Time Transfer",
                     )
                 }
