@@ -295,26 +295,6 @@ fun YouTubeAlbumMenu(
             NewActionGrid(
                 actions =
                     listOfNotNull(
-                        if (!isGuest) {
-                            NewAction(
-                                icon = {
-                                    Icon(
-                                        painter = painterResource(R.drawable.queue_music),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(28.dp),
-                                        tint = MaterialTheme.colorScheme.onSurface,
-                                    )
-                                },
-                                text = stringResource(R.string.add_to_queue),
-                                contentColor = MaterialTheme.colorScheme.onSurface,
-                                onClick = {
-                                    album?.songs?.map { it.toMediaItem() }?.let(playerConnection::addToQueue)
-                                    onDismiss()
-                                },
-                            )
-                        } else {
-                            null
-                        },
                         NewAction(
                             icon = {
                                 Icon(
@@ -327,6 +307,23 @@ fun YouTubeAlbumMenu(
                             text = stringResource(R.string.add_to_playlist),
                             contentColor = MaterialTheme.colorScheme.onSurface,
                             onClick = { showChoosePlaylistDialog = true },
+                        ),
+                        NewAction(
+                            icon = {
+                                Icon(
+                                    painter = painterResource(
+                                        if (album?.album?.bookmarkedAt != null) R.drawable.tabler_ic_circle_check_filled else R.drawable.tabler_ic_library_plus,
+                                    ),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(28.dp),
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                )
+                            },
+                            text = if (album?.album?.bookmarkedAt != null) stringResource(R.string.remove_from_library) else stringResource(R.string.add_to_library),
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                            onClick = {
+                                album?.album?.let { entity -> database.transaction { update(entity.toggleLike()) } }
+                            },
                         ),
                         if (!isGuest) {
                             NewAction(
@@ -350,7 +347,7 @@ fun YouTubeAlbumMenu(
                         },
                     ),
                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp),
-                columns = if (isGuest) 1 else 3,
+                columns = if (isGuest) 2 else 3,
             )
         }
         item {
@@ -415,6 +412,24 @@ fun YouTubeAlbumMenu(
                                 onDismiss()
                             },
                         ),
+                        if (!isGuest) {
+                            Material3MenuItemData(
+                                title = { Text(text = stringResource(R.string.add_to_queue)) },
+                                description = { Text(text = stringResource(R.string.add_to_queue_desc)) },
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.queue_music),
+                                        contentDescription = null,
+                                    )
+                                },
+                                onClick = {
+                                    onDismiss()
+                                    album?.songs?.map { it.toMediaItem() }?.let(playerConnection::addToQueue)
+                                },
+                            )
+                        } else {
+                            null
+                        },
                         Material3MenuItemData(
                             title = { Text(text = stringResource(R.string.share)) },
                             icon = {

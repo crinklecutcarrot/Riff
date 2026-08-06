@@ -542,7 +542,7 @@ fun CommunityPlaylistCard(
                             painter =
                                 painterResource(
                                     if (isBookmarked) R.drawable.tabler_ic_circle_check_filled
-                                    else R.drawable.tabler_ic_library_plus_outline,
+                                    else R.drawable.tabler_ic_library_plus,
                                 ),
                             contentDescription = null,
                             modifier = Modifier.size(19.dp),

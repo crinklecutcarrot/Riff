@@ -244,7 +244,7 @@ fun AlbumScreen(
                         Icon(
                             painterResource(
                                 if (albumAdded) R.drawable.tabler_ic_circle_check_filled
-                                else R.drawable.tabler_ic_library_plus_outline,
+                                else R.drawable.tabler_ic_library_plus,
                             ),
                             stringResource(
                                 if (albumAdded) R.string.riff_added_to_library

@@ -461,8 +461,8 @@ fun YouTubePlaylistMenu(
                                                 when {
                                                     playlist.isPodcast && isSaved -> R.drawable.subscribed
                                                     playlist.isPodcast -> R.drawable.subscribe
-                                                    isSaved -> R.drawable.library_add_check
-                                                    else -> R.drawable.library_add
+                                                    isSaved -> R.drawable.tabler_ic_circle_check_filled
+                                                    else -> R.drawable.tabler_ic_library_plus
                                                 },
                                             ),
                                         contentDescription = null,

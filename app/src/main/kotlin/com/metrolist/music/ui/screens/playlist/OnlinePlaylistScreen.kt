@@ -895,7 +895,7 @@ private fun RiffOnlinePlaylistHeader(
             ) {
                 Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        painterResource(if (isSaved) R.drawable.tabler_ic_circle_check_filled else R.drawable.tabler_ic_library_plus_outline),
+                        painterResource(if (isSaved) R.drawable.tabler_ic_circle_check_filled else R.drawable.tabler_ic_library_plus),
                         null,
                         Modifier.size(19.dp),
                     )
