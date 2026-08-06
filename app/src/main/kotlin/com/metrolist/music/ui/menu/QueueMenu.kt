@@ -6,24 +6,23 @@
 package com.metrolist.music.ui.menu
 
 import android.content.Intent
-import android.content.res.Configuration
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -42,7 +41,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -252,17 +250,13 @@ fun QueueMenu(
         },
     )
 
-    HorizontalDivider()
-
-    Spacer(modifier = Modifier.height(12.dp))
-
-    val configuration = LocalConfiguration.current
-    val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+    RiffMenuDivider()
 
     Column(
-        modifier = Modifier.padding(
-            bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
-        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(unbounded = true)
+            .padding(bottom = 20.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()),
     ) {
         // Quick actions grid
             NewActionGrid(
@@ -273,10 +267,11 @@ fun QueueMenu(
                                 painter = painterResource(R.drawable.tabler_ic_radio),
                                 contentDescription = null,
                                 modifier = Modifier.size(28.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                tint = MaterialTheme.colorScheme.onSurface
                             )
                         },
                         text = stringResource(R.string.start_radio),
+                        contentColor = MaterialTheme.colorScheme.onSurface,
                         onClick = {
                             onDismiss()
                             val currentMediaId = playerConnection.player.currentMediaItemIndex.let {
@@ -297,10 +292,11 @@ fun QueueMenu(
                                 painter = painterResource(R.drawable.tabler_ic_playlist_add),
                                 contentDescription = null,
                                 modifier = Modifier.size(28.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                tint = MaterialTheme.colorScheme.onSurface
                             )
                         },
                         text = stringResource(R.string.add_to_playlist),
+                        contentColor = MaterialTheme.colorScheme.onSurface,
                         onClick = { showChoosePlaylistDialog = true }
                     ),
                     NewAction(
@@ -309,10 +305,11 @@ fun QueueMenu(
                                 painter = painterResource(R.drawable.tabler_ic_share_3),
                                 contentDescription = null,
                                 modifier = Modifier.size(28.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                tint = MaterialTheme.colorScheme.onSurface
                             )
                         },
                         text = stringResource(R.string.share),
+                        contentColor = MaterialTheme.colorScheme.onSurface,
                         onClick = {
                             onDismiss()
                             val intent = Intent().apply {
@@ -372,7 +369,7 @@ fun QueueMenu(
                 )
             )
 
-        Spacer(modifier = Modifier.height(12.dp))
+            RiffMenuDivider()
 
         // Download section
             Material3MenuGroup(
@@ -455,7 +452,7 @@ fun QueueMenu(
                 )
             )
 
-        Spacer(modifier = Modifier.height(12.dp))
+            RiffMenuDivider()
 
         // Navigation section (Artist, Album)
             Material3MenuGroup(
@@ -519,7 +516,7 @@ fun QueueMenu(
                 }
             )
 
-        Spacer(modifier = Modifier.height(12.dp))
+            RiffMenuDivider()
 
         // Details and refetch section
             Material3MenuGroup(
