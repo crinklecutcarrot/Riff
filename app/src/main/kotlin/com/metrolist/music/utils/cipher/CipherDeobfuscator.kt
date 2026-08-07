@@ -338,7 +338,9 @@ object CipherDeobfuscator {
             Timber.tag(TAG).e("Failed to get player JS")
             return null
         }
-        val (playerJs, hash) = result
+        // var: the unknown-hash self-heal below may swap in a freshly re-fetched player.js.
+        var playerJs = result.first
+        var hash = result.second
         Timber.tag(TAG).d("Got player JS: hash=$hash, length=${playerJs.length}")
 
         // Run full analysis for logging - pass the known hash from PlayerJsFetcher
@@ -364,6 +366,38 @@ object CipherDeobfuscator {
                 analysis = FunctionNameExtractor.analyzePlayerJs(playerJs, knownHash = hash)
                 builtEpoch = PlayerConfigStore.configEpoch
                 Timber.tag(TAG).d("Re-extracted after refresh: sigConfig=${analysis.sigInfo?.isHardcoded == true}, nConfig=${analysis.nFuncInfo?.isHardcoded == true}")
+            } else if (!forceRefresh && PlayerJsFetcher.shouldAttemptSelfHeal(hash)) {
+                // hashNowKnown=false: even after a remote config refresh the table can't back this
+                // player hash. The cached player.js may be a bad/transient (e.g. A/B) variant whose
+                // hash will never be config-backed — re-fetch YouTube's *current* player.js once
+                // (guarded per-hash + cooldown) so a stale cache self-heals instead of stranding
+                // playback for up to the 6h player.js TTL. The exception-retry path only re-fetches
+                // when a decipher actually throws; a wrong-but-non-throwing regex result or a null
+                // extraction would otherwise stay broken. Skipped when forceRefresh is already set
+                // (the retry path just re-fetched).
+                Timber.tag(TAG).w("hashNowKnown=false for $hash — re-fetching player.js to self-heal a possibly-stale cache")
+                PlayerJsFetcher.invalidateCache()
+                val fresh = PlayerJsFetcher.getPlayerJs(forceRefresh = true)
+                if (fresh != null && fresh.second != hash) {
+                    Timber.tag(TAG).d("Self-heal fetched a different player.js: $hash -> ${fresh.second}")
+                    playerJs = fresh.first
+                    hash = fresh.second
+                    analysis = FunctionNameExtractor.analyzePlayerJs(playerJs, knownHash = hash)
+                    // Give the freshly-rotated hash its own config-refresh chance (its config may be
+                    // published even though the stale cache's hash never was).
+                    if (analysis.sigInfo?.isHardcoded != true || analysis.nFuncInfo?.isHardcoded != true) {
+                        val freshHealed = PlayerConfigStore.forceRefresh(missingHash = hash)
+                        Timber.tag(TAG).d("forceRefresh($hash) after self-heal -> hashNowKnown=$freshHealed")
+                        if (freshHealed) {
+                            analysis = FunctionNameExtractor.analyzePlayerJs(playerJs, knownHash = hash)
+                        }
+                    }
+                    builtEpoch = PlayerConfigStore.configEpoch
+                } else {
+                    Timber.tag(TAG).d(
+                        "Self-heal fetch returned ${if (fresh == null) "null" else "the same hash ${fresh.second}"} — keeping current extraction",
+                    )
+                }
             }
         }
 

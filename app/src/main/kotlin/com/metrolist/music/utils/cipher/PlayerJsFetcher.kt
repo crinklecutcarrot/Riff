@@ -32,6 +32,19 @@ object PlayerJsFetcher {
     // the tmp mid-write and silently degrade to a truncating non-atomic write.
     private val cacheWriteLock = Any()
 
+    // Cooldown-gated guard for the player.js self-heal re-fetch (see CipherDeobfuscator.
+    // getOrCreateWebView). When a cached player.js has a hash the config table can't back even
+    // after a remote config refresh, the cache may be a bad/transient (e.g. A/B) variant — re-fetching
+    // YouTube's current player.js can recover it. But a genuinely config-less player (a legit old
+    // regex-only player, or YouTube still serving a bad variant) would otherwise re-download the
+    // ~2.8 MB player.js on every song, so gate to one attempt per distinct hash with a cooldown
+    // fallback for the same hash.
+    private const val SELF_HEAL_COOLDOWN_MS = 30 * 60 * 1000L // 30 minutes
+
+    @Volatile private var lastSelfHealHash: String? = null
+
+    @Volatile private var lastSelfHealAttemptMs = 0L
+
     private fun getCacheDir(): File = File(CipherDeobfuscator.appContext.filesDir, "cipher_cache")
 
     private fun getCacheFile(hash: String): File = File(getCacheDir(), "player_$hash.js")
@@ -124,6 +137,31 @@ object PlayerJsFetcher {
         } catch (e: Exception) {
             Timber.tag(TAG).e(e, "Failed to invalidate cache: ${e.message}")
         } }
+    }
+
+    /**
+     * Rate-limits the player.js self-heal re-fetch. Returns true (and arms the guard) at most once
+     * per distinct [currentHash], with a [SELF_HEAL_COOLDOWN_MS] fallback so the SAME failing hash
+     * retries only once per window rather than on every track. A newly rotated hash always gets a
+     * fresh attempt. Callers already serialize on CipherDeobfuscator.deobfuscateMutex; @Synchronized
+     * is belt-and-suspenders.
+     */
+    @Synchronized
+    fun shouldAttemptSelfHeal(currentHash: String, now: Long = System.currentTimeMillis()): Boolean {
+        // In-range (not a plain less-than) so a backward wall-clock step can't wedge the cooldown
+        // for the whole skew — mirrors PlayerConfigStore.withinWindow.
+        val onCooldown = currentHash == lastSelfHealHash &&
+            (now - lastSelfHealAttemptMs) in 0 until SELF_HEAL_COOLDOWN_MS
+        if (onCooldown) return false
+        lastSelfHealHash = currentHash
+        lastSelfHealAttemptMs = now
+        return true
+    }
+
+    /** Test-only: clears the self-heal guard so cases don't leak state across the shared JVM. */
+    internal fun resetSelfHealForTest() {
+        lastSelfHealHash = null
+        lastSelfHealAttemptMs = 0L
     }
 
     private fun readFromCache(): Pair<String, String>? {
