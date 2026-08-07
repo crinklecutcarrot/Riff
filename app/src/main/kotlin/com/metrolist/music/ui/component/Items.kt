@@ -1276,6 +1276,7 @@ fun YouTubeGridItem(
     isPlaying: Boolean = false,
     fillMaxWidth: Boolean = false,
     thumbnailHeight: Dp? = null,
+    showPlayButton: Boolean = true,
 ) = GridItem(
     title = {
         Text(
@@ -1321,14 +1322,14 @@ fun YouTubeGridItem(
             shape = if (item is ArtistItem) CircleShape else RoundedCornerShape(ThumbnailCornerRadius),
         )
 
-        if (item is SongItem && !isActive) {
+        if (showPlayButton && item is SongItem && !isActive) {
             OverlayPlayButton(
                 visible = true
             )
         }
 
         AlbumPlayButton(
-            visible = item is AlbumItem && !isActive,
+            visible = showPlayButton && item is AlbumItem && !isActive,
             onClick = {
                 scope.launch(Dispatchers.IO) {
                     var albumWithSongs = database.albumWithSongs(item.id).first()

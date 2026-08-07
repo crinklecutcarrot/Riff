@@ -84,6 +84,8 @@
     <string name="retry">Retry</string>
     <string name="radio">Radio</string>
     <string name="shuffle">Shuffle</string>
+    <string name="surprise_me">Surprise me</string>
+    <string name="random_mix">Random mix</string>
     <string name="reset">Reset</string>
 
     <!-- Menu -->

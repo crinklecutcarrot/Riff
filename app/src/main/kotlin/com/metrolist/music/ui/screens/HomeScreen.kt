@@ -8,7 +8,14 @@ package com.metrolist.music.ui.screens
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -74,6 +81,10 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -86,6 +97,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -138,7 +150,6 @@ import com.metrolist.music.playback.queues.YouTubeQueue
 import com.metrolist.music.ui.component.AlbumGridItem
 import com.metrolist.music.ui.component.ArtistGridItem
 import com.metrolist.music.ui.component.ChipsRow
-import com.metrolist.music.ui.component.HideOnScrollFAB
 import com.metrolist.music.ui.component.LocalBottomSheetPageState
 import com.metrolist.music.ui.component.LocalMenuState
 import com.metrolist.music.ui.component.NavigationTitle
@@ -1178,6 +1189,79 @@ fun HomeScreen(
         forgottenFavoritesLazyGridState.scrollToItem(0)
     }
 
+    // Shared "shuffle everything" action used by the Surprise me button. Picks a
+    // random item from the local or online home pools and starts a radio from it.
+    val shuffleAll: () -> Unit = {
+        if (!isListenTogetherGuest) {
+            val local =
+                when {
+                    allLocalItems.isNotEmpty() && allYtItems.isNotEmpty() -> Random.nextFloat() < 0.5
+                    allLocalItems.isNotEmpty() -> true
+                    else -> false
+                }
+            scope.launch(Dispatchers.Main) {
+                if (local) {
+                    when (val luckyItem = allLocalItems.random()) {
+                        is Song -> {
+                            playerConnection.playQueue(YouTubeQueue.radio(luckyItem.toMediaMetadata()))
+                        }
+
+                        is Album -> {
+                            val albumWithSongs =
+                                withContext(Dispatchers.IO) {
+                                    database.albumWithSongs(luckyItem.id).first()
+                                }
+                            albumWithSongs?.let {
+                                playerConnection.playQueue(LocalAlbumRadio(it))
+                            }
+                        }
+
+                        is Artist -> {}
+
+                        is Playlist -> {}
+                    }
+                } else {
+                    when (val luckyItem = allYtItems.random()) {
+                        is SongItem -> {
+                            playerConnection.playQueue(YouTubeQueue.radio(luckyItem.toMediaMetadata()))
+                        }
+
+                        is AlbumItem -> {
+                            playerConnection.playQueue(YouTubeAlbumRadio(luckyItem.playlistId))
+                        }
+
+                        is ArtistItem -> {
+                            luckyItem.radioEndpoint?.let {
+                                playerConnection.playQueue(YouTubeQueue(it))
+                            }
+                        }
+
+                        is PlaylistItem -> {
+                            luckyItem.playEndpoint?.let {
+                                playerConnection.playQueue(YouTubeQueue(it))
+                            }
+                        }
+
+                        is PodcastItem -> {
+                            luckyItem.playEndpoint?.let {
+                                playerConnection.playQueue(YouTubeQueue(it))
+                            }
+                        }
+
+                        is EpisodeItem -> {
+                            playerConnection.playQueue(
+                                ListQueue(
+                                    title = luckyItem.title,
+                                    items = listOf(luckyItem.toMediaMetadata().toMediaItem()),
+                                ),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     PullToRefreshBox(
         state = pullRefreshState,
         isRefreshing = isRefreshing,
@@ -1231,6 +1315,29 @@ fun HomeScreen(
                             viewModel.toggleChip(it)
                         },
                     )
+                }
+
+                if (selectedChip == null &&
+                    !isListenTogetherGuest &&
+                    (allLocalItems.isNotEmpty() || allYtItems.isNotEmpty())
+                ) {
+                    item(key = "surprise_me") {
+                        // Pull a few cover/profile images from the home shelves to
+                        // preview "this could shuffle anything".
+                        val surpriseThumbnails =
+                            remember(allLocalItems, allYtItems) {
+                                (allLocalItems.mapNotNull { it.thumbnailUrl } +
+                                    allYtItems.mapNotNull { it.thumbnail })
+                                    .filter { it.isNotBlank() }
+                                    .distinct()
+                                    .take(6)
+                            }
+                        SurpriseMeButton(
+                            onClick = shuffleAll,
+                            thumbnails = surpriseThumbnails,
+                            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 8.dp),
+                        )
+                    }
                 }
 
                 if (isLoading && homePage?.chips.isNullOrEmpty()) {
@@ -1513,6 +1620,7 @@ fun HomeScreen(
                                                 coroutineScope = scope,
                                                 thumbnailRatio = 1f,
                                                 thumbnailHeight = 152.dp,
+                                                showPlayButton = false,
                                                 modifier = Modifier.combinedClickable(
                                                     onClick = { openYouTubeItem(album) },
                                                     onLongClick = { openYouTubeItemMenu(album) },
@@ -2757,84 +2865,149 @@ fun HomeScreen(
                     }
                 }
             }
+        }
+    }
+}
 
-            HideOnScrollFAB(
-                visible = allLocalItems.isNotEmpty() || allYtItems.isNotEmpty(),
-                lazyListState = lazylistState,
-                icon = R.drawable.tabler_ic_arrows_shuffle_outline,
-                onClick = {
-                    if (!isListenTogetherGuest) {
-                        val local =
-                            when {
-                                allLocalItems.isNotEmpty() && allYtItems.isNotEmpty() -> Random.nextFloat() < 0.5
-                                allLocalItems.isNotEmpty() -> true
-                                else -> false
-                            }
-                        scope.launch(Dispatchers.Main) {
-                            if (local) {
-                                when (val luckyItem = allLocalItems.random()) {
-                                    is Song -> {
-                                        playerConnection.playQueue(YouTubeQueue.radio(luckyItem.toMediaMetadata()))
-                                    }
+/**
+ * Full-width accent "Surprise me" pill shown at the top of Home. Kicks off a
+ * random-mix radio via [onClick] (replaces the old shuffle FAB). When [thumbnails]
+ * are available it shows an overlapping, fading stack of covers/profile pics from
+ * the home shelves; otherwise it falls back to a plain shuffle icon.
+ */
+@Composable
+private fun SurpriseMeButton(
+    onClick: () -> Unit,
+    thumbnails: List<String>,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(32.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .height(66.dp)
+                .padding(start = 16.dp, end = 8.dp),
+        ) {
+            if (thumbnails.size >= 2) {
+                SurpriseMeThumbnailStack(thumbnails = thumbnails)
+            } else {
+                Icon(
+                    painter = painterResource(R.drawable.tabler_ic_arrows_shuffle_outline),
+                    contentDescription = null,
+                    modifier = Modifier.size(22.dp),
+                )
+            }
+            Spacer(Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.surprise_me),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    text = stringResource(R.string.random_mix),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            Spacer(Modifier.width(12.dp))
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary),
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.tabler_ic_player_play_filled),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+        }
+    }
+}
 
-                                    is Album -> {
-                                        val albumWithSongs =
-                                            withContext(Dispatchers.IO) {
-                                                database.albumWithSongs(luckyItem.id).first()
-                                            }
-                                        albumWithSongs?.let {
-                                            playerConnection.playQueue(LocalAlbumRadio(it))
-                                        }
-                                    }
+/**
+ * Overlapping "avatar stack" of home-shelf thumbnails for the Surprise me button,
+ * scrolling left forever like a marquee. Covers repeat seamlessly, the strip only
+ * shows ~4 at once, and both edges fade out (same DstIn technique as the player's
+ * scrolling song title) so covers dissolve in on the right and out on the left.
+ */
+@Composable
+private fun SurpriseMeThumbnailStack(thumbnails: List<String>) {
+    val avatarSize = 34.dp
+    val step = 20.dp
+    val visibleCovers = 4
+    val stripWidth = avatarSize + step * (visibleCovers - 1)
+    val edgeFade = 18.dp
 
-                                    is Artist -> {}
+    val stepPx = with(LocalDensity.current) { step.toPx() }
+    val cycleCount = thumbnails.size
+    val cyclePx = stepPx * cycleCount
 
-                                    is Playlist -> {}
-                                }
-                            } else {
-                                when (val luckyItem = allYtItems.random()) {
-                                    is SongItem -> {
-                                        playerConnection.playQueue(YouTubeQueue.radio(luckyItem.toMediaMetadata()))
-                                    }
+    // One continuous leftward scroll; looping by exactly one cycle keeps it seamless
+    // because cover j and cover j+cycleCount share the same image.
+    val transition = rememberInfiniteTransition(label = "surpriseScroll")
+    val scroll by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = -cyclePx,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = cycleCount * 2200, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "surpriseScrollOffset",
+    )
 
-                                    is AlbumItem -> {
-                                        playerConnection.playQueue(YouTubeAlbumRadio(luckyItem.playlistId))
-                                    }
+    // Render enough covers to fill the visible strip plus a full cycle of headroom.
+    val renderCount = cycleCount + visibleCovers + 2
+    val ringColor = MaterialTheme.colorScheme.surfaceContainer
 
-                                    is ArtistItem -> {
-                                        luckyItem.radioEndpoint?.let {
-                                            playerConnection.playQueue(YouTubeQueue(it))
-                                        }
-                                    }
-
-                                    is PlaylistItem -> {
-                                        luckyItem.playEndpoint?.let {
-                                            playerConnection.playQueue(YouTubeQueue(it))
-                                        }
-                                    }
-
-                                    is PodcastItem -> {
-                                        luckyItem.playEndpoint?.let {
-                                            playerConnection.playQueue(YouTubeQueue(it))
-                                        }
-                                    }
-
-                                    is EpisodeItem -> {
-                                        playerConnection.playQueue(
-                                            ListQueue(
-                                                title = luckyItem.title,
-                                                items = listOf(luckyItem.toMediaMetadata().toMediaItem()),
-                                            ),
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                onRecognitionClick = {
-                    navController.navigate("recognition")
-                },
+    Box(
+        modifier = Modifier
+            .height(avatarSize)
+            .width(stripWidth)
+            .graphicsLayer {
+                compositingStrategy = CompositingStrategy.Offscreen
+                clip = true
+            }
+            // Symmetric edge fade: keep the middle, dissolve both ends to transparent.
+            .drawWithContent {
+                drawContent()
+                val frac = (edgeFade.toPx() / size.width).coerceIn(0f, 0.5f)
+                drawRect(
+                    brush = Brush.horizontalGradient(
+                        0f to Color.Transparent,
+                        frac to Color.Black,
+                        1f - frac to Color.Black,
+                        1f to Color.Transparent,
+                    ),
+                    blendMode = BlendMode.DstIn,
+                )
+            },
+    ) {
+        // Draw right-to-left so earlier covers sit on top and exit on the left.
+        for (j in renderCount - 1 downTo 0) {
+            AsyncImage(
+                model = thumbnails[j % cycleCount],
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .graphicsLayer { translationX = scroll + stepPx * j }
+                    .size(avatarSize)
+                    .clip(CircleShape)
+                    .border(2.dp, ringColor, CircleShape),
             )
         }
     }

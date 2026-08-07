@@ -130,7 +130,7 @@ fun ExploreScreen(
                 color = MaterialTheme.colorScheme.surfaceContainer,
             ) {
                 Row(
-                    modifier = Modifier.height(52.dp).padding(horizontal = 17.dp),
+                    modifier = Modifier.height(52.dp).padding(start = 17.dp, end = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(11.dp),
                 ) {
@@ -146,6 +146,15 @@ fun ExploreScreen(
                         fontSize = 15.sp,
                         fontWeight = RiffSubtextWeight,
                     )
+                    Spacer(Modifier.weight(1f))
+                    IconButton(onClick = { navController.navigate("recognition") }) {
+                        Icon(
+                            painterResource(R.drawable.tabler_ic_microphone_outline),
+                            contentDescription = stringResource(R.string.recognize_music),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
                 }
             }
         }
@@ -265,6 +274,7 @@ fun ExploreScreen(
                             isPlaying = isPlaying,
                             coroutineScope = scope,
                             thumbnailHeight = 152.dp,
+                            showPlayButton = false,
                             modifier = Modifier.combinedClickable(
                                 onClick = { navController.navigate("album/${album.id}") },
                                 onLongClick = {
