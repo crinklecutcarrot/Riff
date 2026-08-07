@@ -100,12 +100,16 @@ fun <T> rememberPreference(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
+    // Seed the initial value with the synchronously-read saved value so pages
+    // render directly in the persisted state instead of flashing the default
+    // for a frame (e.g. grid -> saved list view).
+    val initialValue = remember { context.dataStore[key] ?: defaultValue }
     val state =
         remember {
             context.dataStore.data
                 .map { it[key] ?: defaultValue }
                 .distinctUntilChanged()
-        }.collectAsStateWithLifecycle(defaultValue)
+        }.collectAsStateWithLifecycle(initialValue)
 
     return remember {
         object : MutableState<T> {
@@ -134,12 +138,13 @@ inline fun <reified T : Enum<T>> rememberEnumPreference(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
+    val initialValue = remember { context.dataStore[key].toEnum(defaultValue = defaultValue) }
     val state =
         remember {
             context.dataStore.data
                 .map { it[key].toEnum(defaultValue = defaultValue) }
                 .distinctUntilChanged()
-        }.collectAsStateWithLifecycle(defaultValue)
+        }.collectAsStateWithLifecycle(initialValue)
 
     return remember {
         object : MutableState<T> {

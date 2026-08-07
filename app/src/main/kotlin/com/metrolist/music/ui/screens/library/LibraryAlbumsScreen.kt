@@ -68,7 +68,6 @@ import com.metrolist.music.constants.LibraryViewType
 import com.metrolist.music.constants.YtmSyncKey
 import com.metrolist.music.extensions.matchesNormalizedQuery
 import com.metrolist.music.extensions.normalizeForSearch
-import com.metrolist.music.ui.component.ChipsRow
 import com.metrolist.music.ui.component.EmptyPlaceholder
 import com.metrolist.music.ui.component.LibrarySearchEmptyPlaceholder
 import com.metrolist.music.ui.component.LibrarySearchHeader
@@ -110,22 +109,9 @@ fun LibraryAlbumsScreen(
     val (ytmSync) = rememberPreference(YtmSyncKey, true)
     val hideExplicit by rememberPreference(key = HideExplicitKey, defaultValue = false)
 
-    val filterContent = @Composable {
-        androidx.compose.foundation.layout.Column {
-            libraryHeader()
-            ChipsRow(
-                chips =
-                    listOf(
-                        AlbumFilter.LIBRARY to stringResource(R.string.filter_library),
-                        AlbumFilter.UPLOADED to stringResource(R.string.filter_uploaded),
-                    ),
-                currentValue = filter,
-                onValueUpdate = {
-                    filter = it
-                },
-            )
-        }
-    }
+    // The category + sub-filter pills now live in the shared LibraryPillTabs
+    // (passed in as libraryHeader); the Album sub-filter chips are rendered there.
+    val filterContent = libraryHeader
 
     LaunchedEffect(filter) {
         if (filter == AlbumFilter.LIKED) filter = AlbumFilter.LIBRARY

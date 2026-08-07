@@ -101,7 +101,7 @@ fun NavGraphBuilder.navigationBuilder(
     }
 
     composable(Screens.Library.route) {
-        LibraryScreen()
+        LibraryScreen(scrollBehavior = scrollBehavior)
     }
 
     composable(Screens.ListenTogether.route) {
