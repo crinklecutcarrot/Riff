@@ -88,6 +88,19 @@
     <string name="random_mix">Random mix</string>
     <string name="reset">Reset</string>
 
+    <!-- Recognition (Riff redesign) -->
+    <string name="rec_whats_playing">What\'s playing?</string>
+    <string name="rec_prompt_idle">Tap the mic and let it listen</string>
+    <string name="rec_hold_phone">Hold your phone toward the source</string>
+    <string name="rec_finding_match">Finding a match</string>
+    <string name="rec_comparing">Comparing fingerprint</string>
+    <string name="rec_got_it">Got it</string>
+    <string name="rec_tap_to_listen">Tap to listen</string>
+    <string name="rec_matching">Matching</string>
+    <string name="rec_best_match">Best match</string>
+    <string name="rec_recently_recognized">Recently recognized</string>
+    <string name="rec_search_on_ytm">Search on YouTube Music</string>
+
     <!-- Menu -->
     <string name="details">Details</string>
     <string name="edit">Edit</string>
