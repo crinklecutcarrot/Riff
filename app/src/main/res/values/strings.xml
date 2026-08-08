@@ -96,6 +96,7 @@
     <string name="rec_comparing">Comparing fingerprint</string>
     <string name="rec_got_it">Got it</string>
     <string name="rec_tap_to_listen">Tap to listen</string>
+    <string name="rec_tap_to_finish">Tap to finish</string>
     <string name="rec_matching">Matching</string>
     <string name="rec_best_match">Best match</string>
     <string name="rec_recently_recognized">Recently recognized</string>

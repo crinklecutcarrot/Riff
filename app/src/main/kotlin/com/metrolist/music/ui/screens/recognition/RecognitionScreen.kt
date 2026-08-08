@@ -162,9 +162,6 @@ fun RecognitionScreen(
         }
     }
 
-    fun resetToReady() {
-        MusicRecognitionService.reset()
-    }
 
     fun saveToHistory(result: RecognitionResult) {
         // Skip if the widget service already persisted this result to avoid a duplicate entry
@@ -270,7 +267,9 @@ fun RecognitionScreen(
                             is RecognitionStatus.Error,
                             -> startRecognition()
 
-                            is RecognitionStatus.Listening -> resetToReady()
+                            // Stop capture early and go straight to matching (does NOT cancel back
+                            // to the start — leave via the back button to cancel).
+                            is RecognitionStatus.Listening -> MusicRecognitionService.finishListening()
                             else -> {}
                         }
                     },
@@ -437,7 +436,7 @@ private fun RecognitionCircle(
                 is RecognitionStatus.Listening -> {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         EqBars(color = content)
                         Text(
@@ -446,6 +445,12 @@ private fun RecognitionCircle(
                             fontWeight = FontWeight.SemiBold,
                             color = content,
                             letterSpacing = 1.sp,
+                        )
+                        Text(
+                            text = stringResource(R.string.rec_tap_to_finish).uppercase(),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = content.copy(alpha = 0.75f),
+                            letterSpacing = 1.4.sp,
                         )
                     }
                 }

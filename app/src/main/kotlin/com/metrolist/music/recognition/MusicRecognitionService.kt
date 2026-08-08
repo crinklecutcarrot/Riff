@@ -41,13 +41,21 @@ object MusicRecognitionService {
     private const val RECORDING_SAMPLE_RATE = 44100
     private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO
     private const val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
-    // Recording duration: 12 seconds for better recognition accuracy
-    // We use 12s directly to match the fallback duration for maximum compatibility
+    // Max hands-off capture: if the user never taps "finish", auto-stop here (12s gives Shazam a
+    // generous window for a clean match).
     private const val RECORDING_DURATION_MS = 12000L
+    // Min capture before an early "finish" tap is honoured — below this Shazam rarely matches, so a
+    // too-early tap still records up to this floor before it stops.
+    private const val MIN_RECORDING_DURATION_MS = 4000L
     private const val TAG = "MusicRecognitionService"
 
     private val _recognitionStatus = MutableStateFlow<RecognitionStatus>(RecognitionStatus.Ready)
     val recognitionStatus: StateFlow<RecognitionStatus> = _recognitionStatus.asStateFlow()
+
+    // Set by [finishListening] so the user can stop capture early and jump straight to matching.
+    // @Volatile: written from the UI thread, read by the recording loop on Dispatchers.IO.
+    @Volatile
+    private var stopRequested = false
 
     /**
      * Set to true by the widget service after it has already persisted the result to the
@@ -74,6 +82,8 @@ object MusicRecognitionService {
             return@withContext RecognitionStatus.Error("Microphone permission not granted")
         }
 
+        // Clear any stale finish request from a previous (cancelled) run before we start listening.
+        stopRequested = false
         _recognitionStatus.value = RecognitionStatus.Listening
         Timber.tag(TAG).d("Starting music recognition")
         
@@ -175,9 +185,18 @@ object MusicRecognitionService {
         
         try {
             audioRecord.startRecording()
-            Timber.tag(TAG).d("AudioRecord started, recording for %dms", RECORDING_DURATION_MS)
+            Timber.tag(TAG).d("AudioRecord started, recording up to %dms (min %dms)", RECORDING_DURATION_MS, MIN_RECORDING_DURATION_MS)
 
-            while (System.currentTimeMillis() - startTime < RECORDING_DURATION_MS && isActive) {
+            // Stop when: the coroutine is cancelled (screen left), the hands-off cap is hit, or the
+            // user tapped "finish" after at least the minimum useful sample. The buffer read returns
+            // in a fraction of a second, so a finish tap is honoured near-instantly.
+            while (isActive) {
+                val elapsed = System.currentTimeMillis() - startTime
+                if (elapsed >= RECORDING_DURATION_MS) break
+                if (stopRequested && elapsed >= MIN_RECORDING_DURATION_MS) {
+                    Timber.tag(TAG).d("Finish requested at %dms — stopping capture early", elapsed)
+                    break
+                }
                 val bytesRead = audioRecord.read(buffer, 0, bufferSize)
                 if (bytesRead > 0) {
                     outputStream.write(buffer, 0, bytesRead)
@@ -193,8 +212,21 @@ object MusicRecognitionService {
         outputStream.toByteArray()
     }
     
+    /**
+     * Stop capture early and go straight to matching. No-op unless we're currently listening (so a
+     * stray tap during processing/result can't arm a stale flag). The recording loop honours this
+     * once at least [MIN_RECORDING_DURATION_MS] has been captured.
+     */
+    fun finishListening() {
+        if (_recognitionStatus.value is RecognitionStatus.Listening) {
+            Timber.tag(TAG).d("finishListening: early stop requested")
+            stopRequested = true
+        }
+    }
+
     fun reset() {
         Timber.tag(TAG).d("Recognition state reset")
+        stopRequested = false
         _recognitionStatus.value = RecognitionStatus.Ready
         resultSavedExternally = false
     }
