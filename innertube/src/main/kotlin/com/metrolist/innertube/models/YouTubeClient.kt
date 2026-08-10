@@ -69,6 +69,19 @@ data class YouTubeClient(
             useWebPoTokens = true,
         )
 
+        // Official YouTube Music Android client. Album-detail responses for it carry data the
+        // WEB_REMIX response omits — notably per-track durations and the pre-release countdown
+        // timestamp for upcoming/pre-save albums. Used as a supplementary fetch in YouTube.album().
+        val ANDROID_MUSIC = YouTubeClient(
+            clientName = "ANDROID_MUSIC",
+            clientVersion = "7.27.52",
+            clientId = "21",
+            userAgent = "com.google.android.apps.youtube.music/7.27.52 (Linux; U; Android 14) gzip",
+            osName = "Android",
+            osVersion = "14",
+            androidSdkVersion = "34",
+        )
+
         val WEB_CREATOR = YouTubeClient(
             clientName = "WEB_CREATOR",
             clientVersion = "1.20260114.05.00",

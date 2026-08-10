@@ -53,6 +53,9 @@ constructor(
     val albumType = MutableStateFlow<String?>(null)
     val remoteAlbumPage = MutableStateFlow<AlbumPage?>(null)
     val remoteAlbumSaved = MutableStateFlow<Boolean?>(null)
+    // True once the remote album fetch has completed (success OR failure), so the screen can stop
+    // showing an infinite spinner for albums that legitimately have no playable songs (pre-saves).
+    val loaded = MutableStateFlow(false)
     private val _mutationError = MutableStateFlow(false)
     val mutationError = _mutationError
     private val _libraryMutations = MutableSharedFlow<LibraryMutation>(extraBufferCapacity = 1)
@@ -163,6 +166,7 @@ constructor(
                         }
                     }
                 }
+            loaded.value = true
         }
     }
 }

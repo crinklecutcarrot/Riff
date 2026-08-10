@@ -39,7 +39,10 @@ data class SongItem(
     val isInLibrary: Boolean? = null,
     val historyRemoveToken: String? = null,
     val isEpisode: Boolean = false,
-    val uploadEntityId: String? = null
+    val uploadEntityId: String? = null,
+    // False for tracks on an upcoming/pre-save album that haven't been released yet
+    // (no playable stream / no duration in the album response). Rendered greyed + non-playable.
+    val isAvailable: Boolean = true,
 ) : YTItem() {
     val isVideoSong: Boolean
         get() = musicVideoType != null && musicVideoType != MUSIC_VIDEO_TYPE_ATV

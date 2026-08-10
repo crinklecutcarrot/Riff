@@ -26,6 +26,7 @@ import com.metrolist.innertube.models.WatchEndpoint
 import com.metrolist.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_ATV
 import com.metrolist.innertube.models.YTItem
 import com.metrolist.innertube.models.YouTubeClient
+import com.metrolist.innertube.models.YouTubeClient.Companion.ANDROID_MUSIC
 import com.metrolist.innertube.models.YouTubeClient.Companion.WEB
 import com.metrolist.innertube.models.YouTubeClient.Companion.WEB_REMIX
 import com.metrolist.innertube.models.YouTubeLocale
@@ -376,6 +377,34 @@ object YouTube {
             )
         }
 
+    // The ANDROID_MUSIC album response is a different (EML/element) shape than WEB_REMIX, so rather
+    // than model it we extract just what we need: per-track durations. Each track is a
+    // "musicListItemData" object with a "title" and a "subtitle" like "artist • 3:03"; we map
+    // title (lowercased) -> duration seconds so the caller can fill in unreleased tracks by title.
+    private fun parseAndroidMusicDurations(amText: String): Map<String, Int> {
+        val out = HashMap<String, Int>()
+        val itemRegex = Regex("\"musicListItemData\":\\{")
+        val titleRegex = Regex("\"title\":\"((?:\\\\.|[^\"\\\\])*)\"")
+        val subtitleRegex = Regex("\"subtitle\":\"((?:\\\\.|[^\"\\\\])*)\"")
+        val timeRegex = Regex("\\d{1,2}:\\d{2}")
+        for (m in itemRegex.findAll(amText)) {
+            val start = m.range.last + 1
+            val seg = amText.substring(start, minOf(amText.length, start + 800))
+            val title = titleRegex.find(seg)?.groupValues?.getOrNull(1) ?: continue
+            val subtitle = subtitleRegex.find(seg)?.groupValues?.getOrNull(1) ?: continue
+            val durText = timeRegex.findAll(subtitle).lastOrNull()?.value ?: continue
+            val secs = durText.parseTime() ?: continue
+            val key = title
+                .replace("\\\"", "\"")
+                .replace("\\\\", "\\")
+                .replace("\\/", "/")
+                .trim()
+                .lowercase()
+            if (key.isNotEmpty()) out[key] = secs
+        }
+        return out
+    }
+
     suspend fun album(
         browseId: String,
         withSongs: Boolean = true,
@@ -524,7 +553,10 @@ object YouTube {
                 // pagination, but often strips that column, so prefer the album rows.
                 val albumSongsList = if (withSongs) {
                     val richAlbumRows = AlbumPage.getSongs(response, albumItem)
-                    val playlistRows = albumSongs(playlistId, albumItem).getOrThrow()
+                    // Resilient: an upcoming/pre-save album has no playable VL playlist, so this
+                    // fetch throws — fall back to the album rows instead of failing the whole page
+                    // (which used to leave the album screen spinning forever).
+                    val playlistRows = albumSongs(playlistId, albumItem).getOrElse { emptyList() }
                     val richRowsById = richAlbumRows.associateBy { it.id }
                     (playlistRows.map { playlistSong ->
                         richRowsById[playlistSong.id]?.copy(
@@ -554,9 +586,38 @@ object YouTube {
                     } else {
                         albumItem
                     }
+
+                // Upcoming / pre-save album: WEB_REMIX omits durations and the release date, so pull
+                // them from the official ANDROID_MUSIC album response (which carries a countdown
+                // timer + per-track durations) and merge in. Best-effort — never fails the page.
+                val albumType = AlbumPage.getType(response)
+                val isUpcoming = albumType?.contains("Upcoming", ignoreCase = true) == true ||
+                    albumSongsList.any { !it.isAvailable } ||
+                    albumSongsList.isEmpty()
+                var releaseTimestampMs: Long? = null
+                var mergedSongs = albumSongsList
+                if (withSongs && isUpcoming) {
+                    runCatching {
+                        val amText = innerTube.browse(ANDROID_MUSIC, browseId).bodyAsText()
+                        releaseTimestampMs = Regex("\"countdownEndTimestampMs\":\"(\\d+)\"")
+                            .find(amText)?.groupValues?.getOrNull(1)?.toLongOrNull()
+                        val durationByTitle = parseAndroidMusicDurations(amText)
+                        if (durationByTitle.isNotEmpty()) {
+                            mergedSongs = albumSongsList.map { song ->
+                                if (song.duration == null) {
+                                    durationByTitle[song.title.trim().lowercase()]
+                                        ?.let { song.copy(duration = it) } ?: song
+                                } else {
+                                    song
+                                }
+                            }
+                        }
+                    }
+                }
+
                 return@runCatching AlbumPage(
                     album = resolvedAlbum,
-                    songs = albumSongsList,
+                    songs = mergedSongs,
                     otherVersions =
                         response.contents.twoColumnBrowseResultsRenderer.secondaryContents
                             ?.sectionListRenderer
@@ -568,8 +629,9 @@ object YouTube {
                             ?.mapNotNull { it.musicTwoRowItemRenderer }
                             ?.mapNotNull(NewReleaseAlbumPage::fromMusicTwoRowItemRenderer)
                             .orEmpty(),
-                    type = AlbumPage.getType(response),
+                    type = albumType,
                     isInLibrary = AlbumPage.getLibraryState(response),
+                    releaseTimestampMs = releaseTimestampMs,
                 )
             }
         }.also { result ->

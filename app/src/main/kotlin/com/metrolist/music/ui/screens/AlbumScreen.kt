@@ -58,6 +58,7 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.scale
@@ -131,6 +132,8 @@ fun AlbumScreen(
     val albumType by viewModel.albumType.collectAsStateWithLifecycle()
     val remoteAlbumPage by viewModel.remoteAlbumPage.collectAsStateWithLifecycle()
     val remoteAlbumSaved by viewModel.remoteAlbumSaved.collectAsStateWithLifecycle()
+    val loaded by viewModel.loaded.collectAsStateWithLifecycle()
+    val releaseTimestampMs = remoteAlbumPage?.releaseTimestampMs
     val mediaMetadata by playerConnection.mediaMetadata.collectAsStateWithLifecycle()
     val isPlaying by playerConnection.isEffectivelyPlaying.collectAsStateWithLifecycle()
     val hideExplicit by rememberPreference(HideExplicitKey, false)
@@ -181,8 +184,13 @@ fun AlbumScreen(
 
     val bottomInset = LocalPlayerAwareWindowInsets.current.asPaddingValues().calculateBottomPadding()
     val page = albumWithSongs
-    if (page == null || page.songs.isEmpty() || remoteAlbumPage == null) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+    // Render as soon as the album (from cache/DB) exists. Pre-save albums have no playable songs,
+    // so we must NOT gate on songs being non-empty (that spun forever). Only show the spinner while
+    // the first load is still in flight.
+    if (page == null) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            if (!loaded) CircularProgressIndicator()
+        }
         return
     }
 
@@ -206,6 +214,7 @@ fun AlbumScreen(
                         AlbumMenu(Album(page.album, page.artists), onDismiss = menuState::dismiss)
                     }
                 },
+                releaseTimestampMs = releaseTimestampMs,
             )
         }
 
@@ -266,9 +275,13 @@ fun AlbumScreen(
         }
 
         itemsIndexed(filteredSongs, key = { index, song -> "riff_album_track_${song.id}_$index" }) { index, song ->
+            // Unreleased pre-save tracks come back flagged unavailable in the remote page — show them
+            // greyed and non-playable.
+            val available = remoteAlbumPage?.songs?.firstOrNull { it.id == song.id }?.isAvailable ?: true
             AlbumTrackRow(
                 song = song,
                 index = index,
+                available = available,
                 plays = trackPlays[song.id].orEmpty().ifBlank { stringResource(R.string.riff_plays_unavailable) },
                 active = song.id == mediaMetadata?.id,
                 playing = isPlaying,
@@ -277,7 +290,7 @@ fun AlbumScreen(
                 onClick = {
                     if (inSelectMode) {
                         if (song.id in selection) selection.remove(song.id) else selection.add(song.id)
-                    } else if (!isListenTogetherGuest) {
+                    } else if (!isListenTogetherGuest && available) {
                         if (song.id == mediaMetadata?.id) playerConnection.togglePlayPause()
                         else {
                             playerConnection.service.getAutomix(playlistId)
@@ -378,6 +391,7 @@ private fun AlbumHero(
     onBackLong: () -> Unit,
     onArtist: () -> Unit,
     onMenu: () -> Unit,
+    releaseTimestampMs: Long? = null,
 ) {
     val background = MaterialTheme.colorScheme.background
     val totalDuration = album.songs.sumOf { it.song.duration.coerceAtLeast(0) }
@@ -388,7 +402,11 @@ private fun AlbumHero(
         totalDuration.takeIf { it > 0 }?.let { "${it / 60} min" },
     ).joinToString(" \u2022 ")
 
-    Box(Modifier.fillMaxWidth().height(438.dp).clipToBounds().background(background)) {
+    // The countdown block adds two extra rows below the title/artist; give the hero more height so
+    // the bottom content clears the cover art instead of overlapping it.
+    val heroHeight = if (releaseTimestampMs != null) 528.dp else 438.dp
+
+    Box(Modifier.fillMaxWidth().height(heroHeight).clipToBounds().background(background)) {
         AsyncImage(
             model = album.album.thumbnailUrl?.resize(1080, 1080),
             contentDescription = null,
@@ -396,7 +414,7 @@ private fun AlbumHero(
             modifier = Modifier.fillMaxSize().scale(1.2f).blur(32.dp),
         )
         Box(
-            Modifier.fillMaxWidth().height(438.dp).background(
+            Modifier.fillMaxWidth().height(heroHeight).background(
                 Brush.verticalGradient(
                     0f to Color.Black.copy(alpha = 0.62f),
                     0.30f to Color.Black.copy(alpha = 0.22f),
@@ -473,18 +491,86 @@ private fun AlbumHero(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            Text(
-                metadata.uppercase(),
-                Modifier.padding(top = 7.dp),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontFamily = RiffAzeretMono,
-                fontSize = 10.sp,
-                fontWeight = RiffSubtextWeight,
-                letterSpacing = 1.1.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            if (releaseTimestampMs != null) {
+                UpcomingReleaseInfo(releaseTimestampMs)
+            } else {
+                Text(
+                    metadata.uppercase(),
+                    Modifier.padding(top = 7.dp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontFamily = RiffAzeretMono,
+                    fontSize = 10.sp,
+                    fontWeight = RiffSubtextWeight,
+                    letterSpacing = 1.1.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
+    }
+}
+
+/**
+ * "New album out <date>" plus a live DAYS/HOURS/MINUTES countdown for a pre-save album.
+ * (Seconds intentionally omitted.) Ticks once per second so minutes stay accurate.
+ */
+@Composable
+private fun UpcomingReleaseInfo(releaseTimestampMs: Long) {
+    var now by remember { mutableStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(releaseTimestampMs) {
+        while (true) {
+            now = System.currentTimeMillis()
+            kotlinx.coroutines.delay(1000L)
+        }
+    }
+    val dateText = remember(releaseTimestampMs) {
+        val date = java.time.Instant.ofEpochMilli(releaseTimestampMs)
+            .atZone(java.time.ZoneId.systemDefault())
+            .toLocalDate()
+        date.format(java.time.format.DateTimeFormatter.ofPattern("MMMM d, yyyy"))
+    }
+    val remaining = (releaseTimestampMs - now).coerceAtLeast(0L)
+    val totalMinutes = remaining / 60000L
+    val days = totalMinutes / (24 * 60)
+    val hours = (totalMinutes % (24 * 60)) / 60
+    val minutes = totalMinutes % 60
+
+    Text(
+        stringResource(R.string.riff_new_album_out, dateText),
+        Modifier.padding(top = 8.dp),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        fontSize = 13.sp,
+        fontWeight = RiffSubtextWeight,
+        textAlign = TextAlign.Center,
+        maxLines = 2,
+    )
+    Row(
+        Modifier.padding(top = 14.dp),
+        horizontalArrangement = Arrangement.spacedBy(22.dp),
+    ) {
+        CountdownCell(days, stringResource(R.string.riff_countdown_days))
+        CountdownCell(hours, stringResource(R.string.riff_countdown_hours))
+        CountdownCell(minutes, stringResource(R.string.riff_countdown_minutes))
+    }
+}
+
+@Composable
+private fun CountdownCell(value: Long, label: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            value.toString().padStart(2, '0'),
+            color = MaterialTheme.colorScheme.onSurface,
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+        )
+        Text(
+            label,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontFamily = RiffAzeretMono,
+            fontSize = 9.sp,
+            letterSpacing = 1.sp,
+            fontWeight = RiffSubtextWeight,
+        )
     }
 }
 
@@ -511,11 +597,13 @@ private fun AlbumTrackRow(
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     onMore: () -> Unit,
+    available: Boolean = true,
 ) {
     val controls = riffControlColors()
     Row(
         Modifier
             .fillMaxWidth()
+            .alpha(if (available) 1f else 0.45f)
             .padding(horizontal = 10.dp, vertical = 3.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(

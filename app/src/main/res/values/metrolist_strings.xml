@@ -1045,7 +1045,11 @@
     <string name="riff_rating_sync_failed">Couldn\'t update this song on YouTube Music</string>
     <string name="riff_previous_artist">Previous artist</string>
     <string name="riff_next_artist">Next artist</string>
-    <string name="riff_new_release">New Release</string>
+    <string name="riff_new_release">Latest Release</string>
+    <string name="riff_releases_in_days">Releases in %1$d days</string>
+    <string name="riff_presave_badge">Presave</string>
+    <string name="riff_releases_tomorrow">Releases tomorrow</string>
+    <string name="riff_releases_today">Releases today</string>
     <string name="riff_popular_songs">Popular Songs</string>
     <string name="riff_singles_eps">Singles &amp; EPs</string>
     <string name="riff_radio">Radio</string>
@@ -1066,6 +1070,10 @@
     <string name="riff_released_year">Released %1$d</string>
     <string name="riff_more_by_artist">More by %1$s</string>
     <string name="riff_album_type">Album</string>
+    <string name="riff_new_album_out">New album out %1$s</string>
+    <string name="riff_countdown_days">DAYS</string>
+    <string name="riff_countdown_hours">HOURS</string>
+    <string name="riff_countdown_minutes">MINUTES</string>
     <string name="riff_floating_player_dock">Floating navigation and miniplayer</string>
     <string name="riff_floating_player_dock_desc">Turn off for a traditional static navigation bar with a theme-colored miniplayer above it</string>
 </resources>

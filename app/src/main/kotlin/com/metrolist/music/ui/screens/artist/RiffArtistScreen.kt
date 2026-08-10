@@ -46,8 +46,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -67,6 +69,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
+import com.metrolist.innertube.YouTube
+import kotlin.math.ceil
 import com.metrolist.innertube.models.AlbumItem
 import com.metrolist.innertube.models.ArtistItem
 import com.metrolist.innertube.models.SongItem
@@ -156,6 +160,18 @@ fun ArtistScreen(
     LaunchedEffect(newRelease?.id, libraryAlbumStateLoaded) {
         newRelease?.let(viewModel::refreshAlbumSavedState)
     }
+    // Hoisted to screen scope (not inside the LazyColumn item) so it's fetched once and doesn't
+    // flicker/re-fetch every time the Latest Release card scrolls back into view. If the featured
+    // release has no year it may be an unreleased pre-save — look up its release date (cached).
+    var newReleaseTs by remember { mutableStateOf<Long?>(null) }
+    LaunchedEffect(newRelease?.id) {
+        val rel = newRelease
+        newReleaseTs = if (rel != null && rel.year == null) {
+            runCatching { YouTube.album(rel.id).getOrNull()?.releaseTimestampMs }.getOrNull()
+        } else {
+            null
+        }
+    }
     val compactHeaderVisible by remember {
         derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 330 }
     }
@@ -212,6 +228,7 @@ fun ArtistScreen(
                     RiffSection(heading = stringResource(R.string.riff_new_release)) {
                         NewReleaseRow(
                             album = release,
+                            releaseTimestampMs = newReleaseTs,
                             saved = listOf(release.id, release.playlistId, release.libraryIdentityKey())
                                 .firstNotNullOfOrNull { albumSavedOverrides[it] }
                                 ?: if (libraryAlbumStateLoaded) {
@@ -464,18 +481,49 @@ private fun SectionHeading(title: String, horizontalPadding: androidx.compose.ui
 }
 
 @Composable
-private fun NewReleaseRow(album: AlbumItem, saved: Boolean?, onOpen: () -> Unit, onSave: () -> Unit) {
+private fun NewReleaseRow(
+    album: AlbumItem,
+    saved: Boolean?,
+    onOpen: () -> Unit,
+    onSave: () -> Unit,
+    releaseTimestampMs: Long? = null,
+) {
     val controls = riffControlColors()
-    Row(Modifier.fillMaxWidth().clickable(onClick = onOpen), verticalAlignment = Alignment.CenterVertically) {
-        AsyncImage(album.thumbnail, null, Modifier.size(88.dp).clip(RoundedCornerShape(12.dp)), contentScale = ContentScale.Crop)
+    val countdownText = releaseTimestampMs?.let { ts ->
+        val days = ceil((ts - System.currentTimeMillis()) / 86_400_000.0).toInt()
+        when {
+            days <= 0 -> stringResource(R.string.riff_releases_today)
+            days == 1 -> stringResource(R.string.riff_releases_tomorrow)
+            else -> stringResource(R.string.riff_releases_in_days, days)
+        }
+    }
+    Surface(
+        onClick = onOpen,
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+      Row(Modifier.fillMaxWidth().padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
+        AsyncImage(album.thumbnail, null, Modifier.size(76.dp).clip(RoundedCornerShape(12.dp)), contentScale = ContentScale.Crop)
         Column(Modifier.weight(1f).padding(horizontal = 14.dp)) {
             Text(album.title, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            Text(
-                listOfNotNull(album.artists?.joinToString { it.name }, album.year?.toString()).joinToString(" \u2022 "),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 13.sp,
-                fontWeight = RiffSubtextWeight,
-            )
+            if (countdownText != null) {
+                Row(
+                    Modifier.padding(top = 3.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                ) {
+                    PresaveBadge()
+                    Text(countdownText, color = controls.accent, fontSize = 13.sp, fontWeight = RiffSubtextWeight)
+                }
+            } else {
+                Text(
+                    listOfNotNull(album.artists?.joinToString { it.name }, album.year?.toString()).joinToString(" \u2022 "),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 13.sp,
+                    fontWeight = RiffSubtextWeight,
+                )
+            }
         }
         Surface(onClick = onSave, enabled = saved != null, shape = CircleShape, color = controls.secondary, contentColor = controls.onSecondary) {
             Box(Modifier.size(46.dp), contentAlignment = Alignment.Center) {
@@ -490,6 +538,7 @@ private fun NewReleaseRow(album: AlbumItem, saved: Boolean?, onOpen: () -> Unit,
                 }
             }
         }
+      }
     }
 }
 
@@ -537,10 +586,36 @@ private fun ArtistCarousel(title: String, albums: List<AlbumItem>, onShowMore: (
                 Column(Modifier.width(140.dp).clickable { onAlbum(album) }) {
                     AsyncImage(album.thumbnail, null, Modifier.size(140.dp).clip(RoundedCornerShape(14.dp)), contentScale = ContentScale.Crop)
                     Text(album.title, Modifier.padding(top = 8.dp), fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(album.year?.toString().orEmpty(), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp, fontWeight = RiffSubtextWeight)
+                    // A discography album with no year is an unreleased pre-save — badge it where the
+                    // year would go.
+                    if (album.year == null) {
+                        PresaveBadge(Modifier.padding(top = 3.dp))
+                    } else {
+                        Text(album.year.toString(), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp, fontWeight = RiffSubtextWeight)
+                    }
                 }
             }
         }
+    }
+}
+
+/** Small rounded-rectangle "Presave" badge for unreleased albums. */
+@Composable
+private fun PresaveBadge(modifier: Modifier = Modifier) {
+    val controls = riffControlColors()
+    Box(
+        modifier
+            .clip(RoundedCornerShape(5.dp))
+            .background(controls.accent)
+            .padding(horizontal = 6.dp, vertical = 2.dp),
+    ) {
+        Text(
+            stringResource(R.string.riff_presave_badge),
+            color = controls.onAccent,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = 0.3.sp,
+        )
     }
 }
 
@@ -581,6 +656,7 @@ private fun ArtistStatsCard(description: String?, subscribers: String?, listener
                     text = description,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.sp,
+                    fontWeight = RiffSubtextWeight,
                     lineHeight = 20.sp,
                 )
             }

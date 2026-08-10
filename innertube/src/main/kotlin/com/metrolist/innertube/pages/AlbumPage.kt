@@ -18,6 +18,9 @@ data class AlbumPage(
     val otherVersions: List<AlbumItem>,
     val type: String? = null,
     val isInLibrary: Boolean? = null,
+    // For upcoming/pre-save albums: the release date as epoch millis (from the ANDROID_MUSIC
+    // countdown timer). Null for already-released albums.
+    val releaseTimestampMs: Long? = null,
 ) {
     companion object {
         fun getPlaylistId(response: BrowseResponse): String? {
@@ -139,6 +142,22 @@ data class AlbumPage(
                     column.musicResponsiveListItemFlexColumnRenderer.text?.runs.orEmpty()
                 }
 
+            val parsedDuration = renderer.fixedColumns?.firstOrNull()
+                ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs?.firstOrNull()
+                ?.text?.parseTime()
+
+            // A track is playable only if it exposes a watch endpoint. Unreleased pre-save tracks
+            // still carry a videoId in playlistItemData (and even a duration), but have NO watch
+            // endpoint anywhere — flag those unavailable so the UI can grey them out and block play.
+            val playableVideoId = renderer.navigationEndpoint?.watchEndpoint?.videoId
+                ?: renderer.overlay?.musicItemThumbnailOverlayRenderer
+                    ?.content?.musicPlayButtonRenderer
+                    ?.playNavigationEndpoint?.watchEndpoint?.videoId
+                ?: renderer.flexColumns.firstOrNull()
+                    ?.musicResponsiveListItemFlexColumnRenderer
+                    ?.text?.runs?.firstOrNull()
+                    ?.navigationEndpoint?.watchEndpoint?.videoId
+
             return SongItem(
                 id = renderer.playlistItemData?.videoId
                     ?: renderer.navigationEndpoint?.watchEndpoint?.videoId
@@ -150,7 +169,13 @@ data class AlbumPage(
                         ?.text?.runs?.firstOrNull()
                         ?.navigationEndpoint?.watchEndpoint?.videoId
                     ?: return null,
-                title = PageHelper.extractRuns(renderer.flexColumns, "MUSIC_VIDEO").firstOrNull()?.text ?: return null,
+                // Released tracks expose the title as a MUSIC_VIDEO-typed run; unreleased pre-save
+                // tracks have no watch endpoint on the title run, so fall back to the plain first
+                // flex-column text (otherwise the whole tracklist gets dropped).
+                title = PageHelper.extractRuns(renderer.flexColumns, "MUSIC_VIDEO").firstOrNull()?.text
+                    ?: renderer.flexColumns.firstOrNull()
+                        ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs?.firstOrNull()?.text
+                    ?: return null,
                 artists = PageHelper.extractRuns(renderer.flexColumns, "MUSIC_PAGE_TYPE_ARTIST").map{
                     Artist(
                         name = it.text,
@@ -178,9 +203,8 @@ data class AlbumPage(
                         id = it.navigationEndpoint?.browseEndpoint?.browseId!!
                     )
                 }!!,
-                duration = renderer.fixedColumns?.firstOrNull()
-                    ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs?.firstOrNull()
-                    ?.text?.parseTime() ?: return null,
+                duration = parsedDuration,
+                isAvailable = playableVideoId != null,
                 viewsText = PageHelper.extractViewCountText(metadataRuns),
                 musicVideoType = renderer.musicVideoType,
                 thumbnail = renderer.thumbnail?.getThumbnailUrl() ?: album?.thumbnail!!,

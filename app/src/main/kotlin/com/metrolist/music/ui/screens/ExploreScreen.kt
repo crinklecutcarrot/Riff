@@ -77,7 +77,9 @@ import com.metrolist.music.ui.component.LocalMenuState
 import com.metrolist.music.ui.component.NavigationTitle
 import com.metrolist.music.ui.component.YouTubeGridItem
 import com.metrolist.music.ui.component.YouTubeListItem
-import com.metrolist.music.ui.component.shimmer.TextPlaceholder
+import com.metrolist.music.ui.component.shimmer.GridItemPlaceHolder
+import com.metrolist.music.ui.component.shimmer.ListItemPlaceHolder
+import com.metrolist.music.ui.component.shimmer.ShimmerHost
 import com.metrolist.music.ui.menu.YouTubeAlbumMenu
 import com.metrolist.music.ui.menu.YouTubeSongMenu
 import com.metrolist.music.ui.theme.RiffSubtextWeight
@@ -166,10 +168,9 @@ fun ExploreScreen(
             item("top_songs_spacing") { Spacer(Modifier.height(12.dp)) }
             item("top_songs_title") { NavigationTitle("Top songs") }
             item("top_songs_loading") {
-                TextPlaceholder(
-                    height = 250.dp,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-                )
+                ShimmerHost {
+                    repeat(4) { ListItemPlaceHolder() }
+                }
             }
         } else {
             item("top_songs_spacing") { Spacer(Modifier.height(12.dp)) }
@@ -250,12 +251,9 @@ fun ExploreScreen(
         }
         if (explorePage == null) {
             item("releases_loading") {
-                LazyRow(contentPadding = PaddingValues(horizontal = 8.dp)) {
-                    items(3, key = { "release_loading_$it" }) {
-                        TextPlaceholder(
-                            height = 152.dp,
-                            modifier = Modifier.width(152.dp).padding(horizontal = 4.dp),
-                        )
+                ShimmerHost {
+                    Row(Modifier.padding(horizontal = 8.dp)) {
+                        repeat(3) { GridItemPlaceHolder() }
                     }
                 }
             }

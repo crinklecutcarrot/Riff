@@ -715,12 +715,14 @@ class MainActivity : ComponentActivity() {
                     }
 
                 val selectedNavigationRoute =
-                    remember(currentRoute, previousTab, navigationItemRoutes) {
+                    remember(currentRoute, navigationItemRoutes) {
                         when {
                             currentRoute?.startsWith("search/") == true || currentRoute == Screens.Search.route -> Screens.Explore.route
                             currentRoute in navigationItemRoutes -> currentRoute
-                            previousTab in navigationItemRoutes -> previousTab
-                            else -> Screens.Home.route
+                            // Content screens (artist/album/etc., e.g. opened from the player) are not
+                            // a tab — highlight nothing, and let tapping a tab navigate there instead
+                            // of being treated as "already selected".
+                            else -> ""
                         }
                     }
 
