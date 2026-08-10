@@ -25,6 +25,14 @@
         <intent>
             <action android:name="android.media.action.DISPLAY_AUDIO_EFFECT_CONTROL_PANEL" />
         </intent>
+        <!-- So we can detect and open the SystemUI media output switcher (and the Settings
+             media-output panel as a fallback) under Android 11+ package visibility. -->
+        <intent>
+            <action android:name="com.android.systemui.action.LAUNCH_MEDIA_OUTPUT_DIALOG" />
+        </intent>
+        <intent>
+            <action android:name="com.android.settings.panel.action.MEDIA_OUTPUT" />
+        </intent>
         <package android:name="com.google.android.projection.gearhead" />
     </queries>
     <application

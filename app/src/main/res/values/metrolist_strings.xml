@@ -1022,6 +1022,8 @@
     <string name="riff_about_track">About this track</string>
     <string name="riff_artist_context">From the artist</string>
     <string name="riff_queue_list">Queue List</string>
+    <string name="riff_playing_on_phone">Playing on Phone</string>
+    <string name="riff_playing_on_device">Playing on %1$s</string>
     <string name="riff_like">Like</string>
     <string name="riff_dislike">Dislike</string>
     <string name="riff_artists">Artists</string>

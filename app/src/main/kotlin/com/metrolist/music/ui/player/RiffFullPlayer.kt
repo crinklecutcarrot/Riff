@@ -2,8 +2,10 @@ package com.metrolist.music.ui.player
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -42,6 +44,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -87,6 +90,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.Velocity
@@ -109,7 +113,6 @@ import com.metrolist.music.R
 import com.metrolist.music.constants.SliderStyle
 import com.metrolist.music.constants.SliderStyleKey
 import com.metrolist.music.constants.SquigglySliderKey
-import com.metrolist.music.constants.VarispeedKey
 import com.metrolist.music.constants.RiffArtworkCardKey
 import com.metrolist.music.models.SongRating
 import com.metrolist.music.models.MediaMetadata
@@ -120,8 +123,6 @@ import com.metrolist.music.ui.component.PlayerSliderTrack
 import com.metrolist.music.ui.component.SquigglySlider
 import com.metrolist.music.ui.component.WavySlider
 import com.metrolist.music.ui.menu.PlayerMenu
-import com.metrolist.music.ui.menu.SpeedDialog
-import com.metrolist.music.ui.menu.TempoPitchDialog
 import com.metrolist.music.ui.theme.RiffAccent
 import com.metrolist.music.ui.theme.RiffSubtextWeight
 import com.metrolist.music.ui.utils.ShowMediaInfo
@@ -182,13 +183,11 @@ fun RiffFullPlayer(
     var pendingSeek by remember { mutableStateOf<Long?>(null) }
     var seekReleaseJob by remember { mutableStateOf<Job?>(null) }
     val seekScope = rememberCoroutineScope()
-    var showAdvanced by remember { mutableStateOf(false) }
     var mediaInfo by remember { mutableStateOf<MediaInfo?>(null) }
     var selectedArtistIndex by rememberSaveable(metadata?.id) { mutableStateOf(0) }
     var artistPages by remember(metadata?.id) { mutableStateOf<Map<String, ArtistPage>>(emptyMap()) }
     var albumBaseColor by remember { mutableStateOf(Color(0xFF182020)) }
     var albumAccentColor by remember { mutableStateOf(RiffAccent) }
-    val varispeedMode by rememberPreference(VarispeedKey, false)
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val stageHeight = screenHeight - 48.dp
@@ -266,14 +265,6 @@ fun RiffFullPlayer(
                 },
             )
         }
-    if (showAdvanced) {
-        if (varispeedMode) {
-            SpeedDialog(onDismiss = { showAdvanced = false })
-        } else {
-            TempoPitchDialog(onDismiss = { showAdvanced = false })
-        }
-    }
-
     LaunchedEffect(metadata?.id) {
         mediaInfo = metadata?.id?.let { YouTube.getMediaInfo(it).getOrNull() }
     }
@@ -460,7 +451,6 @@ fun RiffFullPlayer(
                             }
                     },
                     onOpenQueue = { queueState.expandSoft() },
-                    onOpenAdvanced = { showAdvanced = true },
                 )
             }
 
@@ -685,7 +675,6 @@ private fun RiffHighlightStage(
     onNext: () -> Unit,
     onRepeat: () -> Unit,
     onOpenQueue: () -> Unit,
-    onOpenAdvanced: () -> Unit,
 ) {
     val cardSize = (screenWidth - 44.dp).coerceAtMost(430.dp)
     val lyricsTop = 124.dp
@@ -841,7 +830,10 @@ private fun RiffHighlightStage(
             title = title,
             artists = artists,
             thumbnailUrl = artworkUrl,
-            showThumbnail = !artworkCard,
+            // Show the small cover next to the title whenever the big artwork isn't on screen:
+            // when it's been zoomed full-bleed (!artworkCard) OR when the lyrics tab has taken its
+            // place. Reuses the same width/alpha morph animation for the lyrics transition.
+            showThumbnail = !artworkCard || selectedTab == RiffPlayerTab.LYRICS,
             rating = rating,
             onArtistClick = onArtistClick,
             onAlbumClick = onAlbumClick,
@@ -882,13 +874,14 @@ private fun RiffHighlightStage(
                     .fillMaxWidth()
                     .padding(horizontal = 22.dp)
                     .padding(bottom = 42.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            RiffPillButton(
-                icon = R.drawable.tabler_ic_adjustments_outline,
-                label = stringResource(R.string.advanced),
-                onClick = onOpenAdvanced,
-            )
+            // Left pill: where audio is playing. Flexes into the remaining space and ellipsizes so it
+            // never collides with the queue pill, which stays pinned to the right.
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
+                RiffOutputPill()
+            }
+            Spacer(Modifier.width(12.dp))
             RiffPillButton(
                 icon = R.drawable.tabler_ic_list_outline,
                 label = stringResource(R.string.riff_queue_list),
@@ -1490,6 +1483,152 @@ private fun RiffPillButton(icon: Int, label: String, onClick: () -> Unit) {
     ) {
         Icon(painterResource(icon), null, tint = Color.White, modifier = Modifier.size(17.dp))
         Text(label, color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+    }
+}
+
+/** Current audio output route. [external] is true when audio is routed off the built-in device. */
+private data class RiffAudioOutput(val name: String, val external: Boolean)
+
+private data class RiffOutputPillState(val label: String, val icon: Int)
+
+/**
+ * The left player pill: shows where audio is playing ("Playing on Phone" / "Playing on <device>").
+ * Tapping it opens the Android media-output switcher. When the route changes (e.g. earbuds connect)
+ * the icon + label swap with a springy slide-down: the old content drops out and the new drops in
+ * from the top.
+ */
+@Composable
+private fun RiffOutputPill(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val output = rememberAudioOutput()
+    val deviceName = remember(output.name) {
+        if (output.name.length > 26) output.name.take(26).trimEnd() + "…" else output.name
+    }
+    val state =
+        RiffOutputPillState(
+            label =
+                if (output.external && deviceName.isNotBlank()) {
+                    stringResource(R.string.riff_playing_on_device, deviceName)
+                } else {
+                    stringResource(R.string.riff_playing_on_phone)
+                },
+            icon =
+                if (output.external) R.drawable.tabler_ic_device_airpods_outline
+                else R.drawable.tabler_ic_device_mobile_outline,
+        )
+    Row(
+        modifier =
+            modifier
+                .height(44.dp)
+                .clip(RoundedCornerShape(24.dp))
+                .background(Color.White.copy(alpha = 0.11f))
+                .clickable { openOutputSwitcher(context) }
+                .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        AnimatedContent(
+            targetState = state,
+            transitionSpec = {
+                val slide =
+                    spring<IntOffset>(
+                        dampingRatio = 0.6f,
+                        stiffness = Spring.StiffnessMedium,
+                        visibilityThreshold = IntOffset(1, 1),
+                    )
+                (slideInVertically(slide) { -it } + fadeIn(tween(140))) togetherWith
+                    (slideOutVertically(slide) { it } + fadeOut(tween(140)))
+            },
+            label = "riffOutputPill",
+        ) { s ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Icon(
+                    painterResource(s.icon),
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(17.dp),
+                )
+                Text(
+                    s.label,
+                    color = Color.White,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Tracks the selected live-audio route via the framework MediaRouter and re-reads it whenever routes
+ * change, so the pill updates the moment a Bluetooth device connects or disconnects.
+ */
+@Composable
+private fun rememberAudioOutput(): RiffAudioOutput {
+    val context = LocalContext.current
+    val router = remember {
+        context.getSystemService(android.content.Context.MEDIA_ROUTER_SERVICE) as android.media.MediaRouter
+    }
+    var output by remember { mutableStateOf(readAudioOutput(router)) }
+    DisposableEffect(router) {
+        val callback =
+            object : android.media.MediaRouter.SimpleCallback() {
+                private fun refresh() { output = readAudioOutput(router) }
+                override fun onRouteSelected(r: android.media.MediaRouter, type: Int, info: android.media.MediaRouter.RouteInfo) = refresh()
+                override fun onRouteUnselected(r: android.media.MediaRouter, type: Int, info: android.media.MediaRouter.RouteInfo) = refresh()
+                override fun onRouteChanged(r: android.media.MediaRouter, info: android.media.MediaRouter.RouteInfo) = refresh()
+                override fun onRouteAdded(r: android.media.MediaRouter, info: android.media.MediaRouter.RouteInfo) = refresh()
+                override fun onRouteRemoved(r: android.media.MediaRouter, info: android.media.MediaRouter.RouteInfo) = refresh()
+            }
+        router.addCallback(android.media.MediaRouter.ROUTE_TYPE_LIVE_AUDIO, callback)
+        output = readAudioOutput(router)
+        onDispose { router.removeCallback(callback) }
+    }
+    return output
+}
+
+private fun readAudioOutput(router: android.media.MediaRouter): RiffAudioOutput {
+    val selected = router.getSelectedRoute(android.media.MediaRouter.ROUTE_TYPE_LIVE_AUDIO)
+    // The default live-audio route is the built-in output (phone speaker / wired). Anything else
+    // selected means audio has been routed to an external device such as Bluetooth earbuds.
+    val external = selected != null && selected != router.defaultRoute
+    return RiffAudioOutput(name = selected?.name?.toString().orEmpty(), external = external)
+}
+
+private fun openOutputSwitcher(context: android.content.Context) {
+    val pm = context.packageManager
+
+    // 1) Ask SystemUI to show its native Media Output dialog — the output switcher the user sees
+    //    from the volume panel. Its receiver is exported with no permission, so any app may
+    //    broadcast to it. (settingslib MediaOutputConstants: ACTION_LAUNCH_MEDIA_OUTPUT_DIALOG /
+    //    EXTRA_PACKAGE_NAME = "package_name".)
+    val dialog =
+        android.content.Intent("com.android.systemui.action.LAUNCH_MEDIA_OUTPUT_DIALOG")
+            .setPackage("com.android.systemui")
+            .putExtra("package_name", context.packageName)
+    if (pm.queryBroadcastReceivers(dialog, 0).isNotEmpty()) {
+        context.sendBroadcast(dialog)
+        return
+    }
+
+    // 2) Settings "Media output" panel where the SystemUI receiver isn't available.
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+        val panel =
+            android.content.Intent("com.android.settings.panel.action.MEDIA_OUTPUT")
+                .putExtra("com.android.settings.panel.extra.PACKAGE_NAME", context.packageName)
+        if (panel.resolveActivity(pm) != null) {
+            runCatching { context.startActivity(panel) }
+            return
+        }
+    }
+
+    // 3) Last resort: Bluetooth / connected-devices settings.
+    runCatching {
+        context.startActivity(android.content.Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS))
     }
 }
 
