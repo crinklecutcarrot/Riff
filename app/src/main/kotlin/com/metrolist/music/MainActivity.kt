@@ -173,6 +173,7 @@ import com.metrolist.music.ui.component.RiffPlayerDock
 import com.metrolist.music.ui.component.RiffDockNavigationHeight
 import com.metrolist.music.ui.component.RiffDockPlayerExpansionHeight
 import com.metrolist.music.ui.component.RiffDockPageSpacing
+import com.metrolist.music.ui.component.RiffFloatingDockBarTop
 import com.metrolist.music.ui.component.RiffStaticDockNavigationHeight
 import com.metrolist.music.ui.component.rememberBottomSheetState
 import com.metrolist.music.ui.component.shimmer.ShimmerTheme
@@ -785,6 +786,32 @@ class MainActivity : ComponentActivity() {
                             .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
                             .add(WindowInsets(top = AppBarHeight, bottom = bottom))
                     }
+
+                // Insets for bottom-anchored FABs. Unlike playerAwareWindowInsets (which reserves the
+                // full dock footprint plus page spacing so scroll content clears it), this reserves
+                // only up to the TOP of the visible bar/mini-player. A FAB adds its own fixed padding
+                // on top, giving a consistent gap regardless of static vs floating dock or mini-player.
+                val fabBottomBarInsets =
+                    remember(
+                        bottomInset,
+                        shouldShowNavigationBar,
+                        playerBottomSheetState.isDismissed,
+                        showRail,
+                        floatingPlayerDock,
+                    ) {
+                        var bottom = bottomInset
+                        if (shouldShowNavigationBar && !showRail) {
+                            bottom +=
+                                if (floatingPlayerDock) RiffFloatingDockBarTop
+                                else RiffStaticDockNavigationHeight
+                            if (!playerBottomSheetState.isDismissed) {
+                                bottom += RiffDockPlayerExpansionHeight
+                            }
+                        }
+                        windowsInsets
+                            .only(WindowInsetsSides.Horizontal)
+                            .add(WindowInsets(bottom = bottom))
+                    }
                 appBarScrollBehavior(
                     canScroll = {
                         !inSearchScreen &&
@@ -949,6 +976,7 @@ class MainActivity : ComponentActivity() {
                     LocalContentColor provides if (pureBlack) Color.White else contentColorFor(MaterialTheme.colorScheme.surface),
                     LocalPlayerConnection provides playerConnection,
                     LocalPlayerAwareWindowInsets provides playerAwareWindowInsets,
+                    LocalFabBottomBarInsets provides fabBottomBarInsets,
                     LocalDownloadUtil provides downloadUtil,
                     LocalShimmerTheme provides ShimmerTheme,
                     LocalSyncUtils provides syncUtils,
@@ -1109,7 +1137,13 @@ class MainActivity : ComponentActivity() {
                                             coroutineScope.launch {
                                                 topAppBarScrollBehavior.state.resetHeightOffset()
                                             }
-                                        } else {
+                                        } else if (!navController.popBackStack(screen.route, inclusive = false)) {
+                                            // Not already in the back stack (a genuine tab switch): switch tabs
+                                            // the multi-back-stack way, restoring that tab's saved state.
+                                            // If it IS in the stack (Home always is; an active tab is when a
+                                            // detail screen sits on top of it), popBackStack above already
+                                            // popped straight to its global page — so tapping a nav item always
+                                            // lands on the global page regardless of the current screen.
                                             navController.navigate(screen.route) {
                                                 popUpTo(navController.graph.startDestinationId) {
                                                     saveState = true
@@ -1192,7 +1226,13 @@ class MainActivity : ComponentActivity() {
                                             coroutineScope.launch {
                                                 topAppBarScrollBehavior.state.resetHeightOffset()
                                             }
-                                        } else {
+                                        } else if (!navController.popBackStack(screen.route, inclusive = false)) {
+                                            // Not already in the back stack (a genuine tab switch): switch tabs
+                                            // the multi-back-stack way, restoring that tab's saved state.
+                                            // If it IS in the stack (Home always is; an active tab is when a
+                                            // detail screen sits on top of it), popBackStack above already
+                                            // popped straight to its global page — so tapping a nav item always
+                                            // lands on the global page regardless of the current screen.
                                             navController.navigate(screen.route) {
                                                 popUpTo(navController.graph.startDestinationId) {
                                                     saveState = true
@@ -1529,6 +1569,7 @@ val LocalDatabase = staticCompositionLocalOf<MusicDatabase> { error("No database
 val LocalNavController = staticCompositionLocalOf<NavController> { error("No NavController provided") }
 val LocalPlayerConnection = staticCompositionLocalOf<PlayerConnection?> { error("No PlayerConnection provided") }
 val LocalPlayerAwareWindowInsets = compositionLocalOf<WindowInsets> { error("No WindowInsets provided") }
+val LocalFabBottomBarInsets = compositionLocalOf<WindowInsets> { error("No WindowInsets provided") }
 val LocalDownloadUtil = staticCompositionLocalOf<DownloadUtil> { error("No DownloadUtil provided") }
 val LocalSyncUtils = staticCompositionLocalOf<SyncUtils> { error("No SyncUtils provided") }
 val LocalListenTogetherManager = staticCompositionLocalOf<com.metrolist.music.listentogether.ListenTogetherManager?> { null }

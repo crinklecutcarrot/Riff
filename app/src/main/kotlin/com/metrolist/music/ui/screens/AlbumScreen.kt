@@ -7,6 +7,9 @@ package com.metrolist.music.ui.screens
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -32,6 +35,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
@@ -47,6 +51,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -198,7 +203,22 @@ fun AlbumScreen(
     val albumAdded = remoteAlbumSaved == true
     val primaryArtist = page.artists.firstOrNull()
 
+    val listState = rememberLazyListState()
+    // Mirrors the artist screen: once the hero has scrolled away, a compact bar with a back arrow
+    // and the album title slides in so you can always navigate back from anywhere on the page.
+    val compactHeaderVisible by remember {
+        derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 330 }
+    }
+    val playAlbum = {
+        if (!isListenTogetherGuest) {
+            playerConnection.service.getAutomix(playlistId)
+            playerConnection.playQueue(LocalAlbumRadio(page))
+        }
+    }
+
+    Box(Modifier.fillMaxSize()) {
     LazyColumn(
+        state = listState,
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         contentPadding = PaddingValues(bottom = bottomInset + 24.dp),
     ) {
@@ -225,12 +245,7 @@ fun AlbumScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Surface(
-                    onClick = {
-                        if (!isListenTogetherGuest) {
-                            playerConnection.service.getAutomix(playlistId)
-                            playerConnection.playQueue(LocalAlbumRadio(page))
-                        }
-                    },
+                    onClick = playAlbum,
                     modifier = Modifier.weight(1f).height(52.dp),
                     shape = RoundedCornerShape(26.dp),
                     color = controls.accent,
@@ -351,6 +366,40 @@ fun AlbumScreen(
         }
     }
 
+    AnimatedVisibility(
+        visible = compactHeaderVisible && !inSelectMode,
+        enter = fadeIn(),
+        exit = fadeOut(),
+        modifier = Modifier.align(Alignment.TopCenter),
+    ) {
+        Surface(color = MaterialTheme.colorScheme.surface.copy(alpha = .96f), shadowElevation = 8.dp) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .windowInsetsPadding(WindowInsets.statusBars)
+                    .padding(start = 12.dp, end = 12.dp, top = 6.dp, bottom = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IconButton(onClick = { navController.navigateUp() }) {
+                    Icon(painterResource(R.drawable.tabler_ic_arrow_left_outline), null)
+                }
+                Text(
+                    page.album.title,
+                    Modifier.weight(1f),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                if (releaseTimestampMs == null) {
+                    IconButton(onClick = playAlbum) {
+                        Icon(painterResource(R.drawable.tabler_ic_player_play_filled), stringResource(R.string.play))
+                    }
+                }
+            }
+        }
+    }
+
     if (inSelectMode) {
         TopAppBar(
             title = { Text(pluralStringResource(R.plurals.n_selected, selection.size, selection.size)) },
@@ -379,6 +428,7 @@ fun AlbumScreen(
                 ) { Icon(painterResource(R.drawable.tabler_ic_dots_vertical_outline), null) }
             },
         )
+    }
     }
 }
 

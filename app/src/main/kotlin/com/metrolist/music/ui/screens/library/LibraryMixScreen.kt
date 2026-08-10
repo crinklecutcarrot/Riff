@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.metrolist.music.LocalFabBottomBarInsets
 import com.metrolist.music.LocalPlayerAwareWindowInsets
 import com.metrolist.music.LocalPlayerConnection
 import com.metrolist.music.R
@@ -1071,10 +1072,10 @@ fun LibraryMixScreen(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .windowInsetsPadding(
-                    LocalPlayerAwareWindowInsets.current
+                    LocalFabBottomBarInsets.current
                         .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal)
                 )
-                .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 0.dp)
+                .padding(16.dp)
         ) {
             Icon(
                 painter = painterResource(R.drawable.tabler_ic_plus_outline),

@@ -82,6 +82,18 @@ val RiffStaticDockNavigationHeight = 84.dp
 val RiffDockPlayerExpansionHeight = 81.dp
 val RiffDockPageSpacing = 24.dp
 
+/** Vertical margin the floating dock reserves above/below its visible pill. */
+val RiffDockFloatingVerticalMargin = 8.dp
+
+/**
+ * Distance from the system navigation-bar inset up to the TOP of the visible bottom-bar pill/bar
+ * (nav only, no mini-player). Static docks are flush, so their bar top is just their own height;
+ * floating docks sit [RiffDockFloatingVerticalMargin] above the anchor, so the visible pill top is
+ * that much below the reserved [RiffDockNavigationHeight]. Used to place FABs a consistent gap above
+ * the bar regardless of dock style.
+ */
+val RiffFloatingDockBarTop = RiffDockNavigationHeight - RiffDockFloatingVerticalMargin
+
 private const val RIFF_DOCK_ANIMATION_MILLIS = 420
 
 @Composable
@@ -176,7 +188,7 @@ fun RiffPlayerDock(
             .then(if (floating) Modifier else Modifier.background(staticDockColor))
             .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom))
             .then(
-                if (floating) Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                if (floating) Modifier.padding(horizontal = 12.dp, vertical = RiffDockFloatingVerticalMargin)
                 else Modifier,
             ),
     ) {

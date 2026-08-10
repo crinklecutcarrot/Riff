@@ -518,7 +518,6 @@ fun LibrarySongsScreen(
             icon = if (filter == SongFilter.UPLOADED) R.drawable.tabler_ic_upload_outline else R.drawable.tabler_ic_arrows_shuffle_outline,
             containerColor = MaterialTheme.colorScheme.onBackground,
             contentColor = MaterialTheme.colorScheme.background,
-            bottomPadding = 0.dp,
             onClick = {
                 if (filter == SongFilter.UPLOADED) {
                     filePickerLauncher.launch(

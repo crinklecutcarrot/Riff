@@ -54,6 +54,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.metrolist.innertube.utils.parseCookieString
+import com.metrolist.music.LocalFabBottomBarInsets
 import com.metrolist.music.LocalPlayerAwareWindowInsets
 import com.metrolist.music.R
 import com.metrolist.music.constants.CONTENT_TYPE_HEADER
@@ -548,10 +549,10 @@ fun LibraryPlaylistsScreen(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .windowInsetsPadding(
-                    LocalPlayerAwareWindowInsets.current
+                    LocalFabBottomBarInsets.current
                         .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal)
                 )
-                .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 0.dp)
+                .padding(16.dp)
         ) {
             Icon(
                 painter = painterResource(R.drawable.tabler_ic_plus_outline),

@@ -451,7 +451,6 @@ fun LibraryPodcastsScreen(
                     icon = R.drawable.tabler_ic_arrows_shuffle_outline,
                     containerColor = MaterialTheme.colorScheme.onBackground,
                     contentColor = MaterialTheme.colorScheme.background,
-                    bottomPadding = 0.dp,
                     onClick = {
                         playerConnection.playQueue(
                             ListQueue(
