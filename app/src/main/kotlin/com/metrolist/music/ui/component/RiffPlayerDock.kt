@@ -3,7 +3,10 @@ package com.metrolist.music.ui.component
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -12,6 +15,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +23,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
@@ -36,20 +42,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -59,6 +71,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.C
 import androidx.media3.common.Player
 import androidx.palette.graphics.Palette
 import coil3.compose.AsyncImage
@@ -67,6 +80,8 @@ import coil3.request.ImageRequest
 import coil3.request.allowHardware
 import coil3.toBitmap
 import com.metrolist.music.R
+import com.metrolist.music.extensions.metadata
+import com.metrolist.music.models.MediaMetadata
 import com.metrolist.music.playback.PlayerConnection
 import com.metrolist.music.ui.screens.Screens
 import com.metrolist.music.ui.theme.RiffDockEmpty
@@ -75,6 +90,7 @@ import com.metrolist.music.ui.theme.RiffGeneralSans
 import com.metrolist.music.ui.theme.RiffSubtextWeight
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 /** Dock content heights, excluding the system navigation-bar inset. */
 val RiffDockNavigationHeight = 100.dp
@@ -112,7 +128,26 @@ fun RiffPlayerDock(
         ?: remember { mutableStateOf(false) }
     val canSkipNext by playerConnection?.canSkipNext?.collectAsStateWithLifecycle()
         ?: remember { mutableStateOf(false) }
+    val canSkipPrevious by playerConnection?.canSkipPrevious?.collectAsStateWithLifecycle()
+        ?: remember { mutableStateOf(false) }
     val hasActiveMedia = metadata != null
+
+    // Adjacent tracks so the mini-player swipe can preview the song coming in. Recomputed when the
+    // current song or the skip availability changes (covers queue edits / repeat-mode toggles).
+    val prevMetadata = remember(metadata?.id, canSkipPrevious) {
+        runCatching {
+            playerConnection?.player?.let { p ->
+                p.previousMediaItemIndex.takeIf { it != C.INDEX_UNSET }?.let { p.getMediaItemAt(it).metadata }
+            }
+        }.getOrNull()
+    }
+    val nextMetadata = remember(metadata?.id, canSkipNext) {
+        runCatching {
+            playerConnection?.player?.let { p ->
+                p.nextMediaItemIndex.takeIf { it != C.INDEX_UNSET }?.let { p.getMediaItemAt(it).metadata }
+            }
+        }.getOrNull()
+    }
     val context = LocalContext.current
     var extractedColor by remember { mutableStateOf(RiffDockFallback) }
     var progress by remember { mutableFloatStateOf(0f) }
@@ -241,44 +276,15 @@ fun RiffPlayerDock(
                                 .clickable(onClick = onPlayerClick)
                                 .padding(start = 13.dp, top = 13.dp, end = 10.dp, bottom = 13.dp),
                         ) {
-                            AsyncImage(
-                                model = metadata?.thumbnailUrl,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .size(52.dp)
-                                    .clip(RoundedCornerShape(8.dp)),
+                            RiffDockMediaCarousel(
+                                metadata = metadata,
+                                prevMetadata = prevMetadata,
+                                nextMetadata = nextMetadata,
+                                contentColor = contentColor,
+                                onPrevious = { runCatching { playerConnection?.player?.seekToPreviousMediaItem() } },
+                                onNext = { runCatching { playerConnection?.player?.seekToNextMediaItem() } },
+                                modifier = Modifier.weight(1f).fillMaxHeight(),
                             )
-                            Column(
-                                verticalArrangement = Arrangement.Center,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(horizontal = 14.dp),
-                            ) {
-                                Text(
-                                    text = metadata?.title.orEmpty(),
-                                    color = contentColor,
-                                    fontFamily = RiffGeneralSans,
-                                    fontSize = 17.sp,
-                                    letterSpacing = (-0.01).em,
-                                    lineHeight = 17.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                                Spacer(Modifier.height(4.dp))
-                                Text(
-                                    text = metadata?.artists?.joinToString(separator = ", ") { it.name }.orEmpty(),
-                                    color = contentColor.copy(alpha = 0.66f),
-                                    fontFamily = RiffGeneralSans,
-                                    fontSize = 13.sp,
-                                    letterSpacing = (-0.01).em,
-                                    lineHeight = 13.sp,
-                                    fontWeight = RiffSubtextWeight,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                            }
                             Box(
                                 contentAlignment = Alignment.Center,
                                 modifier = Modifier
@@ -392,6 +398,140 @@ fun RiffPlayerDock(
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * The swipeable song-info region of the dock mini-player (artwork + title + artist). Dragging
+ * horizontally previews the previous/next track sliding in alongside the current one fading out;
+ * the song only changes when the finger lifts past the threshold, after which the committed track
+ * settles into the center. A plain tap falls through to the parent row (expands the full player).
+ */
+@Composable
+private fun RiffDockMediaCarousel(
+    metadata: MediaMetadata?,
+    prevMetadata: MediaMetadata?,
+    nextMetadata: MediaMetadata?,
+    contentColor: Color,
+    onPrevious: () -> Unit,
+    onNext: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val scope = rememberCoroutineScope()
+    val offsetX = remember { Animatable(0f) }
+    var widthPx by remember { mutableIntStateOf(0) }
+    // Require a genuinely different neighbour: with repeat-one the "next" index is the current track,
+    // and committing to it wouldn't change the song id (leaving the carousel stuck off-center).
+    val hasNext = nextMetadata != null && nextMetadata.id != metadata?.id
+    val hasPrev = prevMetadata != null && prevMetadata.id != metadata?.id
+
+    // Re-center whenever the current song changes — whether from a swipe commit above, the track
+    // ending naturally, or the next/prev buttons. The committed track was already animated into the
+    // center card, so snapping the offset back to 0 here is seamless (same song, same position).
+    LaunchedEffect(metadata?.id) {
+        offsetX.snapTo(0f)
+    }
+
+    val settleSpec = remember { spring<Float>(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow) }
+
+    Box(
+        modifier = modifier
+            .clipToBounds()
+            .onSizeChanged { widthPx = it.width }
+            .pointerInput(hasNext, hasPrev, widthPx) {
+                val w = widthPx.toFloat()
+                if (w <= 0f) return@pointerInput
+                detectHorizontalDragGestures(
+                    onDragEnd = {
+                        val current = offsetX.value
+                        val threshold = w * 0.3f
+                        when {
+                            current <= -threshold && hasNext ->
+                                scope.launch { offsetX.animateTo(-w, tween(220)); onNext() }
+                            current >= threshold && hasPrev ->
+                                scope.launch { offsetX.animateTo(w, tween(220)); onPrevious() }
+                            else -> scope.launch { offsetX.animateTo(0f, settleSpec) }
+                        }
+                    },
+                    onDragCancel = { scope.launch { offsetX.animateTo(0f, settleSpec) } },
+                    onHorizontalDrag = { change, dragAmount ->
+                        change.consume()
+                        val min = if (hasNext) -w else 0f
+                        val max = if (hasPrev) w else 0f
+                        scope.launch { offsetX.snapTo((offsetX.value + dragAmount).coerceIn(min, max)) }
+                    },
+                )
+            },
+    ) {
+        if (widthPx > 0) {
+            val w = widthPx.toFloat()
+            prevMetadata?.let {
+                RiffDockTrackInfo(it, contentColor, Modifier.fillMaxSize().graphicsLayer {
+                    translationX = offsetX.value - w
+                    alpha = (1f - kotlin.math.abs(offsetX.value - w) / w).coerceIn(0f, 1f)
+                })
+            }
+            nextMetadata?.let {
+                RiffDockTrackInfo(it, contentColor, Modifier.fillMaxSize().graphicsLayer {
+                    translationX = offsetX.value + w
+                    alpha = (1f - kotlin.math.abs(offsetX.value + w) / w).coerceIn(0f, 1f)
+                })
+            }
+            RiffDockTrackInfo(metadata, contentColor, Modifier.fillMaxSize().graphicsLayer {
+                translationX = offsetX.value
+                alpha = (1f - kotlin.math.abs(offsetX.value) / w).coerceIn(0f, 1f)
+            })
+        } else {
+            RiffDockTrackInfo(metadata, contentColor, Modifier.fillMaxSize())
+        }
+    }
+}
+
+@Composable
+private fun RiffDockTrackInfo(
+    metadata: MediaMetadata?,
+    contentColor: Color,
+    modifier: Modifier = Modifier,
+) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
+        AsyncImage(
+            model = metadata?.thumbnailUrl,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(52.dp)
+                .clip(RoundedCornerShape(8.dp)),
+        )
+        Column(
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 14.dp),
+        ) {
+            Text(
+                text = metadata?.title.orEmpty(),
+                color = contentColor,
+                fontFamily = RiffGeneralSans,
+                fontSize = 17.sp,
+                letterSpacing = (-0.01).em,
+                lineHeight = 17.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = metadata?.artists?.joinToString(separator = ", ") { it.name }.orEmpty(),
+                color = contentColor.copy(alpha = 0.66f),
+                fontFamily = RiffGeneralSans,
+                fontSize = 13.sp,
+                letterSpacing = (-0.01).em,
+                lineHeight = 13.sp,
+                fontWeight = RiffSubtextWeight,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
     }
 }

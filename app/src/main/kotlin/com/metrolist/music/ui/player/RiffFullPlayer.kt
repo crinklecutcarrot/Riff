@@ -2,6 +2,7 @@ package com.metrolist.music.ui.player
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -18,6 +19,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -114,6 +116,7 @@ import com.metrolist.music.constants.SliderStyle
 import com.metrolist.music.constants.SliderStyleKey
 import com.metrolist.music.constants.SquigglySliderKey
 import com.metrolist.music.constants.RiffArtworkCardKey
+import com.metrolist.music.extensions.metadata
 import com.metrolist.music.models.SongRating
 import com.metrolist.music.models.MediaMetadata
 import com.metrolist.music.ui.component.BottomSheetState
@@ -172,6 +175,30 @@ fun RiffFullPlayer(
     val canSkipNext by playerConnection.canSkipNext.collectAsStateWithLifecycle()
     val repeatMode by playerConnection.repeatMode.collectAsStateWithLifecycle()
     val shuffleEnabled by playerConnection.shuffleModeEnabled.collectAsStateWithLifecycle()
+
+    // Adjacent artwork so the album-cover swipe can preview the song coming in. Null when there's no
+    // distinct neighbour (also excludes the repeat-one case where "next" is the current track).
+    val prevArtworkUrl = remember(metadata?.id, canSkipPrevious) {
+        runCatching {
+            playerConnection.player.let { p ->
+                p.previousMediaItemIndex.takeIf { it != C.INDEX_UNSET }
+                    ?.let { p.getMediaItemAt(it).metadata }
+                    ?.takeIf { it.id != metadata?.id }
+                    ?.thumbnailUrl
+            }
+        }.getOrNull()
+    }
+    val nextArtworkUrl = remember(metadata?.id, canSkipNext) {
+        runCatching {
+            playerConnection.player.let { p ->
+                p.nextMediaItemIndex.takeIf { it != C.INDEX_UNSET }
+                    ?.let { p.getMediaItemAt(it).metadata }
+                    ?.takeIf { it.id != metadata?.id }
+                    ?.thumbnailUrl
+            }
+        }.getOrNull()
+    }
+
     val menuState = LocalMenuState.current
     val pageState = LocalBottomSheetPageState.current
     val context = LocalContext.current
@@ -405,6 +432,10 @@ fun RiffFullPlayer(
                         }
                     },
                     onToggleArtwork = { artworkCard = !artworkCard },
+                    prevArtworkUrl = prevArtworkUrl,
+                    nextArtworkUrl = nextArtworkUrl,
+                    onSwipeToPrevious = { runCatching { playerConnection.player.seekToPreviousMediaItem() } },
+                    onSwipeToNext = { runCatching { playerConnection.player.seekToNextMediaItem() } },
                     onArtistClick = { id ->
                         id?.let {
                             navController.navigate("artist/$id")
@@ -663,6 +694,10 @@ private fun RiffHighlightStage(
     onCollapse: () -> Unit,
     onMore: () -> Unit,
     onToggleArtwork: () -> Unit,
+    prevArtworkUrl: String?,
+    nextArtworkUrl: String?,
+    onSwipeToPrevious: () -> Unit,
+    onSwipeToNext: () -> Unit,
     onArtistClick: (String?) -> Unit,
     onAlbumClick: () -> Unit,
     onLike: () -> Unit,
@@ -710,6 +745,19 @@ private fun RiffHighlightStage(
         label = "riffZoomScrimAlpha",
     )
 
+    // Album-cover swipe carousel state. Neighbours travel a full screen-width so they rest fully
+    // off-screen; the current cover fades/slides out while the incoming one fades/slides in, and the
+    // song only commits on release (then re-centers when the track id actually changes).
+    val artworkTravelPx = with(LocalDensity.current) { screenWidth.toPx() }
+    val artworkSwipeScope = rememberCoroutineScope()
+    val artworkOffsetX = remember { Animatable(0f) }
+    val artworkSettleSpec = remember { spring<Float>(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow) }
+    val hasPrevArtwork = prevArtworkUrl != null
+    val hasNextArtwork = nextArtworkUrl != null
+    LaunchedEffect(mediaMetadata?.id) {
+        artworkOffsetX.snapTo(0f)
+    }
+
     Box(
         modifier =
             Modifier
@@ -733,44 +781,66 @@ private fun RiffHighlightStage(
             when (tab) {
                 RiffPlayerTab.HIGHLIGHT -> {
                     Box(Modifier.fillMaxSize()) {
-                        Box(
-                            modifier =
-                                Modifier
-                                    .offset(x = artworkLeft, y = artworkTop)
-                                    .width(artworkWidth)
-                                    .height(artworkHeight)
-                                    .clip(RoundedCornerShape(artworkRadius))
-                                    .graphicsLayer {
-                                        compositingStrategy = CompositingStrategy.Offscreen
-                                    }
-                                    .drawWithContent {
-                                        drawContent()
-                                        drawRect(
-                                            brush =
-                                                Brush.verticalGradient(
-                                                    0f to Color.Black,
-                                                    0.54f to Color.Black,
-                                                    0.78f to Color.Black.copy(alpha = 1f - (0.3f * zoomScrimAlpha)),
-                                                    0.94f to Color.Black.copy(alpha = 1f - zoomScrimAlpha),
-                                                    1f to Color.Black.copy(alpha = 1f - zoomScrimAlpha),
-                                                ),
-                                            blendMode = BlendMode.DstIn,
-                                        )
-                                    },
-                        ) {
-                            AsyncImage(
-                                model = artworkUrl,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize(),
+                        val w = artworkTravelPx
+                        // Previous / next covers, then the current on top, all sharing the zoom
+                        // geometry and shifted by the live drag offset.
+                        if (prevArtworkUrl != null) {
+                            RiffHighlightArtworkLayer(
+                                artworkUrl = prevArtworkUrl,
+                                left = artworkLeft, top = artworkTop,
+                                width = artworkWidth, height = artworkHeight, radius = artworkRadius,
+                                zoomScrimAlpha = zoomScrimAlpha,
+                                translationX = { artworkOffsetX.value - w },
+                                layerAlpha = { (1f - kotlin.math.abs(artworkOffsetX.value - w) / w).coerceIn(0f, 1f) },
                             )
                         }
+                        if (nextArtworkUrl != null) {
+                            RiffHighlightArtworkLayer(
+                                artworkUrl = nextArtworkUrl,
+                                left = artworkLeft, top = artworkTop,
+                                width = artworkWidth, height = artworkHeight, radius = artworkRadius,
+                                zoomScrimAlpha = zoomScrimAlpha,
+                                translationX = { artworkOffsetX.value + w },
+                                layerAlpha = { (1f - kotlin.math.abs(artworkOffsetX.value + w) / w).coerceIn(0f, 1f) },
+                            )
+                        }
+                        RiffHighlightArtworkLayer(
+                            artworkUrl = artworkUrl,
+                            left = artworkLeft, top = artworkTop,
+                            width = artworkWidth, height = artworkHeight, radius = artworkRadius,
+                            zoomScrimAlpha = zoomScrimAlpha,
+                            translationX = { artworkOffsetX.value },
+                            layerAlpha = { (1f - kotlin.math.abs(artworkOffsetX.value) / w).coerceIn(0f, 1f) },
+                        )
                         Box(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
                                     .height(screenHeight - 342.dp)
-                                    .clickable(onClick = onToggleArtwork),
+                                    .clickable(onClick = onToggleArtwork)
+                                    .pointerInput(hasNextArtwork, hasPrevArtwork, w) {
+                                        if (w <= 0f) return@pointerInput
+                                        detectHorizontalDragGestures(
+                                            onDragEnd = {
+                                                val current = artworkOffsetX.value
+                                                val threshold = w * 0.3f
+                                                when {
+                                                    current <= -threshold && hasNextArtwork ->
+                                                        artworkSwipeScope.launch { artworkOffsetX.animateTo(-w, tween(240)); onSwipeToNext() }
+                                                    current >= threshold && hasPrevArtwork ->
+                                                        artworkSwipeScope.launch { artworkOffsetX.animateTo(w, tween(240)); onSwipeToPrevious() }
+                                                    else -> artworkSwipeScope.launch { artworkOffsetX.animateTo(0f, artworkSettleSpec) }
+                                                }
+                                            },
+                                            onDragCancel = { artworkSwipeScope.launch { artworkOffsetX.animateTo(0f, artworkSettleSpec) } },
+                                            onHorizontalDrag = { change, dragAmount ->
+                                                change.consume()
+                                                val min = if (hasNextArtwork) -w else 0f
+                                                val max = if (hasPrevArtwork) w else 0f
+                                                artworkSwipeScope.launch { artworkOffsetX.snapTo((artworkOffsetX.value + dragAmount).coerceIn(min, max)) }
+                                            },
+                                        )
+                                    },
                         )
                         Box(
                             Modifier
@@ -888,6 +958,61 @@ private fun RiffHighlightStage(
                 onClick = onOpenQueue,
             )
         }
+    }
+}
+
+/**
+ * One album-cover layer of the HIGHLIGHT swipe carousel. Shares the zoom geometry (offset/size/
+ * radius) and the full-bleed fade mask with its siblings; [translationX]/[layerAlpha] are read in
+ * the draw phase so the drag animates without recomposing.
+ */
+@Composable
+private fun RiffHighlightArtworkLayer(
+    artworkUrl: String?,
+    left: androidx.compose.ui.unit.Dp,
+    top: androidx.compose.ui.unit.Dp,
+    width: androidx.compose.ui.unit.Dp,
+    height: androidx.compose.ui.unit.Dp,
+    radius: androidx.compose.ui.unit.Dp,
+    zoomScrimAlpha: Float,
+    translationX: () -> Float,
+    layerAlpha: () -> Float,
+) {
+    Box(
+        modifier =
+            Modifier
+                .offset(x = left, y = top)
+                .width(width)
+                .height(height)
+                .graphicsLayer {
+                    this.translationX = translationX()
+                    this.alpha = layerAlpha()
+                }
+                .clip(RoundedCornerShape(radius))
+                .graphicsLayer {
+                    compositingStrategy = CompositingStrategy.Offscreen
+                }
+                .drawWithContent {
+                    drawContent()
+                    drawRect(
+                        brush =
+                            Brush.verticalGradient(
+                                0f to Color.Black,
+                                0.54f to Color.Black,
+                                0.78f to Color.Black.copy(alpha = 1f - (0.3f * zoomScrimAlpha)),
+                                0.94f to Color.Black.copy(alpha = 1f - zoomScrimAlpha),
+                                1f to Color.Black.copy(alpha = 1f - zoomScrimAlpha),
+                            ),
+                        blendMode = BlendMode.DstIn,
+                    )
+                },
+    ) {
+        AsyncImage(
+            model = artworkUrl,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }
 
